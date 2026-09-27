@@ -1,0 +1,8 @@
+.transicion-pagina {
+  position: fixed;
+  inset: 0;
+  background: var(--color-transicion);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 100;
+}

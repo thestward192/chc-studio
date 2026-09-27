@@ -1,0 +1,99 @@
+.texto-intro__titulo {
+  position: absolute;
+  inset: calc(var(--altura-header) * 0.6) var(--espacio-md) auto;
+  text-align: center;
+  color: var(--estudio-texto);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.texto-intro__marca {
+  margin: 0;
+  font-family: var(--fuente-titulos);
+  font-size: clamp(2.25rem, 6vw, var(--tamano-texto-xxl));
+  font-weight: var(--peso-texto-fuerte);
+  line-height: var(--interlineado-ajustado);
+  letter-spacing: -0.02em;
+}
+
+.texto-intro__eslogan {
+  margin: var(--espacio-xs) 0 0;
+  color: var(--estudio-texto-tenue);
+  font-size: clamp(1rem, 2vw, var(--tamano-texto-md));
+}
+
+.texto-intro__pista {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--espacio-lg);
+  margin: 0;
+  color: var(--estudio-texto-tenue);
+  font-size: var(--tamano-texto-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.texto-intro__palabra {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0; /* Anime.js la lleva a 1 en la entrada */
+}
+
+.texto-intro__info {
+  position: absolute;
+  left: max(var(--espacio-md), calc((100vw - var(--ancho-maximo-contenido)) / 2));
+  top: 50%;
+  margin-top: -7rem;
+  max-width: 24rem;
+  color: var(--estudio-texto);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.texto-intro__etiqueta {
+  margin: 0 0 var(--espacio-xs);
+  color: var(--estudio-texto-tenue);
+  font-size: var(--tamano-texto-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.texto-intro__descripcion {
+  margin: 0 0 var(--espacio-md);
+  font-size: var(--tamano-texto-md);
+  line-height: 1.35;
+}
+
+.texto-intro__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--estudio-texto-tenue);
+}
+
+.texto-intro__lista li {
+  padding: var(--espacio-2xs) 0;
+  border-top: var(--ancho-borde) solid color-mix(in srgb, var(--estudio-texto-tenue) 30%, transparent);
+}
+
+/* Móvil / vertical: la laptop queda centrada y el texto va abajo. */
+@media (max-aspect-ratio: 1/1) {
+  .texto-intro__info {
+    left: var(--espacio-md);
+    right: var(--espacio-md);
+    top: auto;
+    bottom: calc(var(--espacio-2xl) - var(--espacio-md));
+    margin-top: 0;
+    max-width: none;
+  }
+
+  .texto-intro__descripcion {
+    font-size: var(--tamano-texto-base);
+  }
+
+  /* Por encima del botón "Saltar intro" */
+  .texto-intro__pista {
+    bottom: calc(var(--espacio-lg) + 3.25rem);
+  }
+}

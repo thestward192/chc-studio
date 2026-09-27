@@ -1,0 +1,37 @@
+.pantalla-carga {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-sm);
+  background: var(--color-fondo);
+  color: var(--color-texto-tenue);
+  z-index: 40;
+}
+
+.pantalla-carga__giro {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radio-completo);
+  border: 2px solid var(--color-borde);
+  border-top-color: var(--color-acento);
+  animation: pantalla-carga-girar 0.8s linear infinite;
+}
+
+.pantalla-carga__texto {
+  font-size: var(--tamano-texto-sm);
+}
+
+@keyframes pantalla-carga-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pantalla-carga__giro {
+    animation: none;
+  }
+}

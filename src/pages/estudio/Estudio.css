@@ -1,0 +1,31 @@
+/* La página del estudio es la escena a pantalla completa. */
+html:has(.estudio__lienzo),
+body:has(.estudio__lienzo) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.estudio__lienzo {
+  position: fixed;
+  inset: 0;
+  background: var(--sala-pared-fondo);
+}
+
+.estudio__lienzo canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none; /* un dedo orbita, pellizco hace zoom (OrbitControls) */
+}
+
+.estudio__sin-webgl {
+  display: grid;
+  gap: var(--espacio-md);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--espacio-lg) var(--espacio-md);
+}
+
+.estudio__aviso {
+  margin: 0;
+  color: var(--color-texto-tenue);
+}

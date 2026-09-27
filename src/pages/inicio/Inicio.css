@@ -1,0 +1,30 @@
+.inicio-intro {
+  position: relative;
+}
+
+.inicio-intro__fijo {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  /* Tono del estudio mientras se descarga la escena (evita un destello). */
+  background: var(--estudio-borde);
+}
+
+.inicio-intro__fijo canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.inicio-aviso-webgl {
+  max-width: var(--ancho-maximo-contenido);
+  margin: 0 auto;
+  padding: var(--espacio-lg);
+  color: var(--color-texto-tenue);
+}
+
+.inicio-aviso-webgl img {
+  border-radius: var(--radio-lg);
+  margin-bottom: var(--espacio-sm);
+}

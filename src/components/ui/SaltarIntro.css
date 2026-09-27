@@ -1,0 +1,17 @@
+.saltar-intro {
+  position: fixed;
+  right: var(--espacio-md);
+  bottom: var(--espacio-md);
+  z-index: 30;
+  padding: var(--espacio-xs) var(--espacio-md);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  border: var(--ancho-borde) solid var(--color-borde);
+  border-radius: var(--radio-completo);
+  font-size: var(--tamano-texto-sm);
+  transition: background var(--duracion-ui) var(--easing-ui);
+}
+
+.saltar-intro:hover {
+  background: var(--color-superficie-alta);
+}

@@ -1,0 +1,207 @@
+/*
+ * TODO(marca): Todos los valores de este archivo son MARCADORES NEUTROS.
+ * Cuando llegue la identidad visual definitiva de ChcStudio, este es el
+ * ÚNICO archivo CSS que hay que tocar (junto con su espejo en theme.ts,
+ * usado dentro de Three.js) para cambiar todo el sitio.
+ */
+:root {
+  /* --- Color: escala neutra de marcador --- */
+  --color-fondo: #101114;
+  --color-fondo-alterno: #17181c;
+  --color-superficie: #1f2126;
+  --color-superficie-alta: #2a2d33;
+  --color-borde: #3a3d44;
+
+  --color-texto: #f2f2f0;
+  --color-texto-tenue: #a8abb3;
+  --color-texto-inverso: #101114;
+
+  --color-marca: #8a8f98;
+  --color-marca-fuerte: #c8cbd1;
+  --color-acento: #e4e4e0;
+
+  --color-exito: #7bb88f;
+  --color-aviso: #d8b568;
+  --color-error: #c97b6f;
+
+  /* Color usado para el fundido de transición entre páginas */
+  --color-transicion: var(--color-fondo);
+
+  /* --- Tipografía --- */
+  --fuente-base:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fuente-titulos: var(--fuente-base);
+  --fuente-mono: 'Consolas', 'SFMono-Regular', Menlo, monospace;
+
+  --tamano-texto-xs: 0.75rem;
+  --tamano-texto-sm: 0.875rem;
+  --tamano-texto-base: 1rem;
+  --tamano-texto-md: 1.25rem;
+  --tamano-texto-lg: 1.75rem;
+  --tamano-texto-xl: 2.5rem;
+  --tamano-texto-xxl: 3.75rem;
+
+  --peso-texto-normal: 400;
+  --peso-texto-medio: 500;
+  --peso-texto-fuerte: 700;
+
+  --interlineado-ajustado: 1.1;
+  --interlineado-base: 1.5;
+
+  /* --- Espaciados --- */
+  --espacio-2xs: 0.25rem;
+  --espacio-xs: 0.5rem;
+  --espacio-sm: 0.75rem;
+  --espacio-md: 1.25rem;
+  --espacio-lg: 2rem;
+  --espacio-xl: 3.5rem;
+  --espacio-2xl: 6rem;
+
+  /* --- Radios y bordes --- */
+  --radio-sm: 4px;
+  --radio-md: 10px;
+  --radio-lg: 20px;
+  --radio-completo: 999px;
+  --ancho-borde: 1px;
+
+  /* --- Sombras --- */
+  --sombra-suave: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --sombra-fuerte: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* --- Duraciones/animación --- */
+  --duracion-transicion-pagina: 600ms;
+  --duracion-ui: 220ms;
+  --easing-ui: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* --- Layout --- */
+  --ancho-maximo-contenido: 1180px;
+  --altura-header: 72px;
+
+  /* --- Intro 3D: estudio fotográfico (ciclorama) — modo oscuro --- */
+  --estudio-centro: #3a3d45; /* tono detrás de la laptop */
+  --estudio-borde: #0c0d10; /* tono hacia los bordes del ciclorama */
+  --estudio-apagado: #050607; /* "luces apagadas" antes de la entrada */
+  --estudio-luz: #f4f2ee; /* softboxes que se reflejan en el aluminio */
+  --estudio-sombra: #000000;
+  --estudio-texto: var(--color-texto);
+  --estudio-texto-tenue: var(--color-texto-tenue);
+
+  /* --- Intro 3D: laptop (gris espacial) --- */
+  --laptop-aluminio: #7c7f86;
+  --laptop-aluminio-canto: #c9ccd2; /* brillo fresnel en los cantos */
+  --laptop-bisagra: #3b3d42;
+  --laptop-tecla: #0c0c0e;
+  --laptop-vidrio: #040405;
+  --laptop-logo: #d5d7dc;
+  --laptop-luz-pantalla: #dbe6ff; /* luz que la pantalla proyecta al estudio */
+  --laptop-luz-ranura: #cfe0ff;
+}
+
+/* ------------------------------------------------------------------
+ * Estudio 3D (estudio.html): interfaz "cristal oscuro" y paleta de la sala.
+ * TODO(marca): valores iniciales, se cambiarán al definir la marca.
+ * Espejo en theme.ts (`ui` y `sala`) para usarlos dentro de Three.js.
+ * ------------------------------------------------------------------ */
+:root {
+  --ui-acento: #3d8bff;
+  --ui-acento-suave: #8cc2ff;
+  --ui-destacado: #ff8a2a;
+  --ui-cristal: rgba(16, 20, 28, 0.55);
+  --ui-cristal-denso: rgba(12, 15, 22, 0.82);
+  --ui-linea: rgba(140, 194, 255, 0.28);
+  --ui-texto: #eef3fb;
+  --ui-texto-tenue: rgba(238, 243, 251, 0.62);
+  --ui-desenfoque: 12px;
+  --ui-radio: 14px;
+  --ui-radio-grande: 20px;
+  --ui-sombra: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --ui-ease-entrada: cubic-bezier(0.2, 1.2, 0.4, 1);
+
+  --fuente-ui: 'Space Grotesk', var(--fuente-base);
+  --fuente-codigo: 'JetBrains Mono', var(--fuente-mono);
+  --fuente-manuscrita: 'Caveat', cursive;
+
+  /* Materiales de la sala */
+  --sala-pared: #d9d4cb;
+  --sala-pared-fondo: #2c3340;
+  --sala-techo: #efece6;
+  --sala-zocalo: #3a3430;
+  --sala-madera-clara: #b98a5e;
+  --sala-madera-oscura: #7a5236;
+  --sala-metal: #2b2f36;
+  --sala-metal-claro: #9aa1ab;
+  --sala-tela: #3e4a5c;
+  --sala-tela-alfombra: #8c5a4a;
+  --sala-tela-alfombra-2: #d8b98f;
+  --sala-ceramica: #f3efe8;
+  --sala-planta: #4f7a4a;
+  --sala-planta-oscura: #2f5230;
+  --sala-maceta: #c9724f;
+  --sala-pizarra: #f6f7f4;
+  --sala-tinta: #1f3b73;
+  --sala-tinta-2: #c2412d;
+  --sala-marco: #1b1e24;
+  --sala-rack: #15181d;
+  --sala-libros-1: #3d8bff;
+  --sala-libros-2: #ff8a2a;
+  --sala-libros-3: #2f5230;
+  --sala-libros-4: #c2412d;
+  --sala-libros-5: #e8d8b0;
+
+  /* Luces (día / noche) */
+  --sala-sol: #fff1dc;
+  --sala-luna: #9fb6ff;
+  --sala-cielo-luz: #cfe3ff;
+  --sala-suelo-luz: #6b5646;
+  --sala-rebote: #ffb46b;
+  --sala-lampara: #ffcf8a;
+  --sala-tinte-dia: #fff4e2;
+  --sala-tinte-noche: #b9c8ff;
+
+  /* Ventana: cielo, nubes y ciudad */
+  --sala-cielo-dia-arriba: #5b9be6;
+  --sala-cielo-dia-horizonte: #cfe4f7;
+  --sala-cielo-noche-arriba: #070b1c;
+  --sala-cielo-noche-horizonte: #26305a;
+  --sala-nubes: #ffffff;
+  --sala-edificios-dia: #7d8a9e;
+  --sala-edificios-noche: #0d1120;
+  --sala-ventanas-luz: #ffd27a;
+
+  /* Pantallas y LEDs */
+  --sala-pantalla-fondo: #0d1117;
+  --sala-codigo-1: #8cc2ff; /* palabras clave */
+  --sala-codigo-2: #ff8a2a; /* cadenas */
+  --sala-codigo-3: #7bd88f; /* funciones */
+  --sala-codigo-4: #6b7689; /* comentarios */
+  --sala-cursor: #eef3fb;
+  --sala-led-verde: #43f28a;
+  --sala-led-ambar: #ffb13d;
+  --sala-led-azul: #3d8bff;
+  --sala-neon: #ff5fa2;
+}
+
+/* Modo claro del estudio 3D: sigue al sistema salvo que se fuerce con
+   data-tema="oscuro"; también se puede forzar con data-tema="claro".
+   (Solo afecta a la intro: el resto del sitio mantiene su paleta.) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema='oscuro']) {
+    --estudio-centro: #f1f0ed;
+    --estudio-borde: #b4b7be;
+    --estudio-apagado: #1b1c20;
+    --estudio-luz: #ffffff;
+    --estudio-sombra: #2a2d33;
+    --estudio-texto: #101114;
+    --estudio-texto-tenue: #4b4f57;
+  }
+}
+
+:root[data-tema='claro'] {
+  --estudio-centro: #f1f0ed;
+  --estudio-borde: #b4b7be;
+  --estudio-apagado: #1b1c20;
+  --estudio-luz: #ffffff;
+  --estudio-sombra: #2a2d33;
+  --estudio-texto: #101114;
+  --estudio-texto-tenue: #4b4f57;
+}

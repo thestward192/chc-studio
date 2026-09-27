@@ -1,0 +1,30 @@
+.panel-texto {
+  position: relative;
+}
+
+.panel-texto__boton {
+  padding: var(--espacio-xs) var(--espacio-md);
+  background: transparent;
+  color: var(--color-texto);
+  border: var(--ancho-borde) solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-size: var(--tamano-texto-sm);
+}
+
+.panel-texto__boton:hover {
+  background: var(--color-superficie);
+}
+
+.panel-texto__contenido {
+  margin-top: var(--espacio-sm);
+  padding: var(--espacio-md);
+  background: var(--color-superficie);
+  border: var(--ancho-borde) solid var(--color-borde);
+  border-radius: var(--radio-md);
+  max-width: 60ch;
+}
+
+.panel-texto__contenido h2 {
+  margin-top: 0;
+  font-size: var(--tamano-texto-md);
+}

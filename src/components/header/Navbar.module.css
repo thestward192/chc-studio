@@ -363,11 +363,15 @@
 
 /* ---------- Escritorio amplio: nav más separado y botón Intro con texto */
 @media (min-width: 1280px) {
+  /* La separación entre palabras crece con la pantalla (52 px hasta ~1500, ~94 px a 1850) */
   .enlaces {
-    gap: 3.25rem;
+    gap: clamp(3.25rem, 12vw - 8rem, 7rem);
   }
 
+  /* Pestaña más larga: crece con la pantalla y los enlaces quedan centrados */
   .pestana {
+    justify-content: center;
+    min-width: min(calc(80vw - 400px), 1100px);
     padding-inline: 3.75rem;
   }
 

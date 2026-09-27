@@ -524,6 +524,48 @@
   line-height: 1.6;
 }
 
+/* Texto aún sin escribir: líneas de marcador con un brillo que las recorre */
+.eui-pendiente {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.2rem 0 1.2rem;
+}
+
+.eui-pendiente__linea {
+  display: block;
+  height: 0.7rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--ui-acento-suave) 18%, transparent),
+        transparent
+      )
+      0 0 / 200% 100% no-repeat,
+    color-mix(in srgb, var(--ui-texto) 9%, transparent);
+  animation: eui-brillo 2.4s var(--easing-ui) infinite;
+}
+
+@keyframes eui-brillo {
+  from {
+    background-position:
+      150% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      -50% 0,
+      0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eui-pendiente__linea {
+    animation: none;
+  }
+}
+
 .eui-panel__acciones {
   display: flex;
   flex-wrap: wrap;

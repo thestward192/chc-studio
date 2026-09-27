@@ -17,7 +17,14 @@ export interface Colocacion {
 }
 
 export const estudioConfig = {
-  sala: { ancho: 12, fondo: 8, alto: 3.2 },
+  sala: {
+    ancho: 12,
+    fondo: 8,
+    alto: 3.2,
+    /** Paneles de luz del techo: posición x de cada uno y su z común. */
+    lucesTecho: [-3, 0, 3] as number[],
+    zLucesTecho: 0.4,
+  },
 
   /** Cuadros de la pared del fondo, uno por proyecto (en el orden de proyectos.ts). */
   cuadros: [
@@ -116,6 +123,37 @@ export const estudioConfig = {
 
 export type EstudioConfig = typeof estudioConfig;
 
+type Parcial<T> = {
+  [K in keyof T]?: T[K] extends unknown[] ? T[K] : T[K] extends object ? Parcial<T[K]> : T[K];
+};
+
+/**
+ * Reutiliza el motor del estudio para otra sala (las oficinas del equipo):
+ * mezcla `cambios` sobre la config antes de montar la escena. Los objetos
+ * se mezclan por clave; los arrays (cuadros, puertas…) se reemplazan.
+ * Cada página HTML tiene su propio módulo, así que no afecta al estudio.
+ */
+export function aplicarConfigSala(cambios: Parcial<EstudioConfig>) {
+  const mezclar = (destino: Record<string, unknown>, origen: Record<string, unknown>) => {
+    for (const [clave, valor] of Object.entries(origen)) {
+      const actual = destino[clave];
+      if (
+        valor &&
+        typeof valor === 'object' &&
+        !Array.isArray(valor) &&
+        actual &&
+        typeof actual === 'object' &&
+        !Array.isArray(actual)
+      ) {
+        mezclar(actual as Record<string, unknown>, valor as Record<string, unknown>);
+      } else if (valor !== undefined) {
+        destino[clave] = valor;
+      }
+    }
+  };
+  mezclar(estudioConfig as unknown as Record<string, unknown>, cambios as Record<string, unknown>);
+}
+
 /** Foco de cámara para un objeto colocado en una pared: delante de él, mirándolo. */
 export function focoFrontal(colocacion: Colocacion, distancia: number, alturaCamara?: number) {
   const [x, y, z] = colocacion.pos;
@@ -132,5 +170,9 @@ export function localAMundo(colocacion: Colocacion, local: V3): V3 {
   const c = Math.cos(colocacion.rotY);
   const s = Math.sin(colocacion.rotY);
   const [x, y, z] = local;
-  return [colocacion.pos[0] + x * c + z * s, colocacion.pos[1] + y, colocacion.pos[2] - x * s + z * c];
+  return [
+    colocacion.pos[0] + x * c + z * s,
+    colocacion.pos[1] + y,
+    colocacion.pos[2] - x * s + z * c,
+  ];
 }

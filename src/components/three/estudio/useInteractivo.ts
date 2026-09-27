@@ -12,7 +12,12 @@ export interface AccionInteractiva {
 }
 
 /** Dibuja la vista previa del panel en un canvas 2D (se llama en cada fotograma del panel). */
-export type DibujoPreview = (ctx: CanvasRenderingContext2D, tiempo: number, ancho: number, alto: number) => void;
+export type DibujoPreview = (
+  ctx: CanvasRenderingContext2D,
+  tiempo: number,
+  ancho: number,
+  alto: number,
+) => void;
 
 export interface DefinicionInteractivo {
   id: string;
@@ -22,6 +27,11 @@ export interface DefinicionInteractivo {
   foco: { pos: V3; objetivo: V3 };
   /** Texto del panel; si es función se vuelve a evaluar cada 0,5 s. */
   info: string | (() => string);
+  /**
+   * Contenido aún sin escribir: el panel muestra líneas de marcador (sin
+   * texto) en lugar de, o debajo de, `info`.
+   */
+  pendiente?: boolean;
   acciones: AccionInteractiva[];
   /** Vista previa en canvas (opcional). */
   preview?: DibujoPreview;

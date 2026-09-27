@@ -11,6 +11,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
 import { useEstudio, type NivelCalidad } from '../../three/estudio/estadoEstudio';
 import { puente } from '../../three/estudio/puente';
 import { abrirMenu, alternarNoche, alternarSonido } from './acciones';
+import { textosSala } from './textosSala';
 
 const NIVELES: { valor: NivelCalidad | null; texto: string }[] = [
   { valor: null, texto: 'Automático' },
@@ -20,9 +21,9 @@ const NIVELES: { valor: NivelCalidad | null; texto: string }[] = [
 ];
 
 const GRUPOS = [
-  { grupo: 'proyecto', titulo: 'Proyectos', Icono: ImageSquare },
-  { grupo: 'puerta', titulo: 'Puertas del equipo', Icono: Door },
-  { grupo: 'objeto', titulo: 'Objetos', Icono: Cube },
+  { grupo: 'proyecto', Icono: ImageSquare },
+  { grupo: 'puerta', Icono: Door },
+  { grupo: 'objeto', Icono: Cube },
 ] as const;
 
 /**
@@ -86,9 +87,9 @@ export function MenuPausa() {
           </button>
         </div>
 
-        {GRUPOS.map((grupo) => (
+        {GRUPOS.filter((grupo) => puente.listar(grupo.grupo).length > 0).map((grupo) => (
           <section key={grupo.grupo}>
-            <p className="eui-etiqueta eui-menu__seccion">{grupo.titulo}</p>
+            <p className="eui-etiqueta eui-menu__seccion">{textosSala.grupos[grupo.grupo]}</p>
             <div className="eui-menu__rejilla">
               {puente.listar(grupo.grupo).map((item) => (
                 <button

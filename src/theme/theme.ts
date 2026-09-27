@@ -147,6 +147,35 @@ export function obtenerModoEstudio(): ModoEstudio {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro';
 }
 
+/** Oficinas del equipo (espejo de los --oficina-* de tokens.css). */
+export const oficina = {
+  paredes: {
+    'integrante-1': '#1b2a3a',
+    'integrante-2': '#16301f',
+    'integrante-3': '#221c3d',
+    'integrante-4': '#3a2233',
+  } as Record<string, string>,
+  cesped: '#2d7a46',
+  cespedClaro: '#36894f',
+  lineaCancha: '#eef3ee',
+  balon: '#f4f5f2',
+  balonParche: '#1a1d22',
+  red: '#e8ecef',
+  camiseta: '#1ec8d8',
+  trofeo: '#e2b64a',
+  arcade: '#17132b',
+  arcadeLateral: '#2b2350',
+  botones: ['#ff5f6d', '#ffd166', '#3deb8a'],
+  pedestal: '#e9ecef',
+  gabinetePc: '#111318',
+  tocador: '#dcc6ce',
+  espejo: '#cfd9df',
+  labiales: ['#c8325a', '#e0707e', '#9e2448'],
+  paleta: ['#d9a58b', '#b76e79', '#7d4a5a', '#e8c4b0', '#a3685a', '#f0d7c9'],
+  bombilla: '#fff1d6',
+  flor: '#ff9ec8',
+} as const;
+
 export const tipografia = {
   fuenteBase: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   fuenteTitulos: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",

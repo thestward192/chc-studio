@@ -13,7 +13,7 @@ así**, qué problemas aparecieron y cuál es el plan para las habitaciones.
 |---|---|---|---|---|
 | Inicio (intro laptop) | `src/pages/inicio/Inicio.tsx` | `three/EscenaIntroLaptop.tsx` | `three/laptop.config.ts` | props + `estadoIntro.ts` |
 | Estudio | `src/pages/estudio/Estudio.tsx` | `three/EscenaSalaProyectos.tsx` | `three/estudio/estudio.config.ts` | zustand `estadoEstudio.ts` |
-| Habitaciones (4) | `src/pages/equipo/Integrante.tsx` | `three/EscenaHabitacionPersonal.tsx` | — (pendiente) | — (pendiente) |
+| Oficinas (4) | `src/pages/equipo/Oficina.tsx` | `three/EscenaOficina.tsx` | `three/oficina/oficinas.config.ts` (+ `estudio.config.ts` vía `aplicarConfigSala`) | zustand `estadoEstudio.ts` (el mismo) |
 | Inicio (Núcleo del hero) | `src/components/header/HeroVisual.tsx` | `three/hero/EscenaHeroNucleo.tsx` | `three/hero/hero.config.ts` | objeto mutable `senalHero.ts` |
 
 **Núcleo del hero (patrón "escena pequeña con póster").** Canvas transparente
@@ -176,46 +176,63 @@ Para medir FPS: `?calidad=alto|medio|bajo` y el lanzador con
 
 ---
 
-## 5. Plan para las habitaciones del equipo
+## 5. Oficinas del equipo (hecho)
 
-Hoy `EscenaHabitacionPersonal.tsx` es la versión básica (cajas de colores,
-etiquetas `Html`, luces de marcador). La idea es rehacerla **reutilizando la
-infraestructura del estudio**, sin copiarla.
+El plan original era generalizar el estudio a `three/sala3d/`. Al final se
+hizo más simple, aprovechando que **cada página HTML tiene su propio runtime**:
+las oficinas importan los mismos módulos del estudio (estado zustand, puente,
+`useInteractivo`, cámara, selección, audio, UI) sin conflicto, y solo cambian
+la config y los textos al arrancar.
 
-### Pasos sugeridos
+### Cómo está armado
 
-1. **Config por integrante.** Crear `three/habitacion/habitacion.config.ts`
-   con la misma forma que `estudio.config.ts` (sala, cámara, luces
-   día/noche, posprocesado, calidad), y que los objetos de cada persona sigan
-   saliendo de `equipo.ts` (`objetosHabitacion`, colores). Si una persona
-   necesita otra distribución, se añade un bloque por `slug`.
-2. **Generalizar lo reutilizable del estudio** a una carpeta común (por
-   ejemplo `three/sala3d/`) en vez de duplicarlo:
-   - `estadoEstudio.ts` → estado de "sala 3D" genérico (seleccionado, hover,
-     día/noche, sonido, pausa, calidad, fase). Lo específico del estudio
-     (cafés, rack…) queda en un slice aparte.
-   - `useInteractivo`, `Seleccion`, `camara`, `EncuadrePanel`,
-     `RelojAmbiente`, `recursos`, `puente`, `audio` y `Posproceso` casi no
-     dependen del estudio: solo leen el config. Pasarles el config por
-     contexto o parámetro basta.
-   - La interfaz (`ui/estudio/*`) se puede reutilizar tal cual cambiando
-     textos: carga, HUD, panel, menú de pausa y versión simple.
-3. **Objetos de gustos**: pasar `ObjetoGustoHabitacion` (hoy dentro de
-   `EscenaHabitacionPersonal.tsx`) a `ObjetoInteractivo` con panel. Cada
-   `ObjetoGusto` de `equipo.ts` se convierte en un interactivo con `info` =
-   su descripción y una acción si aplica. Su `modeloUrl` se pasa como `modelo`
-   para que cargue el `.glb` cuando exista.
-4. **Puerta de salida**: la puerta de vuelta al estudio puede ser el mismo
-   `Puerta.tsx` con el color de luz del estudio y `href="/estudio.html"`
-   (hoy recibe un `Integrante`: habría que aceptar también `{ nombre, colorLuz,
-   href, frase }`).
-5. **Texto real**: el `PanelTexto` actual (bio, gustos, experiencia,
-   habilidades, CV) pasa a ser la "Versión simple" de la habitación.
-6. **Personalidad por integrante**: color de acento del panel = `colorLuz`,
-   y 2 o 3 objetos firma con shader propio (por ejemplo, una pantalla, una
-   lámpara o un póster con paralaje reutilizando `shaders/cuadro.ts`).
-7. **Pruebas**: el mismo patrón de Playwright con `?calidad=` y la página de
-   cada integrante.
+1. **Motor común**: `three/estudio/LienzoSala.tsx` (salió de
+   `EscenaSalaProyectos`): Canvas, PerformanceMonitor, luces, cámara,
+   Seleccion, EncuadrePanel, Posproceso, PreparacionCarga. Recibe el contenido
+   como `children(calidad)`.
+2. **Config de sala**: `aplicarConfigSala(cambios)` en `estudio.config.ts`
+   mezcla una config parcial (objetos por clave, arrays reemplazados).
+   `prepararOficina()` la llama con `salaOficina` en `pages/equipo/main.tsx`
+   antes de montar nada. `Sala.tsx` ahora lee las luces del techo de la config
+   y solo dibuja el riel de galería si hay cuadros.
+3. **Puertas genéricas**: `Puerta` recibe un `DestinoPuerta`
+   (`three/destinoPuerta.ts`: `destinoIntegrante()` para el taller); cada
+   puerta registra su href y color en `destinosPuerta` (navegacion.ts) y
+   `InundacionLuz` lo lee. Así la salida de una oficina es la misma pieza.
+4. **Textos de la UI**: `ui/estudio/textosSala.ts` (carga, HUD, menú); la
+   oficina los cambia con `Object.assign` en su main.tsx.
+5. **Contenido pendiente**: `pendiente: true` en un interactivo →
+   `LineasPendientes` en el panel (líneas sin texto con brillo). `equipo.ts`
+   deja `rol`/`bio`/`frase` vacíos; `pendiente(texto)` decide.
+6. **Objetos por persona**: `three/oficina/Oficina{Creativa,Futbol,Gamer,Belleza}.tsx`
+   con `ObjetoInteractivo` (info vacía + pendiente + acciones). Utilidades en
+   `hooksOficina.ts` (`useMateriales`, `usePantallaJuego`) y texturas en
+   `texturasOficina.ts`. Pantallas de juego: `shaders/pantallaJuego.ts`
+   (MODO 0 invasores, MODO 1 plataformas).
+
+### Detalles que costaron
+
+- **Sobreexposición**: con el sol del taller (3.0) la pared opuesta a la
+  ventana salía blanca en una sala de 7 m; la oficina usa `sol.dia 1.35` y
+  `hemisferio.dia 0.85`. El tocador blanco + su pointLight + bombillas
+  también quemaban: color `--oficina-tocador` más oscuro y luz 0.5.
+- **Render bajo demanda con panel abierto**: los objetos animados piden
+  fotograma (`state.invalidate()`) mientras están enfocados o en transición;
+  si no, la pantalla del arcade o la tele se congelan.
+- **Interactivos anidados**: el registro marca todas las mallas hijas con el id
+  del padre, así que un interactivo dentro de otro nunca recibe clics (la
+  paleta de Fabiola va aparte, colocada con `localAMundo`).
+- **Bloom en tableros**: `MeshBasicMaterial` con color 0.84 para que el texto
+  blanco no pase el umbral.
+
+### Para agregar un objeto a una oficina
+
+1. Posición en `objetos.<diseño>` de `oficinas.config.ts`.
+2. Componente en su `Oficina*.tsx` con `ObjetoInteractivo` (id único,
+   `etiqueta` = el gusto, `info=""` + `pendiente` hasta tener texto,
+   `foco={focoObjeto(colocacion, distancia, alturaCam, alturaObjetivo)}`).
+3. Colores nuevos en `--oficina-*` (tokens.css) y su espejo `oficina`.
+4. Si se anima: `state.invalidate()` mientras esté enfocado.
 
 ### Lista de verificación al terminar cada habitación
 

@@ -3,15 +3,18 @@ import { estudioConfig as cfg } from './estudio.config';
 import { obtenerMateriales } from './materiales';
 
 /**
- * Cáscara del estudio: la Habitacion reutilizable con los materiales de la
+ * Cáscara de la sala: la Habitacion reutilizable con los materiales de la
  * sala (suelo de tablas, pared de acento al fondo), zócalos, paneles de luz
- * del techo y bañadores de luz sobre los cuadros de la galería.
+ * del techo y, si hay cuadros, el riel de galería con un foco sobre cada uno.
  * Las lámparas son emisivas (el bloom las hace brillar), no luces reales.
+ * La usan el estudio y las oficinas del equipo (todo sale de la config).
  */
 export function Sala() {
   const m = obtenerMateriales();
-  const { ancho, fondo, alto } = cfg.sala;
+  const { ancho, fondo, alto, lucesTecho, zLucesTecho } = cfg.sala;
   const zocalo = 0.1;
+  const xs = cfg.cuadros.map((c) => c.pos[0]);
+  const anchoRiel = xs.length ? Math.max(...xs) - Math.min(...xs) + 2.4 : 0;
 
   return (
     <Habitacion
@@ -40,8 +43,8 @@ export function Sala() {
       </mesh>
 
       {/* Paneles de luz del techo */}
-      {[-3, 0, 3].map((x) => (
-        <group key={x} position={[x, alto - 0.02, 0.4]}>
+      {lucesTecho.map((x) => (
+        <group key={x} position={[x, alto - 0.02, zLucesTecho]}>
           <mesh material={m.marco}>
             <boxGeometry args={[1.3, 0.03, 0.42]} />
           </mesh>
@@ -52,9 +55,14 @@ export function Sala() {
       ))}
 
       {/* Riel de galería con focos sobre cada cuadro */}
-      <mesh position={[0, alto - 0.12, -fondo / 2 + 0.45]} material={m.metal}>
-        <boxGeometry args={[10.4, 0.03, 0.03]} />
-      </mesh>
+      {xs.length > 0 && (
+        <mesh
+          position={[(Math.max(...xs) + Math.min(...xs)) / 2, alto - 0.12, -fondo / 2 + 0.45]}
+          material={m.metal}
+        >
+          <boxGeometry args={[anchoRiel, 0.03, 0.03]} />
+        </mesh>
+      )}
       {cfg.cuadros.map((cuadro, i) => (
         <group key={i} position={[cuadro.pos[0], alto - 0.2, -fondo / 2 + 0.45]} rotation-x={0.9}>
           <mesh material={m.metal} castShadow>

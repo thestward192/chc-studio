@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { TransicionPagina, type ManejadorTransicion } from '../../components/ui/TransicionPagina';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { useSoportaWebGL } from '../../hooks/useSoportaWebGL';
+import type { Integrante } from '../../content/equipo';
 import { useEstudio, type NivelCalidad } from '../../components/three/estudio/estadoEstudio';
 import { navegacion } from '../../components/three/estudio/navegacion';
 import { puente } from '../../components/three/estudio/puente';
@@ -13,29 +14,29 @@ import { Hud } from '../../components/ui/estudio/Hud';
 import { useAtajos } from '../../components/ui/estudio/useAtajos';
 import { PanelInfo } from '../../components/ui/estudio/PanelInfo';
 import { MenuPausa } from '../../components/ui/estudio/MenuPausa';
-import { VersionSimple } from '../../components/ui/estudio/VersionSimple';
+import { VersionSimpleOficina } from '../../components/ui/estudio/VersionSimpleOficina';
 import { InundacionLuz } from '../../components/ui/estudio/InundacionLuz';
 import { cargarFuentes } from '../../components/ui/estudio/fuentes';
 import '../../components/ui/estudio/estudio-ui.css';
-import './Estudio.css';
+import '../estudio/Estudio.css';
 
-// La escena (three.js + R3F) llega por import dinámico; su descarga cuenta
-// en la barra de progreso real de la pantalla de carga.
-const EscenaSalaProyectos = lazy(() =>
-  import('../../components/three/EscenaSalaProyectos').then((modulo) => {
-    useEstudio.getState().set({ progresoCarga: 0.5, pasoCarga: 'Construyendo la sala…' });
+// La escena llega por import dinámico; su descarga cuenta en la barra de carga.
+const EscenaOficina = lazy(() =>
+  import('../../components/three/EscenaOficina').then((modulo) => {
+    useEstudio.getState().set({ progresoCarga: 0.5, pasoCarga: 'Armando la oficina…' });
     return modulo;
   }),
 );
 
-// Panel de depuración (leva): solo en desarrollo y con ?debug.
-const DepuracionEstudio = import.meta.env.DEV
-  ? lazy(() => import('../../components/three/estudio/DepuracionEstudio'))
-  : null;
 const parametros = new URLSearchParams(window.location.search);
-const conDepuracion = import.meta.env.DEV && parametros.has('debug');
 
-export function Estudio() {
+/**
+ * Oficina de un integrante (equipo/integrante-N.html). Misma interfaz y
+ * motor que el taller: carga, HUD, panel, menú de pausa, versión simple y
+ * la luz al cruzar la puerta (que aquí lleva de vuelta al taller). La sala
+ * y los textos ya se ajustaron en main.tsx antes de montar esto.
+ */
+export function Oficina({ integrante }: { integrante: Integrante }) {
   const movimientoReducido = usePrefersReducedMotion();
   const soportaWebGL = useSoportaWebGL();
   const [fuentesListas, setFuentesListas] = useState(false);
@@ -53,7 +54,7 @@ export function Estudio() {
     navegacion.ir = navegar;
   }, [navegar]);
 
-  // Solo en desarrollo: acceso para pruebas automáticas (no existe en producción)
+  // Solo en desarrollo: acceso para pruebas automáticas
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     (window as unknown as Record<string, unknown>).__estudio = {
@@ -63,7 +64,7 @@ export function Estudio() {
     };
   }, []);
 
-  // Calidad fijada por URL (?calidad=alto|medio|bajo), útil para medir
+  // Calidad fijada por URL (?calidad=alto|medio|bajo)
   useEffect(() => {
     const nivel = parametros.get('calidad');
     if (nivel === 'alto' || nivel === 'medio' || nivel === 'bajo') {
@@ -99,12 +100,9 @@ export function Estudio() {
         <TransicionPagina ref={transicionRef} />
         <main className="estudio__sin-webgl">
           <p className="estudio__aviso">
-            Tu navegador no soporta WebGL: esta es la versión en texto del estudio.
+            Tu navegador no soporta WebGL: esta es la versión en texto de la oficina.
           </p>
-          <VersionSimple comoPagina onNavegar={navegar} />
-          <a href="/" className="eui-boton">
-            ← Volver al inicio
-          </a>
+          <VersionSimpleOficina integrante={integrante} comoPagina onNavegar={navegar} />
         </main>
       </>
     );
@@ -116,21 +114,16 @@ export function Estudio() {
       <div className="estudio__lienzo">
         {soportaWebGL && fuentesListas && (
           <Suspense fallback={null}>
-            <EscenaSalaProyectos movimientoReducido={movimientoReducido} />
+            <EscenaOficina integrante={integrante} movimientoReducido={movimientoReducido} />
           </Suspense>
         )}
       </div>
       <CargaEstudio movimientoReducido={movimientoReducido} />
-      <Hud onVolverInicio={() => navegar('/')} />
+      <Hud onVolverInicio={() => navegar('/estudio.html')} />
       <PanelInfo />
       <MenuPausa />
-      <VersionSimple onNavegar={navegar} />
+      <VersionSimpleOficina integrante={integrante} onNavegar={navegar} />
       <InundacionLuz onNavegar={navegar} />
-      {conDepuracion && DepuracionEstudio && (
-        <Suspense fallback={null}>
-          <DepuracionEstudio />
-        </Suspense>
-      )}
     </>
   );
 }

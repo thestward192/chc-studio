@@ -5,15 +5,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 import { entrarAlEstudio } from './acciones';
 import { LogoEstudio } from './LogoEstudio';
-
-const MENSAJES = [
-  'Compilando shaders…',
-  'Sirviendo café…',
-  'Despertando al servidor…',
-  'Ordenando la estantería…',
-  'Encendiendo el neón…',
-  'Regando las plantas…',
-];
+import { textosSala } from './textosSala';
 
 /**
  * Pantalla de carga temática: una terminal y unas llaves { } que se
@@ -35,7 +27,10 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
   // Mensajes rotando
   useEffect(() => {
     if (fase !== 'cargando') return;
-    const id = window.setInterval(() => setMensaje((m) => (m + 1) % MENSAJES.length), 900);
+    const id = window.setInterval(
+      () => setMensaje((m) => (m + 1) % textosSala.mensajesCarga.length),
+      900,
+    );
     return () => window.clearInterval(id);
   }, [fase]);
 
@@ -98,7 +93,7 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
       className="eui eui-carga"
       role="dialog"
       aria-modal="true"
-      aria-label="Cargando el estudio"
+      aria-label={textosSala.etiquetaCarga}
     >
       <svg className="eui-carga__anillos" viewBox="0 0 400 400" aria-hidden="true">
         {[190, 150, 112, 78].map((r) => (
@@ -152,10 +147,10 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
         </div>
 
         <div className="eui-carga__titulo">
-          <LogoEstudio tamano="grande" sub="Taller 3D" comoTitulo />
+          <LogoEstudio tamano="grande" sub={textosSala.subCarga} comoTitulo />
         </div>
         <p className="eui-carga__mensaje eui-mono" aria-live="polite">
-          {listo ? 'Todo listo. Pasá, estás en tu casa.' : MENSAJES[mensaje]}
+          {listo ? textosSala.listo : textosSala.mensajesCarga[mensaje]}
         </p>
         <div
           className="eui-carga__barra"
@@ -178,7 +173,7 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
           onClick={entrarAlEstudio}
           style={{ opacity: listo ? 1 : 0.45 }}
         >
-          Entrar al taller
+          {textosSala.entrar}
           <span className="eui-boton__flecha" aria-hidden="true">
             <ArrowRight size={15} weight="bold" />
           </span>

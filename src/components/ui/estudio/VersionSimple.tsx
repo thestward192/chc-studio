@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { animate } from 'animejs';
 import { proyectos } from '../../../content/proyectos';
-import { equipo } from '../../../content/equipo';
+import { equipo, listaGustos, pendiente } from '../../../content/equipo';
 import { X } from '@phosphor-icons/react/dist/csr/X';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
+import { LineasPendientes } from './PanelInfo';
 
 interface Props {
   /** Sin WebGL, la versión simple es la página: sin botón de cerrar ni velo. */
@@ -80,8 +81,12 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
             >
               {limpiar(integrante.nombre)}
             </a>
-            , {integrante.rol}
-            <p>“{integrante.frase}”</p>
+            <p>Le gusta: {listaGustos(integrante, true)}.</p>
+            {pendiente(integrante.rol) ? (
+              <LineasPendientes lineas={[70, 52]} />
+            ) : (
+              <p>{integrante.rol}</p>
+            )}
           </li>
         ))}
       </ul>

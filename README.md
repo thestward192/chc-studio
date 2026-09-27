@@ -26,14 +26,14 @@ npm run dev
 ```
 index.html                  → entrada de "Inicio" (intro 3D + página informativa)
 estudio.html                → entrada del estudio 3D (proyectos, puertas del equipo)
-equipo/integrante-1..4.html → entradas de las 4 habitaciones del equipo
+equipo/integrante-1..4.html → entradas de las 4 oficinas del equipo
 vite.config.ts              → Vite en modo multi-página (una entrada por HTML)
 
 src/
   pages/            un componente raíz + main.tsx por página
     inicio/         Inicio.tsx (intro de la laptop + secciones informativas)
     estudio/        Estudio.tsx (estudio 3D: carga, HUD, paneles)
-    equipo/         Integrante.tsx (ÚNICO componente para las 4 habitaciones)
+    equipo/         Oficina.tsx (ÚNICO componente para las 4 oficinas)
   components/
     header/         Header (navbar + hero de Inicio), CSS Modules
     ui/             BotonPreview, secciones, Footer, PanelTexto,
@@ -136,9 +136,11 @@ Todo vive en `src/content/`, tipado con TypeScript:
 - [`servicios.ts`](src/content/servicios.ts) — lista de servicios.
 - [`proyectos.ts`](src/content/proyectos.ts) — proyectos destacados (título, cliente,
   año, descripción, tecnologías, color del marcador, enlaces e imágenes opcionales).
-- [`equipo.ts`](src/content/equipo.ts) — los 4 integrantes: nombre, rol, bio, frase,
-  gustos, objetos de su habitación, experiencia, habilidades, CV, color de su
-  puerta y de la luz que se escapa por ella en el estudio 3D.
+- [`equipo.ts`](src/content/equipo.ts) — los 4 integrantes: nombre, gustos, color de
+  su puerta y de su luz. **Rol, bio, frase, experiencia y habilidades están
+  vacíos a propósito** (todavía no hay texto de lo que hace cada uno): mientras
+  estén vacíos, la interfaz muestra líneas de marcador sin texto.
+- [`oficinas.ts`](src/content/oficinas.ts) — mensajes de la pantalla de carga de cada oficina.
 - [`proceso.ts`](src/content/proceso.ts) — pasos de "cómo trabajamos" (pizarra del estudio).
 
 Las **posiciones** en el estudio 3D no están en el contenido sino en
@@ -160,14 +162,52 @@ que sean fáciles de encontrar y reemplazar.
 ### Agregar o editar un integrante
 
 1. Edita/añade su objeto en el array `equipo` de `src/content/equipo.ts`
-   (nombre, rol, bio, gustos, `objetosHabitacion`, experiencia, habilidades, `cvUrl`).
+   (nombre, gustos, rol, bio, frase, experiencia, habilidades, `cvUrl`, colores).
+   Cuando escribas su `rol`/`bio`, las líneas de marcador desaparecen solas.
 2. Pon su CV en `public/cv/`.
 3. Las 4 páginas HTML (`equipo/integrante-1..4.html`) ya están creadas y usan
-   el mismo componente `Integrante.tsx`, configurado por `data-miembro` en el
+   el mismo componente `Oficina.tsx`, configurado por `data-miembro` en el
    HTML — **no hay que crear ni duplicar componentes** para un integrante nuevo,
-   solo sus datos. (Si algún día hay un 5º integrante, se necesitaría un
+   solo sus datos y elegir su diseño de oficina en `disenoPorSlug`
+   (`oficinas.config.ts`). (Si algún día hay un 5º integrante, se necesitaría un
    `equipo/integrante-5.html` nuevo + su entrada en `vite.config.ts`, siguiendo
    el mismo patrón que los otros 4.)
+
+## Oficinas del equipo (equipo/integrante-N.html)
+
+Cada puerta del taller lleva a la oficina de un integrante. Reutilizan **el
+mismo motor e interfaz que el taller** (no hay una copia):
+
+- `three/estudio/LienzoSala.tsx` es el motor común (canvas, calidad adaptable,
+  luces día/noche, cámara con vuelos, outline, panel, posprocesado y carga).
+  El taller (`EscenaSalaProyectos`) y las oficinas (`EscenaOficina`) solo
+  aportan su contenido.
+- `three/oficina/oficinas.config.ts`: la sala de oficina (7 × 6 m, puerta de
+  salida, ventana, cámara, luz), que `prepararOficina()` aplica sobre
+  `estudio.config.ts` con `aplicarConfigSala()` antes de montar la escena;
+  la posición de cada objeto y qué diseño usa cada persona (`disenoPorSlug`).
+- Base común: escritorio con monitor de código y lámpara, estantería, ventana,
+  planta, tablero "Lo que hago" y la puerta de vuelta al taller (misma
+  `Puerta.tsx` con un `DestinoPuerta` genérico).
+- Por persona (objetos interactivos con panel y acciones):
+  - **Stward Serrano** (videojuegos, diseño, 3D): máquina arcade con juego en
+    shader (encender/apagar), pedestal con modelo 3D que gira (cambiar forma,
+    ver en malla) y muestrario de color que pinta la pared.
+  - **Oscar** (fútbol, programación): cancha en el suelo, portería con red,
+    balón que se patea al arco, camiseta enmarcada con su nombre y trofeo.
+  - **Hezron** (videojuegos, programación): PC gamer con ventiladores RGB (3
+    modos), televisor con consola y juego de plataformas, puff y póster.
+  - **Fabiola** (programación, maquillaje): tocador con espejo de camerino
+    (luces), paleta de sombras que se abre, labiales, brochas, banco, florero
+    y espejo redondo.
+- **Partes sin texto (pendientes)**: el tablero "Lo que hago" y los paneles de
+  los objetos muestran líneas de marcador (`pendiente: true` en el
+  interactivo, `LineasPendientes` en la UI) hasta que se escriba qué hace
+  cada persona. También la versión simple y el panel de su puerta en el taller.
+- Colores: pared de acento y objetos desde los tokens `--oficina-*` (espejo
+  `oficina` en `theme.ts`); el acento de cada persona es su `colorLuz`.
+- Textos de la interfaz (carga, HUD, menú): `ui/estudio/textosSala.ts`, que
+  cada oficina ajusta en `pages/equipo/main.tsx`.
 
 ## Intro 3D de la laptop
 
@@ -560,9 +600,8 @@ Recorre `models-entrada/` (o `--entrada`), comprime cada `.glb`/`.gltf` con
 - **Detalle de proyecto al hacer clic en un cuadro**: se muestra como un panel
   flotante sobre el propio estudio 3D (no navega a otra página), para no romper
   el "una sola escena 3D cargada a la vez".
-- **Controles de teclado**: en las habitaciones del equipo, las flechas desplazan
-  la cámara (`OrbitControls.listenToKeyEvents`). En el estudio están
-  desactivadas (`teclado={false}`) porque las flechas cambian de proyecto.
+- **Controles de teclado**: en el taller y en las oficinas las flechas no
+  mueven la cámara (`teclado={false}`): cambian al objeto anterior/siguiente.
 
 ### Estudio 3D
 
@@ -587,8 +626,7 @@ Recorre `models-entrada/` (o `--entrada`), comprime cada `.glb`/`.gltf` con
   un quinto de marcador y los campos `cliente`, `anio`, `colorMarcador` y
   `urlCaso`. `equipo.ts` ganó `colorLuz` y `frase`, y `proceso.ts` es nuevo.
 - **`ObjetoInteractivo`** pasó a ser el envoltorio genérico de los objetos
-  interactivos del estudio. Su antigua lógica (objetos de gustos con etiqueta
-  flotante) se movió tal cual a `EscenaHabitacionPersonal.tsx`, su único uso.
+  interactivos del taller y de las oficinas.
 - **Fuentes autoalojadas** con `@fontsource` (solo el subconjunto latino y los
   pesos usados), para no depender de Google Fonts ni esperar a otro dominio.
 - **Luz de la ventana**: las paredes son planos sin hueco y no proyectan
@@ -610,7 +648,7 @@ Recorre `models-entrada/` (o `--entrada`), comprime cada `.glb`/`.gltf` con
   directamente en el `<head>` de cada `.html` (JS+CSS eager). Confirmé que
   Three.js/R3F/drei NO se cargan ahí — solo se descargan cuando el usuario
   entra a una sala 3D, vía `import()` dinámico (ver `EscenaIntroLaptop.tsx`,
-  `EscenaSalaProyectos.tsx`, `EscenaHabitacionPersonal.tsx`).
+  `EscenaSalaProyectos.tsx`, `EscenaOficina.tsx`).
 - **Placeholders binarios**: generé imágenes `.png` (rectángulos de color
   liso) para los cuadros de proyecto, `og:image` y la imagen de "sin WebGL", y
   PDFs mínimos válidos para los 4 CVs, para que la app cargue algo real sin
@@ -624,7 +662,7 @@ Recorre `models-entrada/` (o `--entrada`), comprime cada `.glb`/`.gltf` con
 ## Notas de accesibilidad y rendimiento ya implementadas
 
 - Todo lo que existe en 3D (proyectos, gustos, CV) también existe como texto
-  real: `PanelTexto` en las habitaciones y "Versión simple" en el estudio.
+  real: "Versión simple" en el taller y en cada oficina.
 - `prefers-reduced-motion` se respeta: la intro mantiene la secuencia de scroll
   sin efectos de movimiento ni postproceso, y las cámaras 3D de las salas
   quedan estáticas por defecto (los controles orbitales igual permiten mirar).

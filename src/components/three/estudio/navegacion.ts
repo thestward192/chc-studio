@@ -9,6 +9,12 @@ export const navegacion = {
   },
 };
 
+/**
+ * Destino de cada puerta (id del interactivo → página y color de su luz).
+ * Lo llena Puerta.tsx y lo lee InundacionLuz para el fundido al cruzarla.
+ */
+export const destinosPuerta = new Map<string, { href: string; color: string }>();
+
 /** Precarga una página (al pasar el ratón por una puerta, por ejemplo). */
 const precargadas = new Set<string>();
 export function precargar(href: string) {

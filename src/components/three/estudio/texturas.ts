@@ -10,7 +10,7 @@ import { rastrear } from './recursos';
  */
 
 /** Generador pseudoaleatorio con semilla (texturas estables entre recargas). */
-function azar(semilla: number) {
+export function azar(semilla: number) {
   let a = semilla >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -21,14 +21,14 @@ function azar(semilla: number) {
   };
 }
 
-function lienzo(ancho: number, alto: number) {
+export function lienzo(ancho: number, alto: number) {
   const c = document.createElement('canvas');
   c.width = ancho;
   c.height = alto;
   return { c, ctx: c.getContext('2d')! };
 }
 
-function aTextura(
+export function aTextura(
   c: HTMLCanvasElement,
   opciones: { repetir?: [number, number]; srgb?: boolean } = {},
 ) {
@@ -42,7 +42,7 @@ function aTextura(
   return textura;
 }
 
-function mezclar(a: string, b: string, t: number) {
+export function mezclar(a: string, b: string, t: number) {
   return '#' + new THREE.Color(a).lerp(new THREE.Color(b), t).getHexString();
 }
 

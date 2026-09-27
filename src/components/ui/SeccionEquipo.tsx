@@ -1,4 +1,4 @@
-import { equipo } from '../../content/equipo';
+import { equipo, listaGustos, pendiente } from '../../content/equipo';
 import './Secciones.css';
 
 export function SeccionEquipo() {
@@ -9,10 +9,12 @@ export function SeccionEquipo() {
         {equipo.map((persona) => (
           <article key={persona.id} className="tarjeta tarjeta--equipo">
             <h3>{persona.nombre}</h3>
-            <p className="tarjeta__rol">{persona.rol}</p>
-            <p>{persona.bio}</p>
+            {/* TODO(contenido real): rol y bio aún vacíos en equipo.ts */}
+            {!pendiente(persona.rol) && <p className="tarjeta__rol">{persona.rol}</p>}
+            <p>Le gusta: {listaGustos(persona, true)}.</p>
+            {!pendiente(persona.bio) && <p>{persona.bio}</p>}
             <a href={persona.href} className="tarjeta__enlace">
-              Ver su habitación y CV
+              Visitar su oficina
             </a>
           </article>
         ))}

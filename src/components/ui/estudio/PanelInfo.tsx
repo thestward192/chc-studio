@@ -7,6 +7,20 @@ import { puente } from '../../three/estudio/puente';
 const ENTRADA = cubicBezier(0.2, 1.2, 0.4, 1);
 
 /**
+ * Líneas de marcador (sin texto) donde irá la explicación que todavía no
+ * se escribió. Para lectores de pantalla se anuncia como texto pendiente.
+ */
+export function LineasPendientes({ lineas = [92, 100, 78, 86, 54] }: { lineas?: number[] }) {
+  return (
+    <div className="eui-pendiente" role="img" aria-label="Texto pendiente">
+      {lineas.map((ancho, i) => (
+        <span key={i} className="eui-pendiente__linea" style={{ width: `${ancho}%` }} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * Panel de información del objeto enfocado: a la derecha (380 px, o 640 px
  * si es ancho); en móvil, hoja inferior que se desliza para cerrar.
  * Etiqueta, título, vista previa en canvas en vivo, texto que se actualiza
@@ -122,9 +136,12 @@ export function PanelInfo() {
         {interactivo.preview && (
           <canvas ref={lienzo} className="eui-panel__preview" aria-hidden="true" />
         )}
-        <p className="eui-panel__info" aria-live="polite">
-          {info}
-        </p>
+        {info && (
+          <p className="eui-panel__info" aria-live="polite">
+            {info}
+          </p>
+        )}
+        {interactivo.pendiente && <LineasPendientes />}
       </div>
       {interactivo.acciones.length > 0 && (
         <div className="eui-panel__acciones">

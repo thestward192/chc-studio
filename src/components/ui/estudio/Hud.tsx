@@ -20,6 +20,7 @@ import {
   irAVistaGeneral,
 } from './acciones';
 import { LogoEstudio } from './LogoEstudio';
+import { textosSala } from './textosSala';
 
 interface Props {
   onVolverInicio: () => void;
@@ -62,7 +63,7 @@ export function Hud({ onVolverInicio }: Props) {
   return (
     <div ref={raiz} className="eui">
       <div className="eui-titulo eui-cristal" data-hud>
-        <LogoEstudio sub={`Taller 3D: ${proyectos} proyectos y ${puertas} puertas`} />
+        <LogoEstudio sub={textosSala.subHud(proyectos, puertas)} />
       </div>
 
       <nav className="eui-botones" aria-label="Controles del estudio">
@@ -117,12 +118,12 @@ export function Hud({ onVolverInicio }: Props) {
           className="eui-boton"
           data-hud
           onClick={onVolverInicio}
-          aria-label="Volver al inicio"
+          aria-label={textosSala.volver}
         >
           <span className="eui-boton__icono" aria-hidden="true">
             <ArrowLeft {...ICONO} />
           </span>
-          <span className="eui-boton__texto">Volver al inicio</span>
+          <span className="eui-boton__texto">{textosSala.volver}</span>
         </button>
       </div>
 

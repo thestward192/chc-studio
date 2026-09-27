@@ -207,6 +207,46 @@
   --sala-neon-2: #1ec8d8;
 }
 
+/* ------------------------------------------------------------------
+ * Oficinas del equipo (equipo/integrante-N.html). Pared de acento de cada
+ * oficina y colores de sus objetos. Espejo en theme.ts (oficina).
+ * El color de luz de cada persona está en src/content/equipo.ts.
+ * ------------------------------------------------------------------ */
+:root {
+  --oficina-pared-stward: #1b2a3a;
+  --oficina-pared-oscar: #16301f;
+  --oficina-pared-hezron: #221c3d;
+  --oficina-pared-fabiola: #3a2233;
+  --oficina-cesped: #2d7a46;
+  --oficina-cesped-claro: #36894f;
+  --oficina-linea-cancha: #eef3ee;
+  --oficina-balon: #f4f5f2;
+  --oficina-balon-parche: #1a1d22;
+  --oficina-red: #e8ecef;
+  --oficina-camiseta: #1ec8d8;
+  --oficina-trofeo: #e2b64a;
+  --oficina-arcade: #17132b;
+  --oficina-arcade-lateral: #2b2350;
+  --oficina-boton-1: #ff5f6d;
+  --oficina-boton-2: #ffd166;
+  --oficina-boton-3: #3deb8a;
+  --oficina-pedestal: #e9ecef;
+  --oficina-gabinete-pc: #111318;
+  --oficina-tocador: #dcc6ce;
+  --oficina-espejo: #cfd9df;
+  --oficina-labial-1: #c8325a;
+  --oficina-labial-2: #e0707e;
+  --oficina-labial-3: #9e2448;
+  --oficina-paleta-1: #d9a58b;
+  --oficina-paleta-2: #b76e79;
+  --oficina-paleta-3: #7d4a5a;
+  --oficina-paleta-4: #e8c4b0;
+  --oficina-paleta-5: #a3685a;
+  --oficina-paleta-6: #f0d7c9;
+  --oficina-bombilla: #fff1d6;
+  --oficina-flor: #ff9ec8;
+}
+
 /* Modo claro del estudio 3D: sigue al sistema salvo que se fuerce con
    data-tema="oscuro"; también se puede forzar con data-tema="claro".
    (Solo afecta a la intro: el resto del sitio mantiene su paleta.) */

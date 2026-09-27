@@ -1,16 +1,3 @@
-export interface ObjetoGusto {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  /** Posición del objeto dentro de la habitación personal (x, y, z). */
-  posicion: [number, number, number];
-  /** Forma placeholder mientras no hay modelo .glb real. */
-  formaPlaceholder: 'caja' | 'esfera' | 'cilindro' | 'cono' | 'torus';
-  colorPlaceholder: string;
-  /** Ruta a un futuro modelo .glb (aún no existe). */
-  modeloUrl?: string;
-}
-
 export interface ExperienciaLaboral {
   puesto: string;
   organizacion: string;
@@ -22,187 +9,112 @@ export interface Integrante {
   id: string;
   slug: string;
   nombre: string;
+  /** Nombre corto (placas, menú). */
+  nombreCorto: string;
+  /**
+   * Qué hace en el equipo. TODO(contenido real): vacío por ahora; mientras
+   * esté vacío, la interfaz muestra líneas de marcador sin texto.
+   */
   rol: string;
+  /** TODO(contenido real): vacío por ahora (se muestran líneas de marcador). */
   bio: string;
+  /** Lo que le gusta: define la decoración de su oficina. */
   gustos: string[];
-  objetosHabitacion: ObjetoGusto[];
   experiencia: ExperienciaLaboral[];
   habilidades: string[];
   cvUrl: string;
   colorPuerta: string;
-  /** Color de la luz que se escapa por su puerta en el estudio 3D. */
+  /** Color de su luz: puerta en el taller y acento de su oficina. */
   colorLuz: string;
-  /** Frase corta que aparece en el panel de su puerta. */
+  /** TODO(contenido real): frase corta para el panel de su puerta (vacía por ahora). */
   frase: string;
   href: string;
 }
 
-// TODO(contenido real): datos de marcador para los 4 integrantes. Sustituir
-// nombre, rol, bio, gustos, experiencia, habilidades y el PDF en
-// public/cv/ por la información real de cada persona. La posición de cada
-// puerta en el estudio 3D está en src/components/three/estudio/estudio.config.ts.
+/** true si un texto todavía no se escribió (la UI muestra líneas de marcador). */
+export const pendiente = (texto: string | undefined) => !texto || texto.trim() === '';
+
+// Los 4 integrantes. Nombres y gustos son reales; rol, bio, frase,
+// experiencia y habilidades quedan vacíos hasta tener el texto definitivo.
+// La decoración de cada oficina está en
+// src/components/three/oficina/oficinas.config.ts (una entrada por slug) y
+// la posición de cada puerta en el taller, en estudio.config.ts.
 export const equipo: Integrante[] = [
   {
     id: 'integrante-1',
     slug: 'integrante-1',
-    nombre: 'Texto de marcador: Nombre integrante 1',
-    rol: 'Rol de marcador (ej. Desarrollo)',
-    bio: 'Biografía de marcador del integrante 1.',
-    gustos: ['Gusto de marcador A', 'Gusto de marcador B'],
-    objetosHabitacion: [
-      {
-        id: 'obj-1-1',
-        nombre: 'Objeto de marcador 1',
-        descripcion: 'Descripción de marcador del objeto 1.',
-        posicion: [-1.5, 0.5, -1],
-        formaPlaceholder: 'caja',
-        colorPlaceholder: '#8a8f98',
-      },
-      {
-        id: 'obj-1-2',
-        nombre: 'Objeto de marcador 2',
-        descripcion: 'Descripción de marcador del objeto 2.',
-        posicion: [1.5, 0.5, -1],
-        formaPlaceholder: 'esfera',
-        colorPlaceholder: '#c8cbd1',
-      },
-    ],
-    experiencia: [
-      {
-        puesto: 'Puesto de marcador',
-        organizacion: 'Organización de marcador',
-        periodo: '20XX — 20XX',
-        descripcion: 'Descripción de marcador de la experiencia.',
-      },
-    ],
-    habilidades: ['Habilidad de marcador 1', 'Habilidad de marcador 2'],
+    nombre: 'Stward Serrano',
+    nombreCorto: 'Stward',
+    rol: '',
+    bio: '',
+    gustos: ['Videojuegos', 'Diseño', 'Modelado 3D'],
+    experiencia: [],
+    habilidades: [],
     cvUrl: '/cv/integrante-1.pdf',
-    colorPuerta: '#8a8f98',
-    colorLuz: '#3d8bff',
-    frase: 'Texto de marcador: una frase corta del integrante 1.',
+    colorPuerta: '#2a3445',
+    colorLuz: '#1ec8d8',
+    frase: '',
     href: '/equipo/integrante-1.html',
   },
   {
     id: 'integrante-2',
     slug: 'integrante-2',
-    nombre: 'Texto de marcador: Nombre integrante 2',
-    rol: 'Rol de marcador (ej. Diseño)',
-    bio: 'Biografía de marcador del integrante 2.',
-    gustos: ['Gusto de marcador C', 'Gusto de marcador D'],
-    objetosHabitacion: [
-      {
-        id: 'obj-2-1',
-        nombre: 'Objeto de marcador 1',
-        descripcion: 'Descripción de marcador del objeto 1.',
-        posicion: [-1.5, 0.5, -1],
-        formaPlaceholder: 'cilindro',
-        colorPlaceholder: '#8a8f98',
-      },
-      {
-        id: 'obj-2-2',
-        nombre: 'Objeto de marcador 2',
-        descripcion: 'Descripción de marcador del objeto 2.',
-        posicion: [1.5, 0.5, -1],
-        formaPlaceholder: 'cono',
-        colorPlaceholder: '#c8cbd1',
-      },
-    ],
-    experiencia: [
-      {
-        puesto: 'Puesto de marcador',
-        organizacion: 'Organización de marcador',
-        periodo: '20XX — 20XX',
-        descripcion: 'Descripción de marcador de la experiencia.',
-      },
-    ],
-    habilidades: ['Habilidad de marcador 1', 'Habilidad de marcador 2'],
+    nombre: 'Oscar',
+    nombreCorto: 'Oscar',
+    rol: '',
+    bio: '',
+    gustos: ['Fútbol', 'Programación'],
+    experiencia: [],
+    habilidades: [],
     cvUrl: '/cv/integrante-2.pdf',
-    colorPuerta: '#8a8f98',
-    colorLuz: '#ff8a2a',
-    frase: 'Texto de marcador: una frase corta del integrante 2.',
+    colorPuerta: '#23352c',
+    colorLuz: '#3deb8a',
+    frase: '',
     href: '/equipo/integrante-2.html',
   },
   {
     id: 'integrante-3',
     slug: 'integrante-3',
-    nombre: 'Texto de marcador: Nombre integrante 3',
-    rol: 'Rol de marcador (ej. Producto)',
-    bio: 'Biografía de marcador del integrante 3.',
-    gustos: ['Gusto de marcador E', 'Gusto de marcador F'],
-    objetosHabitacion: [
-      {
-        id: 'obj-3-1',
-        nombre: 'Objeto de marcador 1',
-        descripcion: 'Descripción de marcador del objeto 1.',
-        posicion: [-1.5, 0.5, -1],
-        formaPlaceholder: 'torus',
-        colorPlaceholder: '#8a8f98',
-      },
-      {
-        id: 'obj-3-2',
-        nombre: 'Objeto de marcador 2',
-        descripcion: 'Descripción de marcador del objeto 2.',
-        posicion: [1.5, 0.5, -1],
-        formaPlaceholder: 'caja',
-        colorPlaceholder: '#c8cbd1',
-      },
-    ],
-    experiencia: [
-      {
-        puesto: 'Puesto de marcador',
-        organizacion: 'Organización de marcador',
-        periodo: '20XX — 20XX',
-        descripcion: 'Descripción de marcador de la experiencia.',
-      },
-    ],
-    habilidades: ['Habilidad de marcador 1', 'Habilidad de marcador 2'],
+    nombre: 'Hezron',
+    nombreCorto: 'Hezron',
+    rol: '',
+    bio: '',
+    gustos: ['Videojuegos', 'Programación'],
+    experiencia: [],
+    habilidades: [],
     cvUrl: '/cv/integrante-3.pdf',
-    colorPuerta: '#8a8f98',
-    colorLuz: '#7bd88f',
-    frase: 'Texto de marcador: una frase corta del integrante 3.',
+    colorPuerta: '#2b2745',
+    colorLuz: '#8b7bff',
+    frase: '',
     href: '/equipo/integrante-3.html',
   },
   {
     id: 'integrante-4',
     slug: 'integrante-4',
-    nombre: 'Texto de marcador: Nombre integrante 4',
-    rol: 'Rol de marcador (ej. QA)',
-    bio: 'Biografía de marcador del integrante 4.',
-    gustos: ['Gusto de marcador G', 'Gusto de marcador H'],
-    objetosHabitacion: [
-      {
-        id: 'obj-4-1',
-        nombre: 'Objeto de marcador 1',
-        descripcion: 'Descripción de marcador del objeto 1.',
-        posicion: [-1.5, 0.5, -1],
-        formaPlaceholder: 'esfera',
-        colorPlaceholder: '#8a8f98',
-      },
-      {
-        id: 'obj-4-2',
-        nombre: 'Objeto de marcador 2',
-        descripcion: 'Descripción de marcador del objeto 2.',
-        posicion: [1.5, 0.5, -1],
-        formaPlaceholder: 'cilindro',
-        colorPlaceholder: '#c8cbd1',
-      },
-    ],
-    experiencia: [
-      {
-        puesto: 'Puesto de marcador',
-        organizacion: 'Organización de marcador',
-        periodo: '20XX — 20XX',
-        descripcion: 'Descripción de marcador de la experiencia.',
-      },
-    ],
-    habilidades: ['Habilidad de marcador 1', 'Habilidad de marcador 2'],
+    nombre: 'Fabiola',
+    nombreCorto: 'Fabiola',
+    rol: '',
+    bio: '',
+    gustos: ['Programación', 'Maquillaje'],
+    experiencia: [],
+    habilidades: [],
     cvUrl: '/cv/integrante-4.pdf',
-    colorPuerta: '#8a8f98',
-    colorLuz: '#c792ea',
-    frase: 'Texto de marcador: una frase corta del integrante 4.',
+    colorPuerta: '#40283a',
+    colorLuz: '#ff7eb6',
+    frase: '',
     href: '/equipo/integrante-4.html',
   },
 ];
 
 export const obtenerIntegrantePorSlug = (slug: string): Integrante | undefined =>
   equipo.find((persona) => persona.slug === slug);
+
+/**
+ * "Videojuegos, diseño y modelado 3D" (o "videojuegos, diseño y modelado 3D"
+ * con `enFrase`). Solo cambia la primera letra, así se respetan siglas como 3D.
+ */
+export function listaGustos(persona: Integrante, enFrase = false) {
+  const minuscula = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+  const g = persona.gustos.map((gusto, i) => (i === 0 && !enFrase ? gusto : minuscula(gusto)));
+  return g.length > 1 ? `${g.slice(0, -1).join(', ')} y ${g[g.length - 1]}` : (g[0] ?? '');
+}

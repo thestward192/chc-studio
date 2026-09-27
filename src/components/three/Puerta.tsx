@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import type { Integrante } from '../../content/equipo';
+import type { DestinoPuerta } from './destinoPuerta';
 import { crearUniformsPuerta, fragmentPuerta, vertexPuerta } from './shaders/puerta';
 import { estudioConfig as cfg, type Colocacion } from './estudio/estudio.config';
 import { DECORATIVA, sinRaycast, useInteractivo } from './estudio/useInteractivo';
@@ -10,12 +10,12 @@ import { ambiente } from './estudio/ambiente';
 import { obtenerMateriales } from './estudio/materiales';
 import { liberar, rastrear } from './estudio/recursos';
 import { texturaPlaca } from './estudio/texturas';
-import { precargar } from './estudio/navegacion';
+import { destinosPuerta, precargar } from './estudio/navegacion';
 import { volarA } from './estudio/camara';
 import { audio } from './estudio/audio';
 
 interface Props {
-  integrante: Integrante;
+  destino: DestinoPuerta;
   indice: number;
   colocacion: Colocacion;
 }
@@ -29,17 +29,18 @@ const ANGULO_ABIERTA = 1.45;
  * "Entrar": se abre del todo, la cámara avanza y la luz inunda la pantalla
  * (el fundido y la navegación los hace la interfaz: InundacionLuz).
  */
-export function Puerta({ integrante, indice, colocacion }: Props) {
+export function Puerta({ destino, indice, colocacion }: Props) {
   const raiz = useRef<THREE.Group>(null);
   const bisagra = useRef<THREE.Group>(null);
-  const id = `puerta-${integrante.id}`;
+  const id = `puerta-${destino.id}`;
+  destinosPuerta.set(id, { href: destino.href, color: destino.colorLuz });
   const { ancho, alto } = cfg.puerta;
   const m = obtenerMateriales();
 
   const recursos = useMemo(() => {
     const crear = (modo: number, medioQuad: [number, number]) => {
       const uniforms = crearUniformsPuerta();
-      uniforms.uColor.value.set(integrante.colorLuz);
+      uniforms.uColor.value.set(destino.colorLuz);
       uniforms.uMedioPuerta.value.set(ancho / 2, alto / 2);
       uniforms.uMedioQuad.value.set(...medioQuad);
       const material = rastrear(
@@ -57,9 +58,11 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
       );
       return { uniforms, material };
     };
-    const hoja = rastrear(new THREE.MeshStandardMaterial({ color: integrante.colorPuerta, roughness: 0.55 }));
+    const hoja = rastrear(
+      new THREE.MeshStandardMaterial({ color: destino.colorPuerta, roughness: 0.55 }),
+    );
     const placa = rastrear(
-      new THREE.MeshBasicMaterial({ map: texturaPlaca(integrante.nombre.replace('Texto de marcador: ', ''), integrante.colorLuz) }),
+      new THREE.MeshBasicMaterial({ map: texturaPlaca(destino.nombre, destino.colorLuz) }),
     );
     return {
       pared: crear(0, [(ancho + 1) / 2, (alto + 0.6) / 2]),
@@ -69,7 +72,7 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
       placa,
       angulo: 0,
     };
-  }, [integrante, ancho, alto]);
+  }, [destino.colorLuz, destino.colorPuerta, destino.nombre, ancho, alto]);
 
   useEffect(
     () => () =>
@@ -89,32 +92,42 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
   const nz = Math.cos(colocacion.rotY);
   const [px, , pz] = colocacion.pos;
   const foco = {
-    pos: [px + nx * cfg.puerta.distanciaFoco, 1.55, pz + nz * cfg.puerta.distanciaFoco] as [number, number, number],
+    pos: [px + nx * cfg.puerta.distanciaFoco, 1.55, pz + nz * cfg.puerta.distanciaFoco] as [
+      number,
+      number,
+      number,
+    ],
     objetivo: [px, 1.2, pz] as [number, number, number],
   };
 
   useInteractivo(raiz, {
     id,
-    nombre: integrante.nombre,
+    nombre: destino.nombre,
     etiqueta: 'Puerta',
     grupo: 'puerta',
     orden: indice,
     foco,
-    info: () => `${integrante.rol}\n\n“${integrante.frase}”`,
+    info: destino.info,
+    pendiente: destino.pendiente,
     acciones: [
       {
-        label: () => (useEstudio.getState().puertaEntrando === id ? 'Entrando…' : 'Entrar →'),
+        label: () =>
+          useEstudio.getState().puertaEntrando === id
+            ? 'Entrando…'
+            : `${destino.accion ?? 'Entrar'} →`,
         run: () => {
           if (useEstudio.getState().puertaEntrando) return;
           useEstudio.getState().set({ puertaEntrando: id });
           audio.puerta();
           // La cámara avanza hasta el vano mientras la puerta se abre
-          volarA([px + nx * 0.3, 1.3, pz + nz * 0.3], [px - nx * 1.5, 1.15, pz - nz * 1.5], { duracion: 1500 });
+          volarA([px + nx * 0.3, 1.3, pz + nz * 0.3], [px - nx * 1.5, 1.15, pz - nz * 1.5], {
+            duracion: 1500,
+          });
         },
       },
     ],
     alHover: (activo) => {
-      if (activo) precargar(integrante.href);
+      if (activo) precargar(destino.href);
     },
   });
 
@@ -141,7 +154,13 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
   return (
     <group ref={raiz} position={colocacion.pos} rotation-y={colocacion.rotY}>
       {/* Luz en la pared (bordes y rendija) */}
-      <mesh position={[0, alto / 2, 0.003]} material={recursos.pared.material} renderOrder={2} userData={DECORATIVA} raycast={sinRaycast}>
+      <mesh
+        position={[0, alto / 2, 0.003]}
+        material={recursos.pared.material}
+        renderOrder={2}
+        userData={DECORATIVA}
+        raycast={sinRaycast}
+      >
         <planeGeometry args={[ancho + 1, alto + 0.6]} />
       </mesh>
       {/* Abanico de luz en el suelo */}
@@ -156,7 +175,11 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
         <planeGeometry args={[ancho + 1.6, 1.6]} />
       </mesh>
       {/* Vano iluminado (se ve al abrir) */}
-      <mesh position={[0, alto / 2, 0.006]} material={recursos.interior.material} userData={DECORATIVA}>
+      <mesh
+        position={[0, alto / 2, 0.006]}
+        material={recursos.interior.material}
+        userData={DECORATIVA}
+      >
         <planeGeometry args={[ancho, alto]} />
       </mesh>
       {/* Marco */}
@@ -171,7 +194,12 @@ export function Puerta({ integrante, indice, colocacion }: Props) {
       </mesh>
       {/* Hoja de la puerta, con bisagra en el lado izquierdo */}
       <group ref={bisagra} position={[-ancho / 2, 0, 0.035]}>
-        <mesh position={[ancho / 2, alto / 2 + 0.008, 0]} material={recursos.hoja} castShadow receiveShadow>
+        <mesh
+          position={[ancho / 2, alto / 2 + 0.008, 0]}
+          material={recursos.hoja}
+          castShadow
+          receiveShadow
+        >
           <boxGeometry args={[ancho - 0.01, alto - 0.016, 0.045]} />
         </mesh>
         {/* Manija */}

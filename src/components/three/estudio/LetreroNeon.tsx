@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { sala } from '../../../theme/theme';
-import { empresa } from '../../../content/empresa';
 import { crearUniformsNeon, fragmentNeon, vertexNeon } from '../shaders/neon';
 import { ObjetoInteractivo } from '../ObjetoInteractivo';
 import { estudioConfig as cfg, focoFrontal } from './estudio.config';
@@ -14,6 +13,9 @@ import { useEstudio } from './estadoEstudio';
 import { audio } from './audio';
 import { DECORATIVA } from './useInteractivo';
 
+/** El letrero es el logo de marca, como en el header. */
+const NOMBRE_NEON = 'CHC STUDIO';
+
 const ANCHO = 2.2;
 const ALTO = 0.55;
 
@@ -24,8 +26,9 @@ export function LetreroNeon() {
 
   const recursos = useMemo(() => {
     const u = crearUniformsNeon();
-    u.uMascara.value = mascaraNeon(empresa.nombre);
+    u.uMascara.value = mascaraNeon(NOMBRE_NEON);
     u.uColor.value.set(sala.neon);
+    u.uColor2.value.set(sala.neon2);
     const material = rastrear(
       new THREE.ShaderMaterial({
         uniforms: u,
@@ -62,12 +65,14 @@ export function LetreroNeon() {
   return (
     <ObjetoInteractivo
       id="neon"
-      nombre={`Neón “${empresa.nombre}”`}
+      nombre={`Neón “${NOMBRE_NEON}”`}
       etiqueta="Letrero"
       posicion={colocacion.pos}
       rotY={colocacion.rotY}
       foco={focoFrontal(colocacion, 3.2, 2.2)}
-      info={() => (useEstudio.getState().neon ? 'Encendido (con su parpadeo de arranque).' : 'Apagado.')}
+      info={() =>
+        useEstudio.getState().neon ? 'Encendido (con su parpadeo de arranque).' : 'Apagado.'
+      }
       acciones={[
         {
           label: () => (useEstudio.getState().neon ? 'Apagar neón' : 'Encender neón'),
@@ -83,7 +88,12 @@ export function LetreroNeon() {
       <mesh position={[0, 0, 0.01]} material={m.marco}>
         <boxGeometry args={[ANCHO + 0.1, ALTO + 0.06, 0.02]} />
       </mesh>
-      <mesh position={[0, 0, 0.025]} material={recursos.material} renderOrder={3} userData={DECORATIVA}>
+      <mesh
+        position={[0, 0, 0.025]}
+        material={recursos.material}
+        renderOrder={3}
+        userData={DECORATIVA}
+      >
         <planeGeometry args={[ANCHO, ALTO]} />
       </mesh>
     </ObjetoInteractivo>

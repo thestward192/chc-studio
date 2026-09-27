@@ -319,6 +319,24 @@ en canvas.
   anterior/siguiente con un cuadro enfocado.
 - **Sonido**: todo sintetizado con Web Audio (efectos y música lo-fi de la
   radio), apagado hasta que el usuario lo activa, con volumen bajo.
+- **Estilo de marca (igual que el header de Inicio)**:
+  - **Interfaz**: cristal azul noche, degradado verde→turquesa, Sora en títulos
+    e Inter en texto, desde los tokens `--ui-*` y `--fuente-ui*` de
+    `tokens.css`.
+  - **Botones**: los principales son la píldora con degradado y flecha en un
+    círculo; los secundarios, píldoras de cristal. Los iconos son de Phosphor
+    (antes eran emojis).
+  - **Etiquetas de sección**: rayita con el degradado (`.eui-etiqueta`).
+  - **Logo** (`ui/estudio/LogoEstudio.tsx`): la "C" de la laptop + "CHC
+    STUDIO"; se usa en el HUD y en la pantalla de carga.
+  - **Dentro de la sala**:
+    - El neón dice "CHC STUDIO" en Sora con degradado verde→turquesa
+      (`sala.neon` / `sala.neon2`).
+    - Las portadas de los proyectos son tarjetas azul noche con halo, anillos y
+      la "C" en el color de cada proyecto.
+    - La pared del fondo es azul noche.
+    - Los LEDs y el código de los monitores usan turquesa.
+    - El contorno de selección toma `--ui-acento` (turquesa).
 
 ### Archivos
 

@@ -1,17 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { animate, stagger } from 'animejs';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { Sun } from '@phosphor-icons/react/dist/csr/Sun';
+import { Moon } from '@phosphor-icons/react/dist/csr/Moon';
+import { SpeakerHigh } from '@phosphor-icons/react/dist/csr/SpeakerHigh';
+import { SpeakerSlash } from '@phosphor-icons/react/dist/csr/SpeakerSlash';
+import { Pause } from '@phosphor-icons/react/dist/csr/Pause';
+import { Play } from '@phosphor-icons/react/dist/csr/Play';
+import { List } from '@phosphor-icons/react/dist/csr/List';
+import { FileText } from '@phosphor-icons/react/dist/csr/FileText';
+import { ArrowLeft } from '@phosphor-icons/react/dist/csr/ArrowLeft';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 import { puente } from '../../three/estudio/puente';
-import { abrirMenu, alternarNoche, alternarPausa, alternarSonido, irAVistaGeneral } from './acciones';
+import {
+  abrirMenu,
+  alternarNoche,
+  alternarPausa,
+  alternarSonido,
+  irAVistaGeneral,
+} from './acciones';
+import { LogoEstudio } from './LogoEstudio';
 
 interface Props {
   onVolverInicio: () => void;
 }
 
+const ICONO = { size: 18, weight: 'regular' } as const;
+
 /**
- * HUD: tarjeta de título (arriba a la izquierda), botones de control
- * (arriba a la derecha; en móvil, abajo y solo con icono), "Versión
- * simple" y "Volver al inicio", y la pista de controles.
+ * HUD: logo (arriba a la izquierda), botones de control (arriba a la
+ * derecha; en móvil, abajo y solo con icono), "Versión simple" y "Volver al
+ * inicio", y la pista de controles.
  */
 export function Hud({ onVolverInicio }: Props) {
   const fase = useEstudio((s) => s.fase);
@@ -20,6 +39,8 @@ export function Hud({ onVolverInicio }: Props) {
   const pausa = useEstudio((s) => s.pausa);
   const raiz = useRef<HTMLDivElement>(null);
   const visible = fase === 'entrando' || fase === 'explorando';
+  const proyectos = puente.listar('proyecto').length;
+  const puertas = puente.listar('puerta').length;
 
   // Entrada escalonada de los elementos del HUD
   useEffect(() => {
@@ -41,25 +62,41 @@ export function Hud({ onVolverInicio }: Props) {
   return (
     <div ref={raiz} className="eui">
       <div className="eui-titulo eui-cristal" data-hud>
-        <span className="eui-titulo__punto" aria-hidden="true" />
-        <div>
-          <p className="eui-titulo__nombre">Estudio ChcStudio</p>
-          <p className="eui-titulo__sub eui-mono">~/estudio · 5 proyectos · 4 puertas</p>
-        </div>
+        <LogoEstudio sub={`Taller 3D: ${proyectos} proyectos y ${puertas} puertas`} />
       </div>
 
       <nav className="eui-botones" aria-label="Controles del estudio">
-        <BotonHud icono="🏠" texto="Vista general" atajo="H" onClick={irAVistaGeneral} />
-        <BotonHud icono={noche ? '☀️' : '🌙'} texto={noche ? 'Día' : 'Noche'} atajo="N" onClick={alternarNoche} />
         <BotonHud
-          icono={sonido ? '🔊' : '🔇'}
+          icono={<House {...ICONO} />}
+          texto="Vista general"
+          atajo="H"
+          onClick={irAVistaGeneral}
+        />
+        <BotonHud
+          icono={noche ? <Sun {...ICONO} /> : <Moon {...ICONO} />}
+          texto={noche ? 'Día' : 'Noche'}
+          atajo="N"
+          onClick={alternarNoche}
+        />
+        <BotonHud
+          icono={sonido ? <SpeakerHigh {...ICONO} /> : <SpeakerSlash {...ICONO} />}
           texto={sonido ? 'Sonido' : 'Sin sonido'}
           atajo="M"
           pulsado={sonido}
           onClick={alternarSonido}
         />
-        <BotonHud icono={pausa ? '▶️' : '⏸️'} texto={pausa ? 'Seguir' : 'Pausa'} pulsado={pausa} onClick={alternarPausa} />
-        <BotonHud icono="☰" texto="Menú" onClick={() => abrirMenu(true)} />
+        <BotonHud
+          icono={pausa ? <Play {...ICONO} /> : <Pause {...ICONO} />}
+          texto={pausa ? 'Seguir' : 'Pausa'}
+          pulsado={pausa}
+          onClick={alternarPausa}
+        />
+        <BotonHud
+          icono={<List {...ICONO} />}
+          texto="Menú"
+          atajo="Esc"
+          onClick={() => abrirMenu(true)}
+        />
       </nav>
 
       <div className="eui-secundarios">
@@ -71,23 +108,39 @@ export function Hud({ onVolverInicio }: Props) {
           aria-label="Versión simple"
         >
           <span className="eui-boton__icono" aria-hidden="true">
-            📄
+            <FileText {...ICONO} />
           </span>
           <span className="eui-boton__texto">Versión simple</span>
         </button>
-        <button type="button" className="eui-boton" data-hud onClick={onVolverInicio} aria-label="Volver al inicio">
+        <button
+          type="button"
+          className="eui-boton"
+          data-hud
+          onClick={onVolverInicio}
+          aria-label="Volver al inicio"
+        >
           <span className="eui-boton__icono" aria-hidden="true">
-            ←
+            <ArrowLeft {...ICONO} />
           </span>
           <span className="eui-boton__texto">Volver al inicio</span>
         </button>
       </div>
 
-      {pausa && <p className="eui-pausado eui-cristal eui-mono">⏸ Escena en pausa</p>}
+      {pausa && (
+        <p className="eui-pausado eui-cristal">
+          <Pause size={14} weight="bold" aria-hidden="true" />
+          Escena en pausa
+        </p>
+      )}
 
       <p className="eui-pista eui-cristal" data-hud>
-        Arrastra para orbitar · Rueda para acercar · Clic para inspeccionar · <kbd>N</kbd> <kbd>H</kbd>{' '}
-        <kbd>M</kbd> <kbd>Esc</kbd>
+        <span>Arrastrá para orbitar, rueda para acercar, clic para inspeccionar</span>
+        <span className="eui-pista__atajos" aria-label="Atajos de teclado">
+          <kbd title="Noche / día">N</kbd>
+          <kbd title="Vista general">H</kbd>
+          <kbd title="Sonido">M</kbd>
+          <kbd title="Menú">Esc</kbd>
+        </span>
       </p>
 
       <Tooltip />
@@ -102,7 +155,7 @@ function BotonHud({
   pulsado,
   onClick,
 }: {
-  icono: string;
+  icono: ReactNode;
   texto: string;
   atajo?: string;
   pulsado?: boolean;
@@ -154,8 +207,10 @@ function Tooltip() {
     >
       {interactivo && (
         <>
-          <span className="eui-tooltip__etiqueta">{interactivo.etiqueta}</span>
-          <span className="eui-tooltip__nombre">{interactivo.nombre}</span>
+          <span className="eui-etiqueta eui-tooltip__etiqueta">{interactivo.etiqueta}</span>
+          <span className="eui-tooltip__nombre">
+            {interactivo.nombre.replace('Texto de marcador: ', '')}
+          </span>
         </>
       )}
     </div>

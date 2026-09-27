@@ -1,4 +1,6 @@
-/* Interfaz del estudio 3D — estética "cristal oscuro". Todo sale de tokens.css. */
+/* Interfaz del estudio 3D ("taller"). Mismo lenguaje que el header de Inicio:
+   cristal azul noche, degradado verde→turquesa, píldoras, Sora en títulos e
+   Inter en texto. Todo sale de tokens.css. */
 
 .eui {
   font-family: var(--fuente-ui);
@@ -7,23 +9,46 @@
 
 .eui-cristal {
   background: var(--ui-cristal);
-  backdrop-filter: blur(var(--ui-desenfoque));
-  -webkit-backdrop-filter: blur(var(--ui-desenfoque));
+  backdrop-filter: blur(var(--ui-desenfoque)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--ui-desenfoque)) saturate(140%);
   border: 1px solid var(--ui-linea);
   border-radius: var(--ui-radio);
-  box-shadow: var(--ui-sombra);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    var(--ui-sombra);
 }
 
 .eui-mono {
   font-family: var(--fuente-codigo);
 }
 
+/* Etiqueta de sección: rayita con el degradado + texto en Sora (como el header) */
+.eui-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font: 600 0.8rem/1.2 var(--fuente-ui-titulos);
+  color: var(--ui-texto-tenue);
+}
+
+.eui-etiqueta::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent-gradient);
+}
+
+/* ------------------------------------------------------------ Botones */
+
 .eui-boton {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 2.5rem;
-  padding: 0.45rem 0.85rem;
+  gap: 0.5rem;
+  min-height: 2.6rem;
+  padding: 0.45rem 1rem 0.45rem 0.8rem;
   font: 500 0.875rem/1 var(--fuente-ui);
   color: var(--ui-texto);
   background: var(--ui-cristal);
@@ -32,47 +57,179 @@
   border: 1px solid var(--ui-linea);
   border-radius: 999px;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--duracion-ui) var(--easing-ui),
+    background-color var(--duracion-ui) var(--easing-ui),
     border-color var(--duracion-ui) var(--easing-ui),
-    transform var(--duracion-ui) var(--easing-ui);
+    color var(--duracion-ui) var(--easing-ui),
+    transform var(--duracion-ui) var(--easing-ui),
+    box-shadow var(--duracion-ui) var(--easing-ui);
 }
 
 .eui-boton:hover {
-  border-color: var(--ui-acento-suave);
-  background: color-mix(in srgb, var(--ui-acento) 18%, var(--ui-cristal));
+  border-color: color-mix(in srgb, var(--ui-acento) 60%, transparent);
+  background: color-mix(in srgb, var(--ui-acento-suave) 10%, var(--ui-cristal));
 }
 
 .eui-boton:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
 }
 
+.eui-boton:focus-visible {
+  outline: 2px solid var(--ui-acento);
+  outline-offset: 3px;
+}
+
+/* Activo (pausa, sonido, calidad elegida): borde verde y fondo teñido */
 .eui-boton[aria-pressed='true'] {
-  border-color: var(--ui-acento);
-  background: color-mix(in srgb, var(--ui-acento) 28%, var(--ui-cristal));
+  border-color: color-mix(in srgb, var(--ui-acento-suave) 70%, transparent);
+  background: color-mix(in srgb, var(--ui-acento-suave) 16%, var(--ui-cristal));
 }
 
+.eui-boton[aria-pressed='true'] .eui-boton__icono {
+  color: var(--ui-acento-suave);
+}
+
+/* Primario: la píldora con el degradado de marca y flecha en un círculo */
 .eui-boton--primario {
-  background: linear-gradient(135deg, var(--ui-acento), var(--ui-acento-suave));
+  padding: 0.35rem 0.35rem 0.35rem 1.15rem;
+  gap: 0.7rem;
+  font-weight: 500;
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
   border-color: transparent;
-  color: var(--color-texto-inverso);
-  font-weight: 700;
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--ui-acento) 45%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-green) 28%, transparent);
 }
 
 .eui-boton--primario:hover {
-  background: linear-gradient(135deg, var(--ui-acento-suave), var(--ui-acento));
+  background: var(--accent-gradient);
+  border-color: transparent;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--accent-cyan) 42%, transparent);
+}
+
+.eui-boton--primario:active {
+  transform: scale(0.97);
+}
+
+.eui-boton__flecha {
+  display: grid;
+  place-items: center;
+  width: 1.95rem;
+  height: 1.95rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: var(--accent-green);
+  background: var(--text-on-accent);
+  transition: transform var(--duracion-ui) var(--easing-ui);
+}
+
+.eui-boton--primario:hover .eui-boton__flecha {
+  transform: translateX(2px);
+}
+
+/* Sin flecha: el primario queda simétrico */
+.eui-boton--primario:not(:has(.eui-boton__flecha)) {
+  padding: 0.45rem 1.15rem;
 }
 
 .eui-boton:disabled {
   opacity: 0.45;
   cursor: default;
+  transform: none;
+  filter: none;
 }
 
 .eui-boton__icono {
-  font-size: 1rem;
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--ui-texto);
+  transition: color var(--duracion-ui) var(--easing-ui);
+}
+
+.eui-boton:hover .eui-boton__icono {
+  color: var(--ui-acento-suave);
+}
+
+/* Botón redondo solo con icono (cerrar) */
+.eui-boton-redondo {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  color: var(--ui-texto);
+  background: color-mix(in srgb, var(--ui-texto) 6%, transparent);
+  border: 1px solid var(--ui-linea);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background-color var(--duracion-ui) var(--easing-ui),
+    border-color var(--duracion-ui) var(--easing-ui),
+    transform var(--duracion-ui) var(--easing-ui);
+}
+
+.eui-boton-redondo:hover {
+  border-color: color-mix(in srgb, var(--ui-acento) 60%, transparent);
+  background: color-mix(in srgb, var(--ui-acento-suave) 12%, transparent);
+  transform: rotate(90deg);
+}
+
+.eui-boton-redondo:focus-visible {
+  outline: 2px solid var(--ui-acento);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------ Logo */
+
+.eui-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Marca: la "C" de la laptop, en un cuadro azul noche con borde de cristal */
+.eui-logo__marca {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--ui-linea);
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent-cyan) 18%, transparent);
+}
+
+.eui-logo__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.eui-logo__nombre {
+  margin: 0;
+  font: 700 1.02rem/1 var(--fuente-ui-titulos);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.eui-logo__degradado {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eui-logo__sub {
+  margin: 0;
+  color: var(--ui-texto-tenue);
+  font-size: 0.74rem;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------ Carga */
@@ -84,25 +241,55 @@
   display: grid;
   place-items: center;
   padding: 1.5rem;
+  overflow: hidden;
   background:
-    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--ui-acento) 22%, transparent), transparent 55%),
-    var(--color-fondo);
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--accent-green) 16%, transparent),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 58% 55%,
+      color-mix(in srgb, var(--accent-cyan) 12%, transparent),
+      transparent 45%
+    ),
+    var(--bg-dark);
+}
+
+/* Anillos concéntricos de fondo, como en el hero */
+.eui-carga__anillos {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(1100px, 160vmax);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.eui-carga__anillos circle {
+  fill: none;
+  stroke: var(--ui-linea);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
 .eui-carga__caja {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-  width: min(420px, 100%);
-  padding: 2rem 1.75rem;
+  gap: 1.2rem;
+  width: min(440px, 100%);
+  padding: 2.1rem 1.9rem 1.9rem;
   text-align: center;
+  border-radius: var(--ui-radio-grande);
 }
 
 .eui-carga__ilustracion {
   position: relative;
   width: 220px;
-  height: 150px;
+  height: 140px;
 }
 
 .eui-carga__svg {
@@ -113,47 +300,42 @@
 
 .eui-carga__trazo {
   fill: none;
-  stroke: var(--ui-acento-suave);
+  stroke: var(--accent-cyan);
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .eui-carga__trazo--destacado {
-  stroke: var(--ui-destacado);
+  stroke: var(--accent-green);
 }
 
 .eui-carga__engranaje {
   position: absolute;
-  color: var(--ui-acento);
-  font-size: 2rem;
-  line-height: 1;
+  display: grid;
+  color: var(--accent-cyan);
 }
 
 .eui-carga__engranaje--a {
   right: -6px;
-  bottom: -4px;
+  bottom: -6px;
 }
 
 .eui-carga__engranaje--b {
-  right: 24px;
+  right: 26px;
   bottom: 22px;
-  font-size: 1.35rem;
-  color: var(--ui-destacado);
+  color: var(--accent-green);
 }
 
 .eui-carga__titulo {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
 }
 
 .eui-carga__mensaje {
   min-height: 1.4em;
   margin: 0;
   color: var(--ui-acento-suave);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .eui-carga__barra {
@@ -166,15 +348,16 @@
 
 .eui-carga__relleno {
   height: 100%;
-  background: linear-gradient(90deg, var(--ui-acento), var(--ui-acento-suave));
+  background: var(--accent-gradient);
   border-radius: inherit;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
   transition: width 0.35s var(--easing-ui);
 }
 
 .eui-carga__porcentaje {
-  margin: -0.5rem 0 0;
+  margin: -0.45rem 0 0;
   color: var(--ui-texto-tenue);
-  font-size: 0.75rem;
+  font-size: 0.74rem;
 }
 
 /* ------------------------------------------------------------ HUD */
@@ -184,32 +367,8 @@
   top: 1rem;
   left: 1rem;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 1rem;
-}
-
-.eui-titulo__punto {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--ui-acento);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--ui-acento) 25%, transparent),
-    0 0 16px var(--ui-acento);
-}
-
-.eui-titulo__nombre {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.eui-titulo__sub {
-  margin: 0.15rem 0 0;
-  color: var(--ui-texto-tenue);
-  font-size: 0.72rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.55rem;
+  border-radius: 999px 20px 20px 999px;
 }
 
 .eui-botones {
@@ -238,20 +397,34 @@
   left: 50%;
   bottom: 1rem;
   z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
   transform: translateX(-50%);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.6rem 0.5rem 1rem;
   color: var(--ui-texto-tenue);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   white-space: nowrap;
+  border-radius: 999px;
+}
+
+.eui-pista__atajos {
+  display: flex;
+  gap: 0.3rem;
 }
 
 .eui-pista kbd {
-  padding: 0.05rem 0.35rem;
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
   border: 1px solid var(--ui-linea);
-  border-radius: 5px;
+  border-radius: 8px;
   color: var(--ui-texto);
+  background: color-mix(in srgb, var(--ui-texto) 6%, transparent);
   font-family: var(--fuente-codigo);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
 }
 
 .eui-pausado {
@@ -259,10 +432,15 @@
   left: 50%;
   top: 1rem;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   transform: translateX(-50%);
-  padding: 0.35rem 0.8rem;
-  font-size: 0.75rem;
-  color: var(--ui-destacado);
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ui-acento-suave);
+  border-radius: 999px;
 }
 
 /* ------------------------------------------------------------ Tooltip */
@@ -270,24 +448,20 @@
 .eui-tooltip {
   position: fixed;
   z-index: 30;
+  display: grid;
+  gap: 0.2rem;
   pointer-events: none;
-  padding: 0.45rem 0.7rem;
-  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 12px;
   transform: translate(16px, 16px);
 }
 
 .eui-tooltip__etiqueta {
-  display: block;
-  color: var(--ui-acento-suave);
-  font-family: var(--fuente-codigo);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
 }
 
 .eui-tooltip__nombre {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font: 600 0.9rem/1.2 var(--fuente-ui-titulos);
 }
 
 /* ------------------------------------------------------------ Panel */
@@ -300,7 +474,7 @@
   z-index: 25;
   display: flex;
   flex-direction: column;
-  width: 380px;
+  width: 390px;
   max-width: calc(100vw - 2rem);
   border-radius: var(--ui-radio-grande);
   overflow: hidden;
@@ -317,59 +491,44 @@
 .eui-panel__cuerpo {
   flex: 1;
   overflow-y: auto;
-  padding: 1.35rem 1.35rem 1rem;
+  padding: 1.5rem 1.5rem 1rem;
 }
 
 .eui-panel__cerrar {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--ui-linea);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ui-texto);
-  font-size: 1rem;
-}
-
-.eui-panel__etiqueta {
-  margin: 0;
-  color: var(--ui-destacado);
-  font: 600 0.7rem/1 var(--fuente-codigo);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  top: 1rem;
+  right: 1rem;
 }
 
 .eui-panel__titulo {
-  margin: 0.5rem 2.5rem 1rem 0;
-  font-size: 1.4rem;
-  line-height: 1.15;
+  margin: 0.7rem 2.75rem 1.1rem 0;
+  font: 700 1.45rem/1.15 var(--fuente-ui-titulos);
+  letter-spacing: -0.01em;
 }
 
 .eui-panel__preview {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
   border: 1px solid var(--ui-linea);
-  border-radius: 12px;
-  background: var(--color-fondo);
+  border-radius: 16px;
+  background: var(--bg-dark);
 }
 
 .eui-panel__info {
   margin: 0 0 1rem;
   white-space: pre-line;
   color: var(--ui-texto-tenue);
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 0.93rem;
+  line-height: 1.6;
 }
 
 .eui-panel__acciones {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.85rem 1.35rem 1.1rem;
+  padding: 0.95rem 1.5rem 1.2rem;
   border-top: 1px solid var(--ui-linea);
 }
 
@@ -382,16 +541,16 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: color-mix(in srgb, var(--color-fondo) 45%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--bg-dark) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .eui-menu {
-  width: min(720px, 100%);
+  width: min(760px, 100%);
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 1.6rem;
   background: var(--ui-cristal-denso);
   border-radius: var(--ui-radio-grande);
 }
@@ -401,32 +560,44 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--ui-linea);
 }
 
 .eui-menu__titulo {
   margin: 0;
-  font-size: 1.35rem;
+  font: 700 1.4rem/1.15 var(--fuente-ui-titulos);
 }
 
 .eui-menu__seccion {
-  margin: 1.1rem 0 0.5rem;
-  color: var(--ui-destacado);
-  font: 600 0.7rem/1 var(--fuente-codigo);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin: 1.35rem 0 0.7rem;
 }
 
 .eui-menu__rejilla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 0.5rem;
 }
 
+/* Botones del menú: fila con el icono en una baldosa (como los servicios del header) */
 .eui-menu__rejilla .eui-boton {
   justify-content: flex-start;
-  border-radius: 12px;
+  min-height: 3rem;
+  padding: 0.35rem 0.9rem 0.35rem 0.35rem;
+  border-radius: 14px;
   text-align: left;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.eui-menu__rejilla .eui-boton__icono {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  color: var(--ui-acento-suave);
+  background: var(--bg-dark);
+  border: 1px solid var(--ui-linea);
 }
 
 .eui-menu__fila {
@@ -438,11 +609,12 @@
 
 .eui-menu__dato {
   color: var(--ui-texto-tenue);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .eui-simple a {
   color: var(--ui-acento-suave);
+  text-underline-offset: 3px;
 }
 
 .eui-simple ul {
@@ -455,10 +627,20 @@
   margin-top: 0.5rem;
 }
 
+.eui-simple li::marker {
+  color: var(--ui-acento-suave);
+}
+
 .eui-simple p {
   margin: 0.15rem 0 0;
   color: var(--ui-texto-tenue);
   font-size: 0.85rem;
+}
+
+/* Las etiquetas de sección también son <p>: recuperar su margen y tamaño */
+.eui-simple .eui-menu__seccion {
+  margin: 1.6rem 0 0.8rem;
+  font-size: 0.8rem;
 }
 
 /* ------------------------------------------------------------ Puerta: la luz inunda la pantalla */
@@ -471,16 +653,36 @@
   opacity: 0;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .eui-boton,
+  .eui-boton-redondo,
+  .eui-boton__flecha {
+    transition: none;
+  }
+
+  .eui-boton-redondo:hover,
+  .eui-boton--primario:hover,
+  .eui-boton--primario:hover .eui-boton__flecha {
+    transform: none;
+  }
+}
+
 /* ------------------------------------------------------------ Móvil (< 700 px) */
 
 @media (max-width: 700px) {
   .eui-titulo {
     top: 0.75rem;
     left: 0.75rem;
-    padding: 0.55rem 0.8rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.4rem;
   }
 
-  .eui-titulo__sub {
+  .eui-logo__marca {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .eui-titulo .eui-logo__sub {
     display: none;
   }
 
@@ -510,6 +712,10 @@
     backdrop-filter: none;
   }
 
+  .eui-botones .eui-boton[aria-pressed='true'] {
+    background: color-mix(in srgb, var(--ui-acento-suave) 16%, transparent);
+  }
+
   .eui-boton__texto {
     display: none;
   }
@@ -522,7 +728,7 @@
   }
 
   .eui-secundarios .eui-boton {
-    width: 2.5rem;
+    width: 2.6rem;
     padding: 0;
     justify-content: center;
   }
@@ -566,5 +772,9 @@
 
   .eui-menu {
     padding: 1.1rem;
+  }
+
+  .eui-menu__rejilla {
+    grid-template-columns: 1fr 1fr;
   }
 }

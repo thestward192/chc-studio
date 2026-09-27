@@ -9,6 +9,7 @@ export function crearUniformsNeon() {
   return {
     uMascara: { value: null as THREE.Texture | null },
     uColor: { value: new THREE.Color() },
+    uColor2: { value: new THREE.Color() }, // degradado de izquierda a derecha
     uIntensidad: { value: 2.5 },
     uTiempo: { value: 0 },
     uEncendido: { value: 1 }, // 0 apagado / 1 encendido
@@ -28,6 +29,7 @@ export const vertexNeon = /* glsl */ `
 export const fragmentNeon = /* glsl */ `
   uniform sampler2D uMascara;
   uniform vec3 uColor;
+  uniform vec3 uColor2;
   uniform float uIntensidad;
   uniform float uTiempo;
   uniform float uEncendido;
@@ -41,6 +43,7 @@ export const fragmentNeon = /* glsl */ `
     float m = texture2D(uMascara, vUv).r;
     float tubo = smoothstep(0.72, 0.95, m);  // núcleo del tubo
     float halo = smoothstep(0.02, 0.7, m);   // resplandor alrededor
+    vec3 tono = mix(uColor, uColor2, smoothstep(0.15, 0.85, vUv.x));
 
     // Arranque: parpadeo irregular durante ~1.6 s después de encender
     float desde = uTiempo - uTiempoCambio;
@@ -52,8 +55,8 @@ export const fragmentNeon = /* glsl */ `
     estado *= uEncendido;
 
     // Apagado se ve el tubo de vidrio tenue
-    vec3 apagado = uColor * tubo * 0.06;
-    vec3 encendido = uColor * (tubo * uIntensidad + halo * 0.35 * uIntensidad * 0.5);
+    vec3 apagado = tono * tubo * 0.06;
+    vec3 encendido = tono * (tubo * uIntensidad + halo * 0.35 * uIntensidad * 0.5);
     vec3 color = mix(apagado, encendido, estado);
     float alfa = max(tubo, halo * estado);
     gl_FragColor = vec4(color, alfa);

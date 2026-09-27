@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, cubicBezier } from 'animejs';
+import { X } from '@phosphor-icons/react/dist/csr/X';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 import { puente } from '../../three/estudio/puente';
 
@@ -105,13 +106,22 @@ export function PanelInfo() {
         onPointerCancel={alSoltar}
         aria-hidden="true"
       />
-      <button type="button" className="eui-panel__cerrar" onClick={() => puente.cerrarPanel()} aria-label="Cerrar panel">
-        ✕
+      <button
+        type="button"
+        className="eui-boton-redondo eui-panel__cerrar"
+        onClick={() => puente.cerrarPanel()}
+        aria-label="Cerrar panel"
+      >
+        <X size={18} weight="bold" aria-hidden="true" />
       </button>
       <div className="eui-panel__cuerpo">
-        <p className="eui-panel__etiqueta">{interactivo.etiqueta}</p>
-        <h2 className="eui-panel__titulo">{interactivo.nombre}</h2>
-        {interactivo.preview && <canvas ref={lienzo} className="eui-panel__preview" aria-hidden="true" />}
+        <p className="eui-etiqueta">{interactivo.etiqueta}</p>
+        <h2 className="eui-panel__titulo">
+          {interactivo.nombre.replace('Texto de marcador: ', '')}
+        </h2>
+        {interactivo.preview && (
+          <canvas ref={lienzo} className="eui-panel__preview" aria-hidden="true" />
+        )}
         <p className="eui-panel__info" aria-live="polite">
           {info}
         </p>

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, stagger } from 'animejs';
+import { GearSix } from '@phosphor-icons/react/dist/csr/GearSix';
+import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 import { entrarAlEstudio } from './acciones';
+import { LogoEstudio } from './LogoEstudio';
 
 const MENSAJES = [
   'Compilando shaders…',
@@ -50,7 +53,12 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
     });
     const [grande, chico] = Array.from(engranajes.current.children);
     const giro = animate(grande, { rotate: 360, duration: 3200, ease: 'linear', loop: true });
-    const giroInverso = animate(chico, { rotate: -360, duration: 2100, ease: 'linear', loop: true });
+    const giroInverso = animate(chico, {
+      rotate: -360,
+      duration: 2100,
+      ease: 'linear',
+      loop: true,
+    });
     return () => {
       dibujo.pause();
       giro.pause();
@@ -85,14 +93,39 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
   const porcentaje = Math.round(progreso * 100);
 
   return (
-    <div ref={raiz} className="eui eui-carga" role="dialog" aria-modal="true" aria-label="Cargando el estudio">
+    <div
+      ref={raiz}
+      className="eui eui-carga"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cargando el estudio"
+    >
+      <svg className="eui-carga__anillos" viewBox="0 0 400 400" aria-hidden="true">
+        {[190, 150, 112, 78].map((r) => (
+          <circle key={r} cx="200" cy="200" r={r} />
+        ))}
+      </svg>
       <div className="eui-carga__caja eui-cristal">
         <div className="eui-carga__ilustracion" aria-hidden="true">
           <svg ref={svg} className="eui-carga__svg" viewBox="0 0 220 150">
             {/* Terminal */}
-            <rect className="eui-carga__trazo" x="8" y="10" width="170" height="115" rx="12" pathLength={1} strokeDasharray="1" />
+            <rect
+              className="eui-carga__trazo"
+              x="8"
+              y="10"
+              width="170"
+              height="115"
+              rx="12"
+              pathLength={1}
+              strokeDasharray="1"
+            />
             <path className="eui-carga__trazo" d="M8 34 H178" pathLength={1} strokeDasharray="1" />
-            <polyline className="eui-carga__trazo eui-carga__trazo--destacado" points="30,60 48,74 30,88" pathLength={1} strokeDasharray="1" />
+            <polyline
+              className="eui-carga__trazo eui-carga__trazo--destacado"
+              points="30,60 48,74 30,88"
+              pathLength={1}
+              strokeDasharray="1"
+            />
             <path className="eui-carga__trazo" d="M58 90 H96" pathLength={1} strokeDasharray="1" />
             {/* Llaves { } */}
             <path
@@ -109,14 +142,20 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
             />
           </svg>
           <div ref={engranajes}>
-            <span className="eui-carga__engranaje eui-carga__engranaje--a">⚙</span>
-            <span className="eui-carga__engranaje eui-carga__engranaje--b">⚙</span>
+            <span className="eui-carga__engranaje eui-carga__engranaje--a">
+              <GearSix size={34} weight="regular" />
+            </span>
+            <span className="eui-carga__engranaje eui-carga__engranaje--b">
+              <GearSix size={22} weight="regular" />
+            </span>
           </div>
         </div>
 
-        <h1 className="eui-carga__titulo">Estudio ChcStudio</h1>
+        <div className="eui-carga__titulo">
+          <LogoEstudio tamano="grande" sub="Taller 3D" comoTitulo />
+        </div>
         <p className="eui-carga__mensaje eui-mono" aria-live="polite">
-          {listo ? 'Todo listo. Pasa, estás en tu casa.' : MENSAJES[mensaje]}
+          {listo ? 'Todo listo. Pasá, estás en tu casa.' : MENSAJES[mensaje]}
         </p>
         <div
           className="eui-carga__barra"
@@ -139,7 +178,10 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
           onClick={entrarAlEstudio}
           style={{ opacity: listo ? 1 : 0.45 }}
         >
-          Entrar →
+          Entrar al taller
+          <span className="eui-boton__flecha" aria-hidden="true">
+            <ArrowRight size={15} weight="bold" />
+          </span>
         </button>
       </div>
     </div>

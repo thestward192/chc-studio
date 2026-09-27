@@ -39,6 +39,7 @@ const conDepuracion = import.meta.env.DEV && parametros.has('debug');
 function cargarFuentes() {
   const familias = [
     `700 48px ${ui.fuenteUi}`,
+    `600 44px ${ui.fuenteUi}`,
     `500 26px ${ui.fuenteCodigo}`,
     `600 14px ${ui.fuenteCodigo}`,
     `700 54px ${ui.fuenteManuscrita}`,
@@ -68,7 +69,11 @@ export function Estudio() {
   // Solo en desarrollo: acceso para pruebas automáticas (no existe en producción)
   useEffect(() => {
     if (!import.meta.env.DEV) return;
-    (window as unknown as Record<string, unknown>).__estudio = { puente, estado: useEstudio, ambiente };
+    (window as unknown as Record<string, unknown>).__estudio = {
+      puente,
+      estado: useEstudio,
+      ambiente,
+    };
   }, []);
 
   // Calidad fijada por URL (?calidad=alto|medio|bajo), útil para medir
@@ -106,7 +111,9 @@ export function Estudio() {
       <>
         <TransicionPagina ref={transicionRef} />
         <main className="estudio__sin-webgl">
-          <p className="estudio__aviso">Tu navegador no soporta WebGL: esta es la versión en texto del estudio.</p>
+          <p className="estudio__aviso">
+            Tu navegador no soporta WebGL: esta es la versión en texto del estudio.
+          </p>
           <VersionSimple comoPagina onNavegar={navegar} />
           <a href="/" className="eui-boton">
             ← Volver al inicio

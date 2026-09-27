@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { animate } from 'animejs';
 import { proyectos } from '../../../content/proyectos';
 import { equipo } from '../../../content/equipo';
+import { X } from '@phosphor-icons/react/dist/csr/X';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 
 interface Props {
@@ -18,7 +19,12 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
   useEffect(() => {
     if (!abierta || comoPagina || !caja.current) return;
     caja.current.querySelector<HTMLElement>('button, a')?.focus();
-    const anim = animate(caja.current, { opacity: [0, 1], translateY: [12, 0], duration: 300, ease: 'outCubic' });
+    const anim = animate(caja.current, {
+      opacity: [0, 1],
+      translateY: [12, 0],
+      duration: 300,
+      ease: 'outCubic',
+    });
     return () => {
       anim.pause();
     };
@@ -37,19 +43,19 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
       aria-label="Versión simple del estudio"
     >
       <div className="eui-menu__cabecera">
-        <h2 className="eui-menu__titulo">Estudio ChcStudio — versión simple</h2>
+        <h2 className="eui-menu__titulo">CHC Studio: versión simple</h2>
         {!comoPagina && (
-          <button type="button" className="eui-boton" onClick={cerrar}>
-            Cerrar ✕
+          <button type="button" className="eui-boton-redondo" onClick={cerrar} aria-label="Cerrar">
+            <X size={18} weight="bold" aria-hidden="true" />
           </button>
         )}
       </div>
 
-      <p className="eui-menu__seccion">Proyectos</p>
+      <p className="eui-etiqueta eui-menu__seccion">Proyectos</p>
       <ul>
         {proyectos.map((proyecto) => (
           <li key={proyecto.id}>
-            <strong>{limpiar(proyecto.titulo)}</strong> — {proyecto.cliente}, {proyecto.anio}
+            <strong>{limpiar(proyecto.titulo)}</strong>: {proyecto.cliente}, {proyecto.anio}
             <p>{proyecto.descripcion}</p>
             <p>Tecnologías: {proyecto.tecnologias.join(', ')}</p>
             {proyecto.urlProyecto && (
@@ -61,7 +67,7 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
         ))}
       </ul>
 
-      <p className="eui-menu__seccion">Equipo</p>
+      <p className="eui-etiqueta eui-menu__seccion">Equipo</p>
       <ul>
         {equipo.map((integrante) => (
           <li key={integrante.id}>
@@ -73,8 +79,8 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
               }}
             >
               {limpiar(integrante.nombre)}
-            </a>{' '}
-            — {integrante.rol}
+            </a>
+            , {integrante.rol}
             <p>“{integrante.frase}”</p>
           </li>
         ))}

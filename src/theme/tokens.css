@@ -28,8 +28,7 @@
   --color-transicion: var(--color-fondo);
 
   /* --- Tipografía --- */
-  --fuente-base:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --fuente-titulos: var(--fuente-base);
   --fuente-mono: 'Consolas', 'SFMono-Regular', Menlo, monospace;
 
@@ -123,31 +122,33 @@
 
 /* ------------------------------------------------------------------
  * Estudio 3D (estudio.html): interfaz "cristal oscuro" y paleta de la sala.
- * TODO(marca): valores iniciales, se cambiarán al definir la marca.
+ * La interfaz usa la marca del header de Inicio: azul noche, degradado
+ * verde/turquesa, Sora (títulos) e Inter (texto).
  * Espejo en theme.ts (`ui` y `sala`) para usarlos dentro de Three.js.
  * ------------------------------------------------------------------ */
 :root {
-  --ui-acento: #3d8bff;
-  --ui-acento-suave: #8cc2ff;
-  --ui-destacado: #ff8a2a;
-  --ui-cristal: rgba(16, 20, 28, 0.55);
-  --ui-cristal-denso: rgba(12, 15, 22, 0.82);
-  --ui-linea: rgba(140, 194, 255, 0.28);
-  --ui-texto: #eef3fb;
-  --ui-texto-tenue: rgba(238, 243, 251, 0.62);
-  --ui-desenfoque: 12px;
-  --ui-radio: 14px;
-  --ui-radio-grande: 20px;
-  --ui-sombra: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --ui-acento: #1ec8d8; /* turquesa de marca (contornos, foco) */
+  --ui-acento-suave: #3deb8a; /* verde de marca */
+  --ui-destacado: #3deb8a; /* etiquetas y estados */
+  --ui-cristal: rgba(18, 22, 31, 0.68); /* --bg-dark translúcido */
+  --ui-cristal-denso: rgba(18, 22, 31, 0.94);
+  --ui-linea: rgba(255, 255, 255, 0.1); /* = --border-glass */
+  --ui-texto: #ffffff;
+  --ui-texto-tenue: rgba(255, 255, 255, 0.62);
+  --ui-desenfoque: 14px;
+  --ui-radio: 16px;
+  --ui-radio-grande: 24px;
+  --ui-sombra: 0 18px 50px rgba(4, 6, 10, 0.5);
   --ui-ease-entrada: cubic-bezier(0.2, 1.2, 0.4, 1);
 
-  --fuente-ui: 'Space Grotesk', var(--fuente-base);
+  --fuente-ui: 'Inter', var(--fuente-base);
+  --fuente-ui-titulos: 'Sora', var(--fuente-base);
   --fuente-codigo: 'JetBrains Mono', var(--fuente-mono);
   --fuente-manuscrita: 'Caveat', cursive;
 
   /* Materiales de la sala */
   --sala-pared: #d9d4cb;
-  --sala-pared-fondo: #2c3340;
+  --sala-pared-fondo: #1f2736; /* azul noche, como la tarjeta del header */
   --sala-techo: #efece6;
   --sala-zocalo: #3a3430;
   --sala-madera-clara: #b98a5e;
@@ -166,7 +167,7 @@
   --sala-tinta-2: #c2412d;
   --sala-marco: #1b1e24;
   --sala-rack: #15181d;
-  --sala-libros-1: #3d8bff;
+  --sala-libros-1: #1ec8d8;
   --sala-libros-2: #ff8a2a;
   --sala-libros-3: #2f5230;
   --sala-libros-4: #c2412d;
@@ -194,15 +195,16 @@
 
   /* Pantallas y LEDs */
   --sala-pantalla-fondo: #0d1117;
-  --sala-codigo-1: #8cc2ff; /* palabras clave */
-  --sala-codigo-2: #ff8a2a; /* cadenas */
+  --sala-codigo-1: #5fdcea; /* palabras clave */
+  --sala-codigo-2: #f5c26b; /* cadenas */
   --sala-codigo-3: #7bd88f; /* funciones */
   --sala-codigo-4: #6b7689; /* comentarios */
   --sala-cursor: #eef3fb;
   --sala-led-verde: #43f28a;
   --sala-led-ambar: #ffb13d;
-  --sala-led-azul: #3d8bff;
-  --sala-neon: #ff5fa2;
+  --sala-led-azul: #1ec8d8;
+  --sala-neon: #3deb8a; /* degradado hacia --sala-neon-2 */
+  --sala-neon-2: #1ec8d8;
 }
 
 /* Modo claro del estudio 3D: sigue al sistema salvo que se fuerce con

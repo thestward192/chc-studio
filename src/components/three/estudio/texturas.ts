@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sala, ui } from '../../../theme/theme';
+import { sala, ui, marca } from '../../../theme/theme';
 import type { Proyecto } from '../../../content/proyectos';
 import type { PasoProceso } from '../../../content/proceso';
 import { rastrear } from './recursos';
@@ -28,7 +28,10 @@ function lienzo(ancho: number, alto: number) {
   return { c, ctx: c.getContext('2d')! };
 }
 
-function aTextura(c: HTMLCanvasElement, opciones: { repetir?: [number, number]; srgb?: boolean } = {}) {
+function aTextura(
+  c: HTMLCanvasElement,
+  opciones: { repetir?: [number, number]; srgb?: boolean } = {},
+) {
   const textura = rastrear(new THREE.CanvasTexture(c));
   if (opciones.srgb !== false) textura.colorSpace = THREE.SRGBColorSpace;
   if (opciones.repetir) {
@@ -44,7 +47,11 @@ function mezclar(a: string, b: string, t: number) {
 }
 
 /** Madera: tablas (suelo) o una sola pieza (mesas), con vetas. */
-export function texturaMadera(opciones: { tablas: boolean; repetir?: [number, number]; semilla?: number }) {
+export function texturaMadera(opciones: {
+  tablas: boolean;
+  repetir?: [number, number];
+  semilla?: number;
+}) {
   const { c, ctx } = lienzo(1024, 1024);
   const r = azar(opciones.semilla ?? 7);
   const filas = opciones.tablas ? 8 : 1;
@@ -220,43 +227,75 @@ export function lienzoProyecto(proyecto: Proyecto, indice: number, ancho: number
   const alto = Math.round(ancho / 1.47);
   const { c, ctx } = lienzo(ancho, alto);
   const k = ancho / 1024;
-  const degradado = ctx.createLinearGradient(0, 0, ancho, alto);
-  degradado.addColorStop(0, proyecto.colorMarcador);
-  degradado.addColorStop(1, mezclar(proyecto.colorMarcador, sala.marco, 0.75));
-  ctx.fillStyle = degradado;
+  const acento = proyecto.colorMarcador;
+
+  // Tarjeta azul noche, como el hero de Inicio
+  ctx.fillStyle = marca.fondoOscuro;
   ctx.fillRect(0, 0, ancho, alto);
-  // Formas abstractas
-  const r = azar(indice * 13 + 1);
-  for (let i = 0; i < 7; i++) {
-    ctx.globalAlpha = 0.12 + r() * 0.18;
-    ctx.fillStyle = i % 2 ? '#ffffff' : sala.marco;
+
+  // Halo del color del proyecto + halo de marca, y anillos concéntricos
+  const cx = 760 * k;
+  const cy = alto * 0.52;
+  const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, 420 * k);
+  halo.addColorStop(0, mezclar(acento, marca.fondoOscuro, 0.35));
+  halo.addColorStop(0.55, mezclar(marca.cian, marca.fondoOscuro, 0.82));
+  halo.addColorStop(1, marca.fondoOscuro);
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, ancho, alto);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 2 * k;
+  for (const r of [330, 250, 175]) {
     ctx.beginPath();
-    ctx.arc(r() * ancho, r() * alto, (60 + r() * 220) * k, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r * k, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  // Arco abierto del color del proyecto (la "C" de marca), girado según el índice
+  const giro = azar(indice * 13 + 1)() * Math.PI * 2;
+  ctx.strokeStyle = acento;
+  ctx.lineWidth = 6 * k;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 250 * k, giro + 0.45, giro + Math.PI * 2 - 0.45);
+  ctx.stroke();
+
+  // Maqueta de interfaz (ventana oscura con cabecera del color del proyecto)
+  ctx.fillStyle = marca.superficie;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+  ctx.lineWidth = 2 * k;
+  ctx.beginPath();
+  ctx.roundRect(590 * k, 170 * k, 340 * k, 330 * k, 22 * k);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = acento;
+  ctx.beginPath();
+  ctx.roundRect(616 * k, 196 * k, 288 * k, 118 * k, 12 * k);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.roundRect(616 * k, (338 + i * 36) * k, (288 - i * 52) * k, 14 * k, 7 * k);
     ctx.fill();
   }
-  ctx.globalAlpha = 1;
-  // Maqueta de interfaz
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.beginPath();
-  ctx.roundRect(560 * k, 170 * k, 380 * k, 380 * k, 24 * k);
-  ctx.fill();
-  ctx.fillStyle = proyecto.colorMarcador;
-  ctx.fillRect(590 * k, 200 * k, 320 * k, 140 * k);
-  ctx.fillStyle = sala.marco;
-  ctx.globalAlpha = 0.25;
-  for (let i = 0; i < 4; i++) ctx.fillRect(590 * k, (370 + i * 40) * k, (320 - i * 50) * k, 18 * k);
-  ctx.globalAlpha = 1;
-  // Texto
-  ctx.fillStyle = '#ffffff';
-  ctx.font = `700 ${Math.round(40 * k)}px ${ui.fuenteCodigo}`;
+
+  // Número en el color del proyecto y título en Sora
+  ctx.fillStyle = acento;
+  ctx.font = `700 ${Math.round(38 * k)}px ${ui.fuenteCodigo}`;
   ctx.fillText(String(indice + 1).padStart(2, '0'), 70 * k, 120 * k);
-  ctx.font = `700 ${Math.round(58 * k)}px ${ui.fuenteUi}`;
+  ctx.fillStyle = marca.texto;
+  ctx.font = `700 ${Math.round(62 * k)}px ${ui.fuenteUi}`;
   const palabras = proyecto.titulo.replace('Texto de marcador: ', '').split(' ');
-  palabras.forEach((p, i) => ctx.fillText(p, 70 * k, (430 + i * 66) * k));
-  ctx.font = `500 ${Math.round(28 * k)}px ${ui.fuenteUi}`;
-  ctx.globalAlpha = 0.8;
-  ctx.fillText(`${proyecto.cliente} · ${proyecto.anio}`, 70 * k, (alto / k - 60) * k);
-  ctx.globalAlpha = 1;
+  palabras.forEach((p, i) => ctx.fillText(p, 70 * k, (400 + i * 70) * k));
+  ctx.font = `500 ${Math.round(26 * k)}px ${ui.fuenteUi}`;
+  ctx.fillStyle = marca.textoTenue;
+  ctx.fillText(`${proyecto.cliente} · ${proyecto.anio}`, 70 * k, (alto / k - 64) * k);
+  // Rayita con el degradado de marca sobre el cliente
+  const raya = ctx.createLinearGradient(70 * k, 0, 110 * k, 0);
+  raya.addColorStop(0, marca.verde);
+  raya.addColorStop(1, marca.cian);
+  ctx.fillStyle = raya;
+  ctx.beginPath();
+  ctx.roundRect(70 * k, (alto / k - 112) * k, 40 * k, 6 * k, 3 * k);
+  ctx.fill();
   return c;
 }
 
@@ -287,8 +326,13 @@ export function mascaraNeon(texto: string) {
   const { c, ctx } = lienzo(1024, 256);
   ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, 1024, 256);
-  // Letra manuscrita rellena: se lee como tubo de neón doblado a mano
-  ctx.font = `700 190px ${ui.fuenteManuscrita}`;
+  // Logo de marca en Sora (como el header), ajustado al ancho del letrero
+  let tamano = 150;
+  ctx.font = `700 ${tamano}px ${ui.fuenteUi}`;
+  while (ctx.measureText(texto).width > 900 && tamano > 60) {
+    tamano -= 6;
+    ctx.font = `700 ${tamano}px ${ui.fuenteUi}`;
+  }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   // Halo (gris: el shader lo distingue del tubo por intensidad)
@@ -304,7 +348,7 @@ export function mascaraNeon(texto: string) {
 }
 
 /** Líneas de código que el monitor principal "escribe" en vivo. */
-const CODIGO = `// estudio.ts — ChcStudio
+const CODIGO = `// estudio.ts - CHC Studio
 import { idea } from './cafe';
 
 export async function construir(proyecto) {

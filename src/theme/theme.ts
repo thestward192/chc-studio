@@ -81,11 +81,12 @@ export const laptop = {
 
 /** Interfaz "cristal oscuro" del estudio 3D (espejo de `--ui-*`). */
 export const ui = {
-  acento: '#3d8bff',
-  acentoSuave: '#8cc2ff',
-  destacado: '#ff8a2a',
-  texto: '#eef3fb',
-  fuenteUi: "'Space Grotesk', system-ui, sans-serif",
+  acento: '#1ec8d8',
+  acentoSuave: '#3deb8a',
+  destacado: '#3deb8a',
+  texto: '#ffffff',
+  /** En la UI HTML, Inter; en los rótulos dibujados dentro del 3D, Sora. */
+  fuenteUi: "'Sora', system-ui, sans-serif",
   fuenteCodigo: "'JetBrains Mono', Consolas, monospace",
   fuenteManuscrita: "'Caveat', cursive",
 } as const;
@@ -93,7 +94,7 @@ export const ui = {
 /** Paleta de la sala del estudio (espejo de `--sala-*` de tokens.css). */
 export const sala = {
   pared: '#d9d4cb',
-  paredFondo: '#2c3340',
+  paredFondo: '#1f2736',
   techo: '#efece6',
   zocalo: '#3a3430',
   maderaClara: '#b98a5e',
@@ -112,7 +113,7 @@ export const sala = {
   tinta2: '#c2412d',
   marco: '#1b1e24',
   rack: '#15181d',
-  libros: ['#3d8bff', '#ff8a2a', '#2f5230', '#c2412d', '#e8d8b0'],
+  libros: ['#1ec8d8', '#ff8a2a', '#2f5230', '#c2412d', '#e8d8b0'],
   sol: '#fff1dc',
   luna: '#9fb6ff',
   cieloLuz: '#cfe3ff',
@@ -130,12 +131,13 @@ export const sala = {
   edificiosNoche: '#0d1120',
   ventanasLuz: '#ffd27a',
   pantallaFondo: '#0d1117',
-  codigo: ['#8cc2ff', '#ff8a2a', '#7bd88f', '#6b7689'],
+  codigo: ['#5fdcea', '#f5c26b', '#7bd88f', '#6b7689'],
   cursor: '#eef3fb',
   ledVerde: '#43f28a',
   ledAmbar: '#ffb13d',
-  ledAzul: '#3d8bff',
-  neon: '#ff5fa2',
+  ledAzul: '#1ec8d8',
+  neon: '#3deb8a',
+  neon2: '#1ec8d8',
 } as const;
 
 /** Mismo criterio que tokens.css: data-tema manda; si no, el sistema. */

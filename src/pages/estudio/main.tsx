@@ -1,11 +1,13 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Estudio } from './Estudio';
-// Fuentes del estudio (autoalojadas, solo el subconjunto latino y los pesos usados)
-import '@fontsource/space-grotesk/latin-400.css';
-import '@fontsource/space-grotesk/latin-500.css';
-import '@fontsource/space-grotesk/latin-600.css';
-import '@fontsource/space-grotesk/latin-700.css';
+// Fuentes del estudio (autoalojadas, solo el subconjunto latino y los pesos usados):
+// Sora e Inter son las de marca (como el header de Inicio); JetBrains Mono para
+// el código de los monitores y Caveat para la pizarra.
+import '@fontsource/sora/latin-600.css';
+import '@fontsource/sora/latin-700.css';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
 import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-600.css';
 import '@fontsource/caveat/latin-500.css';

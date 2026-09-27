@@ -1,0 +1,393 @@
+.nav {
+  --radio-muesca: 24px; /* esquinas invertidas entre la pestaña y la tarjeta */
+  --alto-nav: 72px;
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  height: var(--alto-nav);
+  padding: 0 0.25rem;
+}
+
+.zonaLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* ---------- Botón "Intro": vuelve a la laptop 3D. Solo icono en móvil. */
+.botonIntro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  background: color-mix(in srgb, var(--text-dark) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-dark) 12%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s var(--easing-ui),
+    border-color 0.2s var(--easing-ui),
+    transform 0.2s var(--easing-ui);
+}
+
+.textoIntro {
+  display: none;
+}
+
+.botonIntro:hover {
+  background: color-mix(in srgb, var(--accent-green) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent-cyan) 55%, transparent);
+}
+
+.botonIntro:active {
+  transform: scale(0.96);
+}
+
+.botonIntro:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+@media (min-width: 480px) {
+  .botonIntro {
+    width: auto;
+    padding: 0 0.85rem 0 0.7rem;
+  }
+
+  .textoIntro {
+    display: inline;
+  }
+}
+
+.zonaCta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ---------- Pestaña (escritorio) */
+.pestana {
+  display: none;
+}
+
+.enlaces {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enlace {
+  position: relative;
+  display: inline-block;
+  padding: 0.5rem 0.1rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: var(--text-light);
+  text-decoration: none;
+  opacity: 0.72;
+  transition: opacity 0.2s var(--easing-ui);
+}
+
+.enlace:hover,
+.activo {
+  opacity: 1;
+}
+
+/* Una sola barra con el degradado que viaja hasta el enlace activo o
+   señalado (--x = centro del enlace, lo escribe useIndicadorNav). */
+.indicador {
+  position: absolute;
+  left: 0;
+  bottom: 14px;
+  width: 22px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-cyan) 55%, transparent);
+  opacity: 0;
+  transform: translateX(calc(var(--x, 0px) - 50%));
+  transition:
+    transform 0.42s cubic-bezier(0.34, 1.3, 0.5, 1),
+    opacity 0.25s var(--easing-ui);
+  pointer-events: none;
+}
+
+.enlace:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.ctaEscritorio.ctaEscritorio {
+  display: none;
+}
+
+/* ---------- Botón de menú */
+.hamburguesa {
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  cursor: pointer;
+}
+
+.hamburguesa span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-light);
+  transition:
+    transform 0.3s var(--easing-ui),
+    opacity 0.2s var(--easing-ui);
+}
+
+.hamburguesaAbierta span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburguesaAbierta span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburguesaAbierta span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.hamburguesa:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+/* ---------- Menú desplegable (tablet y móvil) */
+.menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.75rem;
+  padding: 1.25rem 1.5rem 1.75rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--bg-dark) 35%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-12px) scale(0.98);
+  transform-origin: top center;
+  transition:
+    opacity 0.28s var(--easing-ui),
+    transform 0.28s var(--easing-ui),
+    visibility 0s linear 0.28s;
+}
+
+.menuAbierto {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.28s var(--easing-ui),
+    transform 0.28s var(--easing-ui),
+    visibility 0s;
+}
+
+.menuEnlaces {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menuEnlace {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--text-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+/* Ítem activo del menú: barra vertical con el degradado */
+.menuEnlace.activo::before {
+  content: '';
+  width: 3px;
+  height: 1.1em;
+  border-radius: 3px;
+  background: var(--accent-gradient);
+}
+
+.menuAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+}
+
+.menuIntro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.1rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.menuIntro:hover {
+  color: var(--text-light);
+}
+
+.menuIntro:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.menuEnlace:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+/* ---------- Escritorio: pestaña con muescas */
+@media (min-width: 1024px) {
+  .nav {
+    --alto-nav: 88px;
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .zonaLogo {
+    gap: 1.1rem;
+    padding-left: 1.5rem;
+  }
+
+  .zonaCta {
+    padding-right: 0.75rem;
+  }
+
+  .pestana {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: -1px; /* se funde con la tarjeta, sin costura */
+    padding: 0.35rem 1.9rem 0;
+    background: var(--bg-dark);
+    border-radius: var(--radio-muesca) var(--radio-muesca) 0 0;
+  }
+
+  /* Esquinas invertidas: un cuadrado oscuro al que se le "resta" un cuarto
+     de círculo claro, a cada lado de la base de la pestaña. */
+  .pestana::before,
+  .pestana::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: var(--radio-muesca);
+    height: var(--radio-muesca);
+    pointer-events: none;
+  }
+
+  .pestana::before {
+    left: calc(-1 * var(--radio-muesca));
+    background: radial-gradient(
+      circle at 0 0,
+      transparent calc(var(--radio-muesca) - 0.5px),
+      var(--bg-dark) var(--radio-muesca)
+    );
+  }
+
+  .pestana::after {
+    right: calc(-1 * var(--radio-muesca));
+    background: radial-gradient(
+      circle at 100% 0,
+      transparent calc(var(--radio-muesca) - 0.5px),
+      var(--bg-dark) var(--radio-muesca)
+    );
+  }
+
+  .ctaEscritorio.ctaEscritorio {
+    display: inline-flex;
+  }
+
+  /* Entre 1024 y 1279 px el botón Intro va solo con icono para dejar sitio a la pestaña */
+  .botonIntro {
+    width: 40px;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .textoIntro {
+    display: none;
+  }
+
+  .hamburguesa,
+  .menu {
+    display: none;
+  }
+}
+
+/* ---------- Escritorio amplio: nav más separado y botón Intro con texto */
+@media (min-width: 1280px) {
+  .enlaces {
+    gap: 3.25rem;
+  }
+
+  .pestana {
+    padding-inline: 3.75rem;
+  }
+
+  .botonIntro {
+    width: auto;
+    padding: 0 0.85rem 0 0.7rem;
+  }
+
+  .textoIntro {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enlace,
+  .indicador,
+  .botonIntro,
+  .hamburguesa span,
+  .menu,
+  .menuAbierto {
+    transition: none;
+  }
+}

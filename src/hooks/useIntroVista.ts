@@ -17,4 +17,12 @@ function marcarIntroVista(): void {
   }
 }
 
-export const introVista = { leer: leerIntroVista, marcar: marcarIntroVista };
+function olvidarIntroVista(): void {
+  try {
+    window.localStorage.removeItem(CLAVE_ALMACENAMIENTO);
+  } catch {
+    // Sin localStorage no había nada guardado.
+  }
+}
+
+export const introVista = { leer: leerIntroVista, marcar: marcarIntroVista, olvidar: olvidarIntroVista };

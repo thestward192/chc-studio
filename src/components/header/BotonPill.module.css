@@ -1,0 +1,92 @@
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.4rem 0.4rem 1.25rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-on-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: 100%;
+  background: var(--accent-gradient);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--accent-green) 22%, transparent);
+  transition:
+    transform 0.25s var(--easing-ui),
+    box-shadow 0.25s var(--easing-ui),
+    filter 0.25s var(--easing-ui);
+}
+
+.grande {
+  padding: 0.5rem 0.5rem 0.5rem 1.6rem;
+  font-size: 1rem;
+}
+
+/* Pantallas muy estrechas: el texto puede partirse en dos líneas */
+@media (max-width: 359px) {
+  .boton {
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .grande {
+    padding-left: 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+
+.circulo {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--text-on-accent);
+}
+
+.grande .circulo {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.flecha {
+  color: var(--accent-green);
+  transition: transform 0.25s var(--easing-ui);
+}
+
+.boton:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--accent-cyan) 45%, transparent);
+}
+
+.boton:hover .flecha {
+  transform: translateX(3px);
+}
+
+.boton:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.boton:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton,
+  .flecha {
+    transition: none;
+  }
+
+  .boton:hover {
+    transform: none;
+  }
+
+  .boton:hover .flecha {
+    transform: none;
+  }
+}

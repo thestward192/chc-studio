@@ -35,7 +35,8 @@ src/
     estudio/        Estudio.tsx (estudio 3D: carga, HUD, paneles)
     equipo/         Integrante.tsx (ÚNICO componente para las 4 habitaciones)
   components/
-    ui/             Header, BotonPreview, secciones, Footer, PanelTexto,
+    header/         Header (navbar + hero de Inicio), CSS Modules
+    ui/             BotonPreview, secciones, Footer, PanelTexto,
                      SaltarIntro, TransicionPagina, PantallaCarga…
       estudio/      interfaz del estudio 3D (carga, HUD, panel, menú…)
     three/          LaptopIntro, Habitacion, CuadroProyecto, Puerta,
@@ -59,6 +60,58 @@ public/
 models-entrada/  carpeta de entrada para `npm run optimizar-modelos`
 scripts/         optimizar-modelos.mjs, peso-build.mjs
 ```
+
+> Notas de diseño 3D (cómo están hechas la intro y el estudio, problemas
+> resueltos y plan para las habitaciones): [`docs/diseno-3d.md`](docs/diseno-3d.md).
+
+## Header de Inicio (navbar + hero)
+
+`src/components/header/` — `Header.tsx` (arma todo y la fila de servicios),
+`Navbar.tsx` (en escritorio, pestaña oscura con esquinas invertidas hechas con
+`radial-gradient` en `::before`/`::after`; en tablet y móvil, menú
+hamburguesa), `Hero.tsx` (titular, botón, prueba social y parte visual),
+`HeroVisual.tsx` (póster o escena 3D) y piezas pequeñas (`Logo`, `BotonPill`,
+`useIndicadorNav`). Estilos con CSS Modules. Textos en
+[`src/content/cabecera.ts`](src/content/cabecera.ts); tokens de marca
+(`--bg-page`, `--accent-gradient`, `--font-heading`…) en `tokens.css` (espejo
+para Three.js en `theme.ts` → `marca`). Sora e Inter van empaquetadas con
+`@fontsource` (importadas en `src/pages/inicio/main.tsx`) y los iconos son de
+`@phosphor-icons/react`, importados uno a uno por su ruta
+(`@phosphor-icons/react/dist/csr/Nombre`) para no cargar toda la librería.
+
+- **Indicador del nav**: una sola barra con el degradado que se desliza hasta
+  la sección visible o el enlace señalado. En la parte alta de la página no hay
+  sección activa y la barra se oculta.
+- **Separación del nav**: compacta entre 1024 y 1279 px (para que quepa el
+  botón Intro) y amplia desde 1280 px.
+- **Botón "Intro"** (junto al logo, y también en el menú móvil): borra la
+  marca de "intro vista", vuelve a montar la laptop 3D y sube al principio.
+  Solo aparece si hay WebGL. Por debajo de 480 px y entre 1024 y 1279 px va
+  solo con icono.
+- **Prueba social sin cifras**: "Todo el 3D de esta web lo programamos
+  nosotros" + enlace al estudio 3D. No hay clientes reales todavía; cuando los
+  haya, se puede sumar una fila de logos debajo del hero.
+- **Núcleo CHC (3D del hero)**: `src/components/three/hero/`
+  (`EscenaHeroNucleo.tsx`, `hero.config.ts`, `senalHero.ts`) y
+  `shaders/nucleo.ts`. Núcleo con ruido simplex, dos arcos abiertos (las "C"
+  del logo) y polvo. Se inclina hacia el mouse, se abomba hacia él y **crece**
+  al señalar "Empecemos tu proyecto". Solo se carga en escritorio con mouse,
+  sin movimiento reducido y con WebGL, cuando el hero está en pantalla y el
+  navegador queda libre; solo pinta mientras se ve y la pestaña está activa.
+  Chunk propio de 12.7 KB (4.9 KB gzip); comparte three con la intro.
+- **Póster estático** `public/hero/nucleo.webp` (60 KB, 1306×1306 con
+  transparencia): el mismo objeto renderizado. Se usa en móvil, tablet,
+  movimiento reducido y mientras carga el 3D. Si cambiás la escena,
+  regeneralo con el servidor de desarrollo levantado:
+  `node scripts/capturar-poster-hero.mjs http://localhost:5173/`.
+- `/logo-light.png` va en `public/`. Si falta, el logo se dibuja en texto.
+- El enlace "Nosotros" apunta a `#nosotros`, que todavía no existe en la página.
+- ADN de diseño de la referencia (con los colores de CHC) en
+  [`design/dna.json`](design/dna.json).
+
+Medido en RX 5500 XT a 1440×900 sin vsync: ~860 FPS con el Núcleo en pantalla.
+El JS de Inicio pesa 44.8 KB (14 KB gzip); unos 26 KB son los 9 iconos de
+Phosphor, porque cada uno trae los trazados de sus 6 pesos.
 
 ## Dónde cambiar cada cosa
 

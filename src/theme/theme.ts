@@ -24,6 +24,17 @@ export const colores = {
 } as const;
 
 /**
+ * Marca del header de Inicio (espejo de --bg-dark, --surface, --accent-*).
+ * Lo usa la escena 3D del hero ("Núcleo CHC").
+ */
+export const marca = {
+  fondoOscuro: '#12161f',
+  superficie: '#1a1e29',
+  verde: '#3deb8a',
+  cian: '#1ec8d8',
+} as const;
+
+/**
  * Paletas del estudio fotográfico de la intro 3D (espejo de los
  * `--estudio-*` de tokens.css). El modo se elige con `obtenerModoEstudio()`.
  */

@@ -98,6 +98,29 @@
 }
 
 /* ------------------------------------------------------------------
+ * Marca (header y hero de Inicio). Pensados para reutilizarse en el resto
+ * del sitio cuando se rediseñe con esta línea visual.
+ * ------------------------------------------------------------------ */
+:root {
+  --bg-page: #f4f6f8;
+  --bg-dark: #12161f;
+  --surface: #1a1e29;
+  --text-light: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-dark: #12161f;
+  --text-dark-muted: rgba(18, 22, 31, 0.55); /* texto gris sobre fondo claro */
+  --text-on-accent: #062a22; /* texto sobre el degradado de acento */
+  --accent-green: #3deb8a;
+  --accent-cyan: #1ec8d8;
+  --accent-gradient: linear-gradient(135deg, #3deb8a, #1ec8d8);
+  --border-glass: rgba(255, 255, 255, 0.1);
+
+  /* Tipografía de marca (Google Fonts, cargadas en index.html) */
+  --font-heading: 'Sora', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------
  * Estudio 3D (estudio.html): interfaz "cristal oscuro" y paleta de la sala.
  * TODO(marca): valores iniciales, se cambiarán al definir la marca.
  * Espejo en theme.ts (`ui` y `sala`) para usarlos dentro de Three.js.

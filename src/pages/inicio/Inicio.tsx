@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { Header } from '../../components/ui/Header';
+import { Header } from '../../components/header/Header';
 import { SeccionServicios } from '../../components/ui/SeccionServicios';
 import { SeccionProyectos } from '../../components/ui/SeccionProyectos';
 import { SeccionEquipo } from '../../components/ui/SeccionEquipo';
@@ -92,13 +92,13 @@ export function Inicio() {
     });
   }, []);
 
-  // Botón "Volver a la intro" de la cabecera: vuelve a mostrarla (aunque ya
-  // se hubiera visto o saltado) y sube al principio sin animación, para que
-  // la escena rebobine desde el progreso actual hasta la laptop cerrada.
+  // Botón "Intro" del navbar: vuelve a montar la laptop y sube al principio.
   const volverAIntro = useCallback(() => {
+    introVista.olvidar();
+    setProgreso(0);
     setYaVista(false);
     setIntroOculta(false);
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   // Corte final: el canvas se desvanece y queda la página HTML.

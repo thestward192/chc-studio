@@ -1,0 +1,240 @@
+{
+  "meta": {
+    "name": "CHC Studio - hero de tarjeta con muesca (ADN de Saasify, marca CHC)",
+    "description": "Design DNA extraído de la referencia Saasify (hero SaaS oscuro dentro de una tarjeta redondeada, con la navegación subiendo como una pestaña). Estructura, ritmo, forma y efectos vienen de la referencia; el color se sustituye por la marca de CHC Studio (verde/turquesa sobre azul noche) por decisión del cliente.",
+    "source_references": [
+      "Referencia: captura Saasify (1013x746), hero con persona en sudadera morada, avatares y fila de logos",
+      "Estado actual: captura CHC Studio (1854x913), hero con anillos concéntricos sin imagen"
+    ],
+    "created_at": "2026-09-27",
+    "brand_override": "La paleta de la referencia (fondo #0d1126, acento #632de5 morado) NO se usa. design_system.color refleja los tokens de src/theme/tokens.css. La medición de la referencia se guarda en reference_measurement solo como trazabilidad.",
+    "reference_measurement": {
+      "tool": "scripts/measure-colors.mjs (design-dna)",
+      "measurement": { "k": 8, "sampling": { "method": "deterministic_stratified", "max_pixels": 160000, "sampled_pixels": 160000 } },
+      "palette": [
+        { "hex": "#0d1126", "coverage": 0.5064, "role": "background" },
+        { "hex": "#fbfbfb", "coverage": 0.26, "role": "text" },
+        { "hex": "#4e428d", "coverage": 0.0883, "role": "unassigned" },
+        { "hex": "#34295f", "coverage": 0.0607, "role": "unassigned" },
+        { "hex": "#826e6c", "coverage": 0.0302, "role": "unassigned" },
+        { "hex": "#b3b1c1", "coverage": 0.0222, "role": "unassigned" },
+        { "hex": "#632de5", "coverage": 0.0161, "role": "accent" },
+        { "hex": "#d8a692", "coverage": 0.016, "role": "unassigned" }
+      ],
+      "reading": "Fondo azul noche muy saturado hacia el índigo, texto casi blanco, un único acento morado en ~1.6% de la superficie (palabra destacada, botones, subrayado del nav). El 15% morado/marrón restante es la foto (sudadera y piel): la imagen aporta casi todo el color del hero."
+    }
+  },
+
+  "design_system": {
+    "color": {
+      "palette_type": "analogous",
+      "primary": { "hex": "#3deb8a", "role": "Acento de marca: botones, palabra destacada del titular, indicador activo del nav. Siempre dentro del degradado verde-turquesa." },
+      "secondary": { "hex": "#1ec8d8", "role": "Segundo extremo del degradado de marca; luces frías de la escena 3D." },
+      "accent": { "hex": "#2ed8ae", "role": "Punto medio medido del degradado (#3deb8a -> #1ec8d8). Un solo acento en toda la página (Color Consistency Lock)." },
+      "neutral": {
+        "scale": ["#ffffff", "#f4f6f8", "#c9d1d1", "#9b9ba0", "#72757c", "#1a1e29", "#12161f"],
+        "usage": "#f4f6f8 es el fondo de página alrededor de la tarjeta; #12161f el fondo de la tarjeta y el texto oscuro sobre claro; blanco para titulares sobre la tarjeta; blanco al 60% (--text-muted) para subtítulo y etiquetas; rgba(18,22,31,0.55) para texto gris sobre fondo claro."
+      },
+      "semantic": { "success": "#7bb88f", "warning": "#d8b568", "error": "#c97b6f", "info": "#1ec8d8" },
+      "surface": { "background": "#f4f6f8", "card": "#12161f", "elevated": "#1a1e29" },
+      "contrast_strategy": "Bloque oscuro de alto contraste encajado en una página clara: texto blanco sobre #12161f dentro de la tarjeta, texto #12161f sobre #f4f6f8 fuera. El acento solo aparece en elementos de acción o énfasis.",
+      "measurement": { "k": 8, "sampling": { "method": "deterministic_stratified", "max_pixels": 160000, "sampled_pixels": 160000 } },
+      "measured_palette": [
+        { "hex": "#121720", "coverage": 0.6731, "role": "background" },
+        { "hex": "#f5f7f8", "coverage": 0.1605, "role": "text" },
+        { "hex": "#153237", "coverage": 0.1313, "role": "unassigned" },
+        { "hex": "#2ed8ae", "coverage": 0.0225, "role": "accent" },
+        { "hex": "#315754", "coverage": 0.0048, "role": "unassigned" },
+        { "hex": "#9b9ba0", "coverage": 0.0032, "role": "unassigned" },
+        { "hex": "#72757c", "coverage": 0.0023, "role": "unassigned" },
+        { "hex": "#c9d1d1", "coverage": 0.0022, "role": "unassigned" }
+      ]
+    },
+
+    "typography": {
+      "type_scale": {
+        "display": { "size": "clamp(2.6rem, 4.6vw, 4.5rem)", "weight": "700", "line_height": "1.05", "tracking": "-0.025em" },
+        "heading_1": { "size": "clamp(2rem, 3.4vw, 3rem)", "weight": "700", "line_height": "1.1", "tracking": "-0.02em" },
+        "heading_2": { "size": "clamp(1.5rem, 2.4vw, 2.1rem)", "weight": "600", "line_height": "1.15", "tracking": "-0.015em" },
+        "heading_3": { "size": "1.25rem", "weight": "600", "line_height": "1.3", "tracking": "-0.01em" },
+        "body": { "size": "1.0625rem", "weight": "400", "line_height": "1.6", "tracking": "0" },
+        "body_small": { "size": "0.9375rem", "weight": "400", "line_height": "1.55", "tracking": "0" },
+        "caption": { "size": "0.8125rem", "weight": "500", "line_height": "1.4", "tracking": "0.005em" },
+        "overline": { "size": "0.75rem", "weight": "600", "line_height": "1.2", "tracking": "0.12em" }
+      },
+      "font_families": {
+        "heading": "'Sora', system-ui, sans-serif",
+        "body": "'Inter', system-ui, sans-serif",
+        "mono": "'JetBrains Mono', ui-monospace, monospace"
+      },
+      "font_style_notes": "Referencia: sans geométrica de pesos 600-700, titular de 3 líneas en dos frases cortas, énfasis con color en UNA palabra. En CHC: Sora (geométrica con carácter en la 'g' y la 'a') para titulares y Inter para texto, elegidas por el cliente."
+    },
+
+    "spacing": {
+      "base_unit": "4px",
+      "scale": ["4px", "8px", "12px", "16px", "24px", "32px", "48px", "64px", "96px"],
+      "content_density": "comfortable",
+      "section_rhythm": "Bloque del hero compacto: titular, subtítulo y CTA a 24-32px entre sí; prueba social separada 40-48px del CTA; fila de logos/servicios a 32-40px bajo la tarjeta."
+    },
+
+    "layout": {
+      "grid_system": "Dos columnas dentro de la tarjeta: texto a la izquierda (~52%), visual a la derecha (~48%) que sangra hasta el borde inferior de la tarjeta.",
+      "max_content_width": "Tarjeta a ancho completo con 12-16px de margen a la página; contenido interno sin tope, padding lateral 60px.",
+      "columns": "2 (escritorio) / 1 (<1024px)",
+      "gutter": "24px",
+      "breakpoints": ["640px", "768px", "1024px", "1280px"],
+      "alignment_tendency": "asymmetric"
+    },
+
+    "shape": {
+      "border_radius": { "small": "10px", "medium": "16px", "large": "28px", "pill": "999px" },
+      "border_usage": "none (la tarjeta se define por contraste de fondo, no por borde)",
+      "divider_style": "Sin divisores visibles en la referencia; en CHC, líneas de 1px al 10% de blanco solo donde separan datos."
+    },
+
+    "elevation": {
+      "shadow_style": "soft diffused",
+      "levels": {
+        "low": "0 1px 2px rgba(18, 22, 31, 0.06)",
+        "medium": "0 10px 30px -12px rgba(46, 216, 174, 0.45)",
+        "high": "0 30px 80px -30px rgba(18, 22, 31, 0.45)"
+      },
+      "depth_cues": "overlapping layers: la foto de la referencia se superpone a los anillos y sale por debajo del borde; el nav se funde con la tarjeta mediante esquinas invertidas."
+    },
+
+    "iconography": {
+      "style": "Línea, esquinas redondeadas, dentro de círculo en los botones (flecha en círculo).",
+      "stroke_weight": "1.5",
+      "size_scale": ["16px", "20px", "24px"],
+      "preferred_set": "Una sola familia de línea (propuesta: @phosphor-icons/react, peso regular)"
+    },
+
+    "motion": {
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "duration_scale": { "micro": "160ms", "normal": "320ms", "macro": "800ms" },
+      "entrance_pattern": "Entrada escalonada de abajo hacia arriba por línea del titular, luego subtítulo, CTA y prueba social; el visual aparece con fundido + escala suave.",
+      "exit_pattern": "Ninguno (hero estático tras entrar).",
+      "philosophy": "minimal functional"
+    },
+
+    "components": {
+      "button_style": "Píldora rellena con el acento, texto oscuro, icono de flecha dentro de un círculo contrastado a la derecha. En la referencia el botón del nav es un 'Login' dentro de su propia muesca clara.",
+      "input_style": "No aparece en la referencia; heredar píldora con borde de 1px.",
+      "card_style": "Una única tarjeta oscura grande con radio ~28px, sin borde ni sombra marcada.",
+      "navigation_pattern": "Notch: la tarjeta oscura sube en el centro formando una pestaña que contiene los enlaces; logo y botón quedan en zonas claras con esquinas invertidas. Enlace activo con subrayado corto del color de acento.",
+      "modal_style": "No aparece.",
+      "list_style": "Fila horizontal de logos monocromos en gris medio, espaciados de forma uniforme bajo la tarjeta.",
+      "component_notes": "Prueba social de la referencia: fila de 4 avatares superpuestos dentro del hero, debajo del CTA."
+    }
+  },
+
+  "design_style": {
+    "aesthetic": {
+      "mood": ["confiado", "moderno", "cercano", "tecnológico"],
+      "visual_metaphor": "Una pantalla oscura encajada en una página clara: el producto 'vive' dentro de la tarjeta y el nav es su pestaña.",
+      "era_influence": "SaaS 2023-2025 (tarjetas redondeadas XL, navegación en notch, acento único saturado)",
+      "genre": "corporate SaaS / estudio de software",
+      "personality_traits": ["directo", "accesible", "ordenado"],
+      "adjectives": ["limpio", "contrastado", "compacto", "amable"]
+    },
+    "visual_language": {
+      "complexity": "moderate",
+      "ornamentation": "subtle accents",
+      "whitespace_usage": "Generoso alrededor del titular, apretado entre CTA y prueba social.",
+      "visual_weight_distribution": "Equilibrado izquierda/derecha: el texto pesa por tamaño, la foto por color y superficie.",
+      "focal_strategy": "single hero element",
+      "contrast_level": "high",
+      "texture_usage": "Ninguna; solo anillos concéntricos muy tenues detrás del visual."
+    },
+    "composition": {
+      "hierarchy_method": "scale contrast",
+      "balance_type": "asymmetric",
+      "flow_direction": "Z: logo -> nav -> botón, titular -> visual, CTA -> fila de logos.",
+      "grouping_strategy": "Proximidad dentro de la tarjeta; la fila de logos queda fuera como bloque independiente.",
+      "negative_space_role": "Aislar el titular y dar aire al visual derecho."
+    },
+    "imagery": {
+      "photo_treatment": "Retrato recortado sin fondo, sonriente, que sangra por el borde inferior de la tarjeta.",
+      "illustration_style": "Ninguna.",
+      "graphic_elements": "Anillos concéntricos finos centrados detrás del visual.",
+      "pattern_usage": "Ninguno.",
+      "image_shape": "Recorte libre (sin marco), anclado abajo."
+    },
+    "interaction_feel": {
+      "feedback_style": "Cambio de brillo y leve elevación en botones.",
+      "hover_behavior": "Enlaces del nav cambian a blanco pleno; botones se aclaran.",
+      "transition_personality": "smooth glide",
+      "loading_style": "Sin indicador visible (estático).",
+      "microinteraction_density": "baja"
+    },
+    "brand_voice_in_ui": {
+      "tone": "Cercano y seguro, en español de Costa Rica con voseo.",
+      "formality": "semiformal",
+      "cta_style": "friendly invitation",
+      "empty_state_approach": "No aplica en el hero.",
+      "error_tone": "Claro y sin culpas."
+    }
+  },
+
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "subtle-accent",
+      "performance_tier": "lightweight",
+      "fallback_strategy": "static snapshot",
+      "primary_technology": "CSS only"
+    },
+    "background_effects": {
+      "type": "none",
+      "description": "Fondo liso de la tarjeta; el único recurso son anillos concéntricos muy tenues y un halo difuso detrás del visual.",
+      "technology": "SVG / CSS",
+      "params": { "color_palette": ["#12161f", "rgba(255,255,255,0.08)"], "speed": "estático", "density": "baja", "opacity": "0.08-0.12", "blend_mode": "normal" }
+    },
+    "particle_systems": {
+      "enabled": false, "type": "none", "description": "No hay partículas en la referencia.", "technology": "none",
+      "params": { "count": "0", "shape": "none", "size_range": "none", "movement_pattern": "none", "color_behavior": "none", "interaction": "none", "spawn_area": "none" }
+    },
+    "3d_elements": {
+      "enabled": false, "type": "hero-model", "description": "La referencia usa una foto, no 3D. En CHC el hueco del visual se propone llenar con una escena R3F (ver composite_notes).", "technology": "none",
+      "params": { "renderer": "none", "lighting": "none", "camera": "none", "materials": "none", "geometry": "none", "post_processing": [], "interaction_model": "none" }
+    },
+    "shader_effects": {
+      "enabled": false, "type": "none", "description": "Sin shaders en la referencia.", "technology": "none",
+      "params": { "uniforms": "none", "vertex_manipulation": "none", "fragment_output": "none", "noise_type": "none", "distortion": "none" }
+    },
+    "scroll_effects": {
+      "parallax": { "enabled": false, "layers": "0", "depth_range": "none", "speed_curve": "none" },
+      "scroll_triggered_animations": { "enabled": false, "trigger_points": "none", "animation_type": "none", "scrub_behavior": "none" },
+      "scroll_morphing": { "enabled": false, "description": "No observable en una captura estática." }
+    },
+    "text_effects": {
+      "type": "none",
+      "description": "Énfasis por color sólido en una palabra ('SaaS'), sin degradado ni animación visible.",
+      "technology": "CSS",
+      "params": { "split_strategy": "by-line", "animation_per_unit": "none", "stagger": "none", "effect_style": "color sólido de acento" }
+    },
+    "cursor_effects": {
+      "enabled": false, "type": "none", "description": "Cursor nativo.",
+      "params": { "shape": "none", "size": "none", "blend_mode": "none", "trail": "none", "interaction_zone": "none" }
+    },
+    "image_effects": {
+      "type": "none",
+      "description": "Foto recortada que se superpone a los anillos y sale por el borde inferior de la tarjeta.",
+      "technology": "CSS (overflow + posicionamiento)",
+      "params": { "filter_pipeline": "none", "hover_transform": "none", "reveal_animation": "none", "distortion_type": "none" }
+    },
+    "glassmorphism_neumorphism": {
+      "enabled": false, "style": "none",
+      "params": { "blur_radius": "0", "transparency": "0", "border_treatment": "none", "shadow_type": "none", "light_source_angle": "none" }
+    },
+    "canvas_drawings": {
+      "enabled": false, "type": "none", "description": "Sin canvas.", "technology": "none",
+      "params": { "draw_method": "none", "animation_loop": "none", "color_scheme": "none", "responsiveness": "none", "interaction": "none" }
+    },
+    "svg_animations": {
+      "enabled": false, "type": "decorative-loop",
+      "description": "Anillos concéntricos estáticos en la referencia. CHC ya los tiene animados (dos arcos girando lento).",
+      "params": { "animation_method": "none", "path_morphing": "none", "stroke_animation": "none", "filter_effects": "none" }
+    },
+    "composite_notes": "La fuerza visual de la referencia es la FOTO: aporta el color, la profundidad (se superpone a los anillos y rompe el borde inferior de la tarjeta) y la calidez humana. Sin foto, el mismo layout queda como texto + halo, que es lo que le pasa hoy al hero de CHC. Para CHC se decide sustituir la foto por un objeto 3D de marca (R3F) que cumpla el mismo papel compositivo: masa en la columna derecha, color de acento concentrado en él, superposición con los anillos y sangrado por el borde inferior. Eso sube performance_tier a 'heavy' solo en escritorio; móvil, movimiento reducido y equipos lentos usan un render estático del mismo objeto (fallback 'static snapshot')."
+  }
+}

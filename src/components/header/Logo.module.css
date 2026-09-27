@@ -1,0 +1,32 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.imagen {
+  display: block;
+  height: 38px;
+  width: auto;
+}
+
+.texto {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.45rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.chc {
+  color: var(--text-dark);
+}
+
+.studio {
+  margin-left: 0.3em;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

@@ -14,7 +14,7 @@ const ALTO = 1.0;
 export function Pizarra({ modelo }: { modelo?: string }) {
   const m = obtenerMateriales();
   const material = useMemo(
-    () => rastrear(new THREE.MeshStandardMaterial({ map: texturaPizarra(proceso), roughness: 0.35 })),
+    () => rastrear(new THREE.MeshStandardMaterial({ map: texturaPizarra(proceso), roughness: 0.5 })),
     [],
   );
   useEffect(() => () => liberar(material, material.map), [material]);
@@ -32,10 +32,10 @@ export function Pizarra({ modelo }: { modelo?: string }) {
       info={proceso.map((paso, i) => `${i + 1}. ${paso.titulo}: ${paso.detalle}`).join('\n')}
       acciones={[]}
     >
-      <mesh position={[0, 0, 0.02]} material={m.metalClaro} castShadow>
+      <mesh position={[0, 0, 0.02]} material={m.metalClaro} castShadow receiveShadow>
         <boxGeometry args={[ANCHO + 0.06, ALTO + 0.06, 0.03]} />
       </mesh>
-      <mesh position={[0, 0, 0.036]} material={material}>
+      <mesh position={[0, 0, 0.036]} material={material} receiveShadow>
         <planeGeometry args={[ANCHO, ALTO]} />
       </mesh>
       {/* Bandeja con rotuladores */}

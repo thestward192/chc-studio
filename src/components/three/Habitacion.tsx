@@ -19,6 +19,11 @@ interface Props {
   iluminacion?: boolean;
   /** Suelo y paredes reciben sombras en tiempo real. */
   recibirSombras?: boolean;
+  /**
+   * Techo y paredes frontal y trasera proyectan sombra: la luz direccional
+   * solo entra por las paredes laterales (donde están las ventanas).
+   */
+  bloquearSol?: boolean;
   children?: ReactNode;
 }
 
@@ -42,6 +47,7 @@ export function Habitacion({
   materialTecho,
   iluminacion = true,
   recibirSombras = false,
+  bloquearSol = false,
   children,
 }: Props) {
   const mitadAncho = ancho / 2;
@@ -66,7 +72,7 @@ export function Habitacion({
       </mesh>
 
       {/* Techo */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, alto, 0]} userData={bloquea}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, alto, 0]} castShadow={bloquearSol} userData={bloquea}>
         <planeGeometry args={[ancho, profundidad]} />
         {materialTecho ? (
           <primitive object={materialTecho} attach="material" />
@@ -76,7 +82,7 @@ export function Habitacion({
       </mesh>
 
       {/* Pared trasera (-Z) */}
-      <mesh position={[0, alto / 2, -mitadProfundidad]} receiveShadow={recibirSombras} userData={bloquea}>
+      <mesh position={[0, alto / 2, -mitadProfundidad]} receiveShadow={recibirSombras} castShadow={bloquearSol} userData={bloquea}>
         <planeGeometry args={[ancho, alto]} />
         {pared(materialParedFondo ?? materialPared)}
       </mesh>
@@ -86,6 +92,7 @@ export function Habitacion({
         position={[0, alto / 2, mitadProfundidad]}
         rotation={[0, Math.PI, 0]}
         receiveShadow={recibirSombras}
+        castShadow={bloquearSol}
         userData={bloquea}
       >
         <planeGeometry args={[ancho, alto]} />

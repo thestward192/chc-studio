@@ -27,6 +27,7 @@ export function Sala() {
       materialTecho={m.techo}
       iluminacion={false}
       recibirSombras
+      bloquearSol
     >
       {/* Zócalos */}
       <mesh position={[0, zocalo / 2, -fondo / 2 + 0.01]} material={m.zocalo} receiveShadow>

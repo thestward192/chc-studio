@@ -13,6 +13,14 @@ export function crearUniformsCiclorama() {
     uColorSombra: { value: new THREE.Color() },
     uColorLuzPantalla: { value: new THREE.Color() },
     uColorRanura: { value: new THREE.Color() },
+    // Marca: halo verde/turquesa y anillos concéntricos en la pared (como el hero)
+    uColorVerde: { value: new THREE.Color() },
+    uColorCian: { value: new THREE.Color() },
+    uColorLinea: { value: new THREE.Color() },
+    uHalo: { value: 0 },
+    uAnillos: { value: 0 },
+    uHaloCentro: { value: new THREE.Vector2(0, 11) }, // (x, coordenada desenrollada)
+    uHaloRadio: { value: 5 },
     uTiempo: { value: 0 },
     uResolucion: { value: new THREE.Vector2(1, 1) },
     uEntrada: { value: 0 }, // 0 = estudio apagado, 1 = luces encendidas
@@ -59,6 +67,13 @@ export const fragmentCiclorama = /* glsl */ `
   uniform vec3 uColorSombra;
   uniform vec3 uColorLuzPantalla;
   uniform vec3 uColorRanura;
+  uniform vec3 uColorVerde;
+  uniform vec3 uColorCian;
+  uniform vec3 uColorLinea;
+  uniform float uHalo;
+  uniform float uAnillos;
+  uniform vec2 uHaloCentro;
+  uniform float uHaloRadio;
   uniform float uTiempo;
   uniform vec2 uResolucion;
   uniform float uEntrada;
@@ -113,6 +128,23 @@ export const fragmentCiclorama = /* glsl */ `
     vec2 dCharco = (p.xz - vec2(0.0, 0.15)) / vec2(4.2, 3.0);
     float charco = exp(-dot(dCharco, dCharco) * 1.6) * step(p.y, 0.05);
     color = mix(color, uColorCentro * 1.25, charco * uCharco);
+
+    // --- Marca: halo verde→turquesa y anillos concéntricos (como el hero) ---
+    // En coordenadas desenrolladas (x, s): viven en la pared detrás de la
+    // laptop y bajan suaves por la curva sin costura.
+    vec2 qHalo = vec2(p.x, s) - uHaloCentro;
+    float rHalo = length(qHalo);
+    float halo = exp(-pow(rHalo / uHaloRadio, 2.0) * 1.6);
+    vec3 tonoHalo = mix(uColorVerde, uColorCian, smoothstep(-0.8, 0.8, (qHalo.x - qHalo.y * 0.6) / max(rHalo, 1e-3)));
+    color = mix(color, tonoHalo, halo * uHalo);
+    float anillos = 0.0;
+    float grosor = fwidth(rHalo) * 0.8;
+    for (int i = 0; i < 4; i++) {
+      float radio = uHaloRadio * (0.42 + float(i) * 0.3);
+      anillos += 1.0 - smoothstep(0.0, grosor, abs(rHalo - radio));
+    }
+    // Los anillos se apagan hacia el piso para no competir con la sombra
+    color = mix(color, uColorLinea, clamp(anillos, 0.0, 1.0) * uAnillos * smoothstep(0.2, 1.8, p.y));
 
     // --- Sombra de contacto ---
     // Se calcula en el marco local de la laptop (gira con ella). Dos capas:

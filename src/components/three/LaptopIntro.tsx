@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { animate, createTimeline, type JSAnimation, type Timeline } from 'animejs';
 import * as THREE from 'three';
-import { colores, estudio, laptop as coloresLaptop, type ModoEstudio } from '../../theme/theme';
+import { estudio, laptop as coloresLaptop, marca, type ModoEstudio } from '../../theme/theme';
 import { laptopConfig as cfg, type NivelCalidad } from './laptop.config';
 import { Ciclorama } from './Ciclorama';
 import { EntornoEstudio } from './EntornoEstudio';
@@ -79,14 +79,18 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     u.uColorSombra.value.set(paleta.sombra);
     u.uColorLuzPantalla.value.set(coloresLaptop.luzPantalla);
     u.uColorRanura.value.set(coloresLaptop.luzRanura);
+    u.uColorVerde.value.set(marca.verde);
+    u.uColorCian.value.set(marca.cian);
+    // Anillos claros sobre el azul noche, oscuros sobre el fondo claro
+    u.uColorLinea.value.set(modo === 'oscuro' ? paleta.luz : paleta.sombra);
     const l = laptopRef.current;
     if (l) {
       l.uniformsPantalla.uColorReflejo.value.set(paleta.luz);
-      l.uniformsPantalla.uColorFondoPagina.value.set(colores.fondo);
+      l.uniformsPantalla.uColorFondoPagina.value.set(marca.fondoOscuro);
       l.luzPantalla.color.set(coloresLaptop.luzPantalla);
     }
     invalidate();
-  }, [paleta, uniformsCiclorama, invalidate]);
+  }, [paleta, modo, uniformsCiclorama, invalidate]);
 
   // --- Calidad: anisotropía y sombras reales solo en alto/medio ---
   useEffect(() => {
@@ -124,13 +128,19 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     const puntero = temporal.current.puntero;
     const alMover = (ev: PointerEvent) => {
       if (ev.pointerType !== 'mouse') return;
-      puntero.set((ev.clientX / window.innerWidth) * 2 - 1, -((ev.clientY / window.innerHeight) * 2 - 1));
+      puntero.set(
+        (ev.clientX / window.innerWidth) * 2 - 1,
+        -((ev.clientY / window.innerHeight) * 2 - 1),
+      );
     };
     // En iOS el evento solo llega si el usuario concedió permiso antes: sin
     // permiso no llega nada y el parallax queda quieto, como pide el brief.
     const alOrientar = (ev: DeviceOrientationEvent) => {
       if (ev.gamma == null || ev.beta == null) return;
-      puntero.set(THREE.MathUtils.clamp(ev.gamma / 25, -1, 1), THREE.MathUtils.clamp((ev.beta - 45) / 25, -1, 1));
+      puntero.set(
+        THREE.MathUtils.clamp(ev.gamma / 25, -1, 1),
+        THREE.MathUtils.clamp((ev.beta - 45) / 25, -1, 1),
+      );
     };
     window.addEventListener('pointermove', alMover, { passive: true });
     if (esMovil()) window.addEventListener('deviceorientation', alOrientar, { passive: true });
@@ -181,10 +191,17 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     const rotY = giro * cfg.laptop.giroLateral + oscilacionGiro * reposo;
     const flotacion =
       reposo *
-      (cfg.reposo.alturaBase + Math.sin((t * TAU) / cfg.reposo.periodoFlotacion) * cfg.reposo.amplitudFlotacion);
+      (cfg.reposo.alturaBase +
+        Math.sin((t * TAU) / cfg.reposo.periodoFlotacion) * cfg.reposo.amplitudFlotacion);
     const subida = movimientoReducido ? 0 : (1 - e.laptop) * cfg.entrada.desplazamientoLaptop;
-    const escala = movimientoReducido ? 1 : THREE.MathUtils.lerp(cfg.entrada.escalaInicial, 1, e.laptop);
-    l.grupo.position.set(horizontal ? giro * cfg.laptop.desplazamientoLateral : 0, flotacion - subida, 0);
+    const escala = movimientoReducido
+      ? 1
+      : THREE.MathUtils.lerp(cfg.entrada.escalaInicial, 1, e.laptop);
+    l.grupo.position.set(
+      horizontal ? giro * cfg.laptop.desplazamientoLateral : 0,
+      flotacion - subida,
+      0,
+    );
     l.grupo.rotation.y = rotY;
     l.grupo.scale.setScalar(escala);
 
@@ -232,7 +249,9 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     up.uLuminanciaCentro.value = cfg.pantalla.luminanciaCentro;
     up.uAberracion.value = movimientoReducido ? 0 : cfg.pantalla.aberracionEncendido;
     // El reflejo del vidrio se retira durante el zoom para que no tape la imagen.
-    const acercando = suave(tramo(p, [sec.zoom[0], sec.zoom[0] + (sec.zoom[1] - sec.zoom[0]) * 0.7]));
+    const acercando = suave(
+      tramo(p, [sec.zoom[0], sec.zoom[0] + (sec.zoom[1] - sec.zoom[0]) * 0.7]),
+    );
     up.uReflejo.value = cfg.pantalla.reflejo * (1 - acercando * 0.85);
     up.uFranja.value = cfg.pantalla.franjaReflejo;
     up.uLimpiar.value = limpiar;
@@ -241,7 +260,11 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     // ================= Ranura =================
     const pulso = movimientoReducido
       ? 0.75
-      : THREE.MathUtils.lerp(cfg.ranura.pulsoMinimo, 1, 0.5 + 0.5 * Math.sin((t * TAU) / cfg.ranura.periodoPulso));
+      : THREE.MathUtils.lerp(
+          cfg.ranura.pulsoMinimo,
+          1,
+          0.5 + 0.5 * Math.sin((t * TAU) / cfg.ranura.periodoPulso),
+        );
     const cerrada = 1 - suave(tramo(aTapa, [0, 0.12]));
     l.uniformsRanura.uIntensidad.value = cfg.ranura.intensidad * pulso * cerrada * e.laptop;
 
@@ -308,13 +331,29 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     vArriba.crossVectors(vDerecha, vAux.subVectors(vObj, vPos).normalize());
     const resp = cfg.reposo.respiracionCamara * reposo;
     vPos.addScaledVector(vArriba, Math.sin((t * TAU) / cfg.reposo.periodoRespiracion) * resp);
-    vPos.addScaledVector(vDerecha, Math.cos((t * TAU) / (cfg.reposo.periodoRespiracion * 1.3)) * resp * 0.6);
-    tmp.parallax.x = amortiguar(tmp.parallax.x, tmp.puntero.x * reposo, cfg.reposo.suavizadoParallax, dt);
-    tmp.parallax.y = amortiguar(tmp.parallax.y, tmp.puntero.y * reposo, cfg.reposo.suavizadoParallax, dt);
+    vPos.addScaledVector(
+      vDerecha,
+      Math.cos((t * TAU) / (cfg.reposo.periodoRespiracion * 1.3)) * resp * 0.6,
+    );
+    tmp.parallax.x = amortiguar(
+      tmp.parallax.x,
+      tmp.puntero.x * reposo,
+      cfg.reposo.suavizadoParallax,
+      dt,
+    );
+    tmp.parallax.y = amortiguar(
+      tmp.parallax.y,
+      tmp.puntero.y * reposo,
+      cfg.reposo.suavizadoParallax,
+      dt,
+    );
     const par = cfg.reposo.parallax * k;
     vPos.addScaledVector(vDerecha, tmp.parallax.x * par);
     vPos.addScaledVector(vArriba, tmp.parallax.y * par * 0.6);
-    if (Math.abs(tmp.parallax.x - tmp.puntero.x * reposo) > 1e-3 || Math.abs(tmp.parallax.y - tmp.puntero.y * reposo) > 1e-3) {
+    if (
+      Math.abs(tmp.parallax.x - tmp.puntero.x * reposo) > 1e-3 ||
+      Math.abs(tmp.parallax.y - tmp.puntero.y * reposo) > 1e-3
+    ) {
       invalidate();
     }
 
@@ -324,7 +363,8 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     // Subpíxeles: aparecen al acercarse y se van al limpiar la pantalla.
     const razon = cam.position.distanceTo(vCentro) / dCubre;
     const [lejos, cerca] = cfg.pantalla.subpixelDistancia;
-    up.uSubpixel.value = tramo(-razon, [-lejos, -cerca]) * (1 - limpiar) * cfg.pantalla.subpixelIntensidad;
+    up.uSubpixel.value =
+      tramo(-razon, [-lejos, -cerca]) * (1 - limpiar) * cfg.pantalla.subpixelIntensidad;
 
     state.scene.environmentIntensity = cfg.estudio.intensidadEntorno;
 
@@ -336,6 +376,10 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     u.uGrano.value = cfg.estudio.grano;
     u.uVineta.value = cfg.estudio.vineta;
     u.uCharco.value = cfg.estudio.charco;
+    u.uHalo.value = modo === 'oscuro' ? cfg.estudio.haloOscuro : cfg.estudio.haloClaro;
+    u.uAnillos.value = modo === 'oscuro' ? cfg.estudio.anillosOscuro : cfg.estudio.anillosClaro;
+    u.uHaloCentro.value.set(...cfg.estudio.haloCentro);
+    u.uHaloRadio.value = cfg.estudio.haloRadio;
     u.uOscurecer.value = suave(tramo(p, sec.oscurecer)) * cfg.estudio.oscurecerZoom;
     u.uSombraCentro.value.set(l.grupo.position.x, l.grupo.position.z);
     u.uSombraTam.value.set((DIM.ancho / 2) * escala, (DIM.fondo / 2) * escala);
@@ -349,7 +393,9 @@ export function LaptopIntro({ progreso, calidad, movimientoReducido, modo, estad
     u.uPantallaTam.value.copy(vTam.set(DIM.pantallaAncho / 2, DIM.pantallaAlto / 2));
     u.uLuzPantalla.value = luz * cfg.estudio.reflejoPantalla;
     u.uRanuraPos.value.set(l.grupo.position.x, 0, DIM.fondo / 2);
-    u.uLuzRanura.value = (l.uniformsRanura.uIntensidad.value / Math.max(cfg.ranura.intensidad, 1e-3)) * cfg.estudio.reflejoRanura;
+    u.uLuzRanura.value =
+      (l.uniformsRanura.uIntensidad.value / Math.max(cfg.ranura.intensidad, 1e-3)) *
+      cfg.estudio.reflejoRanura;
 
     // ================= Estado para el postproceso =================
     estado.pantallaCentro.copy(vCentro);
@@ -397,5 +443,9 @@ function poseEscalada(
   salidaObj: THREE.Vector3,
 ) {
   salidaObj.set(objetivo[0], objetivo[1], objetivo[2]);
-  salidaPos.set(posicion[0], posicion[1], posicion[2]).sub(salidaObj).multiplyScalar(k).add(salidaObj);
+  salidaPos
+    .set(posicion[0], posicion[1], posicion[2])
+    .sub(salidaObj)
+    .multiplyScalar(k)
+    .add(salidaObj);
 }

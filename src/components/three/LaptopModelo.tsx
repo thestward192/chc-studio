@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three-stdlib';
 import { laptop as coloresLaptop } from '../../theme/theme';
@@ -49,6 +50,10 @@ export const LaptopModelo = forwardRef<ManejadoresLaptop>(function LaptopModelo(
   const luzRef = useRef<THREE.PointLight>(null!);
   const baseRef = useRef<THREE.Mesh>(null!);
   const cuerpoTapaRef = useRef<THREE.Mesh>(null!);
+  // La textura de la pantalla se redibuja al cargar fuentes y póster: pedir fotograma
+  const invalidate = useThree((s) => s.invalidate);
+  const invalidateRef = useRef(invalidate);
+  invalidateRef.current = invalidate;
 
   const recursos = useMemo(() => {
     const uniformsAluminio = crearUniformsAluminio();
@@ -99,7 +104,7 @@ export const LaptopModelo = forwardRef<ManejadoresLaptop>(function LaptopModelo(
     });
 
     const uniformsPantalla = crearUniformsPantalla();
-    const texturaPagina = crearTexturaPagina();
+    const texturaPagina = crearTexturaPagina(() => invalidateRef.current());
     uniformsPantalla.uMapa.value = texturaPagina;
     uniformsPantalla.uColorApagado.value.set(coloresLaptop.vidrio);
     const pantalla = new THREE.ShaderMaterial({
@@ -128,8 +133,17 @@ export const LaptopModelo = forwardRef<ManejadoresLaptop>(function LaptopModelo(
     const geoVidrio = new THREE.ShapeGeometry(rectRedondeado(2.94, 1.96, 0.07), 6);
     const geoPantalla = new THREE.PlaneGeometry(DIM.pantallaAncho, DIM.pantallaAlto);
     const geoPozo = new THREE.ShapeGeometry(rectRedondeado(2.66, 1.03, 0.03), 4);
-    const geoLogo = new THREE.RingGeometry(0.13, 0.19, 48, 1, Math.PI * 0.3, Math.PI * 1.4);
-    const geoPuntoLogo = new THREE.CircleGeometry(0.035, 24);
+    // Logo: una "C" (abertura hacia -X local; la tapa la ve espejada, así que
+    // desde fuera queda abierta hacia la derecha, como la C de CHC)
+    const aberturaLogo = Math.PI * 0.24; // media abertura
+    const geoLogo = new THREE.RingGeometry(
+      0.118,
+      0.19,
+      64,
+      1,
+      -Math.PI + aberturaLogo,
+      Math.PI * 2 - aberturaLogo * 2,
+    );
     const geoBisagra = new THREE.CylinderGeometry(0.032, 0.032, 2.3, 20);
     const geoCamara = new THREE.CircleGeometry(0.012, 16);
     const geoRanura = new THREE.PlaneGeometry(2.7, 0.16);
@@ -159,7 +173,6 @@ export const LaptopModelo = forwardRef<ManejadoresLaptop>(function LaptopModelo(
         geoPantalla,
         geoPozo,
         geoLogo,
-        geoPuntoLogo,
         geoBisagra,
         geoCamara,
         geoRanura,
@@ -291,7 +304,6 @@ export const LaptopModelo = forwardRef<ManejadoresLaptop>(function LaptopModelo(
         {/* Logo en la cara exterior de la tapa */}
         <group position={[0, DIM.largoTapa / 2, -DIM.grosorTapa - 0.0008]} rotation-y={Math.PI}>
           <mesh geometry={geos.geoLogo} material={recursos.logo} />
-          <mesh geometry={geos.geoPuntoLogo} material={recursos.logo} position={[0.2, 0.2, 0]} />
         </group>
       </group>
     </group>

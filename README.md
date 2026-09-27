@@ -183,6 +183,24 @@ giroscopio en móvil, si el navegador lo permite). Al cargar, Anime.js
 enciende el estudio, sube la laptop y hace entrar el título palabra a
 palabra. Todo eso se desvanece con suavidad en cuanto empieza el scroll.
 
+**Estilo de marca (igual que el header de Inicio):**
+- **Fondo:** el ciclorama usa el azul noche de la tarjeta del header en modo
+  oscuro y el fondo `--bg-page` en modo claro. Tiene un halo verde→turquesa y
+  anillos concéntricos finos en la pared, como el hero. Se ajustan en
+  `laptop.config.ts` → `estudio.haloOscuro/haloClaro`,
+  `anillosOscuro/anillosClaro`, `haloCentro` y `haloRadio`, también desde el
+  panel `?debug`.
+- **Pantalla:** muestra una miniatura del header nuevo (navbar con la pestaña,
+  titular, botón y el póster del Núcleo), dibujada en
+  `texturaPagina.ts` con los textos de `content/cabecera.ts`. Se redibuja
+  cuando cargan Sora, Inter y el póster. El zoom final se funde con
+  `--bg-dark`.
+- **Logo de la tapa:** una "C" (`LaptopModelo.tsx`, `geoLogo`).
+- **Textos sobre la escena:** título "CHC STUDIO", eslogan y panel lateral,
+  con Sora e Inter. Están en
+  [`src/content/intro.ts`](src/content/intro.ts) y **son inventados por
+  ahora** (TODO de contenido real).
+
 ### Archivos
 
 ```

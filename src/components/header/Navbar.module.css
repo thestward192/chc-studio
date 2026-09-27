@@ -296,8 +296,11 @@
     padding-left: 1.5rem;
   }
 
+  /* "Hablemos" centrado en el espacio claro que queda a la derecha de la
+     pestaña (se descuenta la esquina invertida de la izquierda) */
   .zonaCta {
-    padding-right: 0.75rem;
+    justify-content: center;
+    padding-left: var(--radio-muesca);
   }
 
   .pestana {
@@ -363,9 +366,9 @@
 
 /* ---------- Escritorio amplio: nav más separado y botón Intro con texto */
 @media (min-width: 1280px) {
-  /* La separación entre palabras crece con la pantalla (52 px hasta ~1500, ~94 px a 1850) */
+  /* La separación entre palabras crece con la pantalla (56 px a 1280, ~66 px a 1440, ~120 px a 1850) */
   .enlaces {
-    gap: clamp(3.25rem, 12vw - 8rem, 7rem);
+    gap: clamp(3.5rem, 14vw - 8.5rem, 8rem);
   }
 
   /* Pestaña más larga: crece con la pantalla y los enlaces quedan centrados */

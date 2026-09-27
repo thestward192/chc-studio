@@ -28,10 +28,19 @@ export const colores = {
  * Lo usa la escena 3D del hero ("Núcleo CHC").
  */
 export const marca = {
+  fondoPagina: '#f4f6f8',
   fondoOscuro: '#12161f',
   superficie: '#1a1e29',
   verde: '#3deb8a',
   cian: '#1ec8d8',
+  texto: '#ffffff',
+  textoTenue: 'rgba(255, 255, 255, 0.6)',
+  textoOscuro: '#12161f',
+  textoOscuroTenue: 'rgba(18, 22, 31, 0.55)',
+  textoSobreAcento: '#062a22',
+  bordeCristal: 'rgba(255, 255, 255, 0.1)',
+  fuenteTitulos: "'Sora', system-ui, sans-serif",
+  fuenteTexto: "'Inter', system-ui, sans-serif",
 } as const;
 
 /**
@@ -40,18 +49,18 @@ export const marca = {
  */
 export const estudio = {
   oscuro: {
-    centro: '#3a3d45',
-    borde: '#0c0d10',
-    apagado: '#050607',
-    luz: '#f4f2ee',
-    sombra: '#000000',
+    centro: '#222b3b',
+    borde: '#0b0e14',
+    apagado: '#04060a',
+    luz: '#eef7f5',
+    sombra: '#020306',
   },
   claro: {
-    centro: '#f1f0ed',
-    borde: '#b4b7be',
-    apagado: '#1b1c20',
+    centro: '#f4f6f8',
+    borde: '#c2cad4',
+    apagado: '#12161f',
     luz: '#ffffff',
-    sombra: '#2a2d33',
+    sombra: '#12161f',
   },
 } as const;
 
@@ -66,8 +75,8 @@ export const laptop = {
   tecla: '#0c0c0e',
   vidrio: '#040405',
   logo: '#d5d7dc',
-  luzPantalla: '#dbe6ff',
-  luzRanura: '#cfe0ff',
+  luzPantalla: '#c4efe4',
+  luzRanura: '#b4f2d9',
 } as const;
 
 /** Interfaz "cristal oscuro" del estudio 3D (espejo de `--ui-*`). */
@@ -137,10 +146,8 @@ export function obtenerModoEstudio(): ModoEstudio {
 }
 
 export const tipografia = {
-  fuenteBase:
-    "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-  fuenteTitulos:
-    "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  fuenteBase: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  fuenteTitulos: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
 } as const;
 
 export const espaciados = {

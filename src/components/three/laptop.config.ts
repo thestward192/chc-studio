@@ -71,7 +71,7 @@ export const laptopConfig = {
   pantalla: {
     duracionEncendido: 1100, // ms (línea → imagen → destello)
     duracionApagado: 280,
-    intensidadHdr: 1.3, // >1 para que el bloom solo la afecte a ella
+    intensidadHdr: 1.1, // >1 para que el bloom solo la afecte a ella (la página es clara: no subir mucho)
     luminanciaCentro: 0.14,
     aberracionEncendido: 0.012,
     reflejo: 0.38,
@@ -96,6 +96,15 @@ export const laptopConfig = {
     oscurecerZoom: 0.5,
     sombraOpacidad: 0.78,
     intensidadEntorno: 1, // softboxes reflejados en el aluminio
+    /** Halo verde/turquesa de marca en la pared, detrás de la laptop (0..1, mezcla). */
+    haloOscuro: 0.11,
+    haloClaro: 0.08,
+    /** Anillos concéntricos finos, como los del hero (0..1). */
+    anillosOscuro: 0.05,
+    anillosClaro: 0.06,
+    /** Centro del halo: x y coordenada "desenrollada" (piso + pared) del ciclorama. */
+    haloCentro: [0, 11] as [number, number],
+    haloRadio: 5,
   },
 
   aluminio: {

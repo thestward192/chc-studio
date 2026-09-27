@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
-import { empresa } from '../../content/empresa';
-import { servicios } from '../../content/servicios';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { intro } from '../../content/intro';
 import { laptopConfig as cfg } from '../three/laptop.config';
 import { meseta, tramo } from '../three/utilidadesIntro';
 import './TextoIntro.css';
@@ -49,13 +49,21 @@ export function TextoIntro({ progreso, movimientoReducido }: Props) {
         style={{ opacity: opacidadTitulo, visibility: opacidadTitulo <= 0 ? 'hidden' : 'visible' }}
       >
         <p className="texto-intro__marca">
-          <Palabras texto={empresa.nombre} />
+          <span data-palabra className="texto-intro__palabra">
+            {intro.titulo.marca}{' '}
+          </span>
+          <span data-palabra className="texto-intro__palabra texto-intro__degradado">
+            {intro.titulo.resto}
+          </span>
         </p>
         <p className="texto-intro__eslogan">
-          <Palabras texto={empresa.eslogan} />
+          <Palabras texto={intro.eslogan} />
         </p>
         <p className="texto-intro__pista" aria-hidden="true">
-          <Palabras texto="Desliza para abrir" />
+          <span className="texto-intro__raya" />
+          <span>
+            <Palabras texto={intro.pista} />
+          </span>
         </p>
       </div>
 
@@ -68,11 +76,20 @@ export function TextoIntro({ progreso, movimientoReducido }: Props) {
           visibility: opacidadInfo <= 0 ? 'hidden' : 'visible',
         }}
       >
-        <p className="texto-intro__etiqueta">{empresa.nombre}</p>
-        <p className="texto-intro__descripcion">{empresa.descripcionCorta}</p>
+        <p className="texto-intro__etiqueta">{intro.info.etiqueta}</p>
+        <p className="texto-intro__info-titulo">{intro.info.titulo}</p>
+        <p className="texto-intro__descripcion">{intro.info.descripcion}</p>
         <ul className="texto-intro__lista">
-          {servicios.slice(0, 3).map((servicio) => (
-            <li key={servicio.id}>{servicio.titulo}</li>
+          {intro.info.puntos.map((punto) => (
+            <li key={punto}>
+              <CheckCircle
+                className="texto-intro__check"
+                size={20}
+                weight="regular"
+                aria-hidden="true"
+              />
+              {punto}
+            </li>
           ))}
         </ul>
       </aside>
@@ -85,8 +102,7 @@ function Palabras({ texto }: { texto: string }) {
     <>
       {texto.split(' ').map((palabra, i) => (
         <span key={i} data-palabra className="texto-intro__palabra">
-          {palabra}
-          {' '}
+          {palabra}{' '}
         </span>
       ))}
     </>

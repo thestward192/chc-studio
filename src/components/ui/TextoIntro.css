@@ -1,6 +1,10 @@
+/* Textos sobre la intro 3D, con la tipografía y el degradado de marca del
+   header (Sora para títulos, Inter para texto). Los colores de texto siguen
+   al modo claro/oscuro del estudio (--estudio-texto*). */
+
 .texto-intro__titulo {
   position: absolute;
-  inset: calc(var(--altura-header) * 0.6) var(--espacio-md) auto;
+  inset: clamp(1.75rem, 5vh, 3rem) var(--espacio-md) auto;
   text-align: center;
   color: var(--estudio-texto);
   pointer-events: none;
@@ -9,17 +13,27 @@
 
 .texto-intro__marca {
   margin: 0;
-  font-family: var(--fuente-titulos);
-  font-size: clamp(2.25rem, 6vw, var(--tamano-texto-xxl));
-  font-weight: var(--peso-texto-fuerte);
-  line-height: var(--interlineado-ajustado);
-  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 5.6vw, 4.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.texto-intro__degradado {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .texto-intro__eslogan {
-  margin: var(--espacio-xs) 0 0;
+  max-width: 34rem;
+  margin: 0.85rem auto 0;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.5;
   color: var(--estudio-texto-tenue);
-  font-size: clamp(1rem, 2vw, var(--tamano-texto-md));
 }
 
 .texto-intro__pista {
@@ -27,11 +41,40 @@
   left: 0;
   right: 0;
   bottom: var(--espacio-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
   margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
   color: var(--estudio-texto-tenue);
-  font-size: var(--tamano-texto-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+/* Rayita con el degradado que "invita" a bajar */
+.texto-intro__raya {
+  width: 2px;
+  height: 28px;
+  border-radius: 2px;
+  background: var(--accent-gradient);
+  animation: texto-intro-bajar 2.2s var(--easing-ui) infinite;
+  transform-origin: top;
+}
+
+@keyframes texto-intro-bajar {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
 }
 
 .texto-intro__palabra {
@@ -40,41 +83,81 @@
   opacity: 0; /* Anime.js la lleva a 1 en la entrada */
 }
 
+/* ---------- Panel que aparece con la laptop de lado */
 .texto-intro__info {
   position: absolute;
   left: max(var(--espacio-md), calc((100vw - var(--ancho-maximo-contenido)) / 2));
   top: 50%;
-  margin-top: -7rem;
-  max-width: 24rem;
+  max-width: 26rem;
   color: var(--estudio-texto);
+  translate: 0 -50%; /* el transform inline es la animación de entrada */
   pointer-events: none;
   z-index: 2;
 }
 
 .texto-intro__etiqueta {
-  margin: 0 0 var(--espacio-xs);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.9rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
   color: var(--estudio-texto-tenue);
-  font-size: var(--tamano-texto-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+.texto-intro__etiqueta::before {
+  content: '';
+  width: 22px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent-gradient);
+}
+
+.texto-intro__info-titulo {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
 }
 
 .texto-intro__descripcion {
-  margin: 0 0 var(--espacio-md);
-  font-size: var(--tamano-texto-md);
-  line-height: 1.35;
-}
-
-.texto-intro__lista {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  margin: 0 0 1.4rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
   color: var(--estudio-texto-tenue);
 }
 
+.texto-intro__lista {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 1.2rem 0 0;
+  list-style: none;
+  border-top: 1px solid color-mix(in srgb, var(--estudio-texto-tenue) 30%, transparent);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
 .texto-intro__lista li {
-  padding: var(--espacio-2xs) 0;
-  border-top: var(--ancho-borde) solid color-mix(in srgb, var(--estudio-texto-tenue) 30%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.texto-intro__check {
+  flex-shrink: 0;
+  color: var(--accent-green);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .texto-intro__raya {
+    animation: none;
+  }
 }
 
 /* Móvil / vertical: la laptop queda centrada y el texto va abajo. */
@@ -84,12 +167,33 @@
     right: var(--espacio-md);
     top: auto;
     bottom: calc(var(--espacio-2xl) - var(--espacio-md));
-    margin-top: 0;
     max-width: none;
+    translate: none;
+  }
+
+  .texto-intro__etiqueta {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .texto-intro__info-titulo {
+    margin-bottom: 0.6rem;
+    font-size: 1.2rem;
+  }
+
+  .texto-intro__lista {
+    gap: 0.35rem;
+    padding-top: 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .texto-intro__check {
+    width: 16px;
+    height: 16px;
   }
 
   .texto-intro__descripcion {
-    font-size: var(--tamano-texto-base);
+    display: none; /* en vertical, solo título y puntos */
   }
 
   /* Por encima del botón "Saltar intro" */

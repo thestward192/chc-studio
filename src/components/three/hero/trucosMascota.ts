@@ -75,24 +75,25 @@ const TAU = Math.PI * 2;
 const BASE = 0.95;
 
 /* ------------------------------------------------------------------ Curvas */
+/* (exportadas: el recorrido por Proyectos usa las mismas) */
 
 const limitar = (v: number) => Math.min(Math.max(v, 0), 1);
 /** Avance 0..1 de t entre a y b. */
-const tramo = (t: number, a: number, b: number) => limitar((t - a) / (b - a));
-const suave = (u: number) => u * u * (3 - 2 * u);
-const suavisimo = (u: number) => u * u * u * (u * (u * 6 - 15) + 10);
-const salida = (u: number) => 1 - (1 - u) ** 3;
+export const tramo = (t: number, a: number, b: number) => limitar((t - a) / (b - a));
+export const suave = (u: number) => u * u * (3 - 2 * u);
+export const suavisimo = (u: number) => u * u * u * (u * (u * 6 - 15) + 10);
+export const salida = (u: number) => 1 - (1 - u) ** 3;
 const mezclar = (a: number, b: number, u: number) => a + (b - a) * u;
 /** Parábola de salto: 0 al despegar y al caer, `h` en la cima. */
 const arco = (u: number, h: number) => 4 * h * u * (1 - u);
 /** Rebote amortiguado (para aplastes y temblores que se calman); 0 antes de empezar. */
-const rebote = (t: number, frecuencia: number, amortiguacion: number) =>
+export const rebote = (t: number, frecuencia: number, amortiguacion: number) =>
   t < 0 ? 0 : Math.exp(-amortiguacion * t) * Math.cos(TAU * frecuencia * t);
 /** Campana 0→1→0 entre a y b. */
 const campana = (t: number, a: number, b: number) => Math.sin(Math.PI * tramo(t, a, b));
 
 /** Escala que conserva el volumen para un alto `sy`. */
-function volumen(sy: number): [number, number, number] {
+export function volumen(sy: number): [number, number, number] {
   const lado = 1 / Math.sqrt(sy);
   return [lado, sy, lado];
 }

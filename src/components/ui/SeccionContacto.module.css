@@ -191,7 +191,28 @@ a.fila:hover .chevron {
 }
 
 /* ---------- Formulario: una hoja de vidrio con listas agrupadas */
+/*
+ * Zona del formulario: detrás de él, la mascota de paso (canvas 3D que sube
+ * por encima del borde superior; lo que queda detrás del vidrio se ve borroso).
+ */
+.formularioZona {
+  position: relative;
+  isolation: isolate;
+}
+
+.mascotaCapa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9rem;
+  height: 16rem;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .formulario {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 1.15rem;
   padding: 1.5rem 1.1rem 1.25rem;

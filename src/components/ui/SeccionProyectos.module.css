@@ -107,6 +107,19 @@
   display: none;
 }
 
+/* Bloque del carrusel: referencia de la capa de la mascota */
+.fijo {
+  position: relative;
+}
+
+/* La mascota de paso (canvas 3D transparente sobre la pista): no tapa los clics */
+.mascotaCapa {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
 /* Carrusel fijado: el bloque se queda bajo el navbar mientras el scroll de
    la página mueve la pista (desde JS); sin imán ni deslizamiento a mano */
 .seccion[data-fijado] .fijo {

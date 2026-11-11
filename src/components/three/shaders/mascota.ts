@@ -337,6 +337,7 @@ uniform vec3 uAqua;
 uniform vec3 uFoco;     // posición de la mascota en el suelo
 uniform float uCelda;
 uniform float uAlcance;
+uniform float uOpacidad; // se apaga cuando la mascota sale volando de la tarjeta
 varying vec3 vPosMundo;
 
 void main() {
@@ -355,7 +356,7 @@ void main() {
 
   float alfa = (linea * (0.13 + 0.3 * foco) + foco * 0.05) * lejos * lados;
   vec3 color = mix(uCian, uAqua, foco);
-  gl_FragColor = vec4(color * alfa, alfa);
+  gl_FragColor = vec4(color * alfa, alfa) * uOpacidad;
   #include <colorspace_fragment>
 }
 `;
@@ -363,12 +364,13 @@ void main() {
 /** Resplandor al fondo de la sala: da la sensación de que no termina. */
 export const salaFondoFragment = /* glsl */ `
 uniform vec3 uCian;
+uniform float uOpacidad;
 varying vec2 vUv;
 void main() {
   // Franja ancha y baja a la altura del horizonte, más viva en el centro
   float franja = exp(-pow(vUv.y / 0.26, 2.0)) * exp(-pow(vUv.x / 0.6, 2.0));
   float alfa = franja * 0.13 + exp(-dot(vUv, vUv) * 3.0) * 0.05;
-  gl_FragColor = vec4(uCian * alfa, alfa);
+  gl_FragColor = vec4(uCian * alfa, alfa) * uOpacidad;
   #include <colorspace_fragment>
 }
 `;
@@ -397,11 +399,12 @@ void main() {
 
 export const polvoFragment = /* glsl */ `
 uniform vec3 uColor;
+uniform float uOpacidad;
 varying float vBrillo;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   float alfa = smoothstep(0.5, 0.0, d) * vBrillo * 0.55;
-  gl_FragColor = vec4(uColor * alfa, alfa);
+  gl_FragColor = vec4(uColor * alfa, alfa) * uOpacidad;
   #include <colorspace_fragment>
 }
 `;

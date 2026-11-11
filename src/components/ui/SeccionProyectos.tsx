@@ -17,6 +17,7 @@ import {
 } from '../../content/proyectos';
 import { servicios } from '../../content/servicios';
 import { hero } from '../../content/cabecera';
+import { MascotaDePaso } from './MascotaDePaso';
 import estilos from './SeccionProyectos.module.css';
 
 // Etiqueta del tipo: la del proyecto (p. ej. "E-commerce") o la del servicio
@@ -39,6 +40,8 @@ export function SeccionProyectos() {
   const [actual, setActual] = useState(0);
   const [bordes, setBordes] = useState({ inicio: true, fin: false });
   const [abierto, setAbierto] = useState<Proyecto | null>(null);
+  /** Pone la pista al día con el scroll (la mascota lo llama antes de medir). */
+  const sincronizarRef = useRef<(() => void) | null>(null);
 
   // Entrada escalonada la primera vez que se ve la sección
   useEffect(() => {
@@ -126,10 +129,12 @@ export function SeccionProyectos() {
     };
 
     medir();
+    sincronizarRef.current = mover;
     const observador = new ResizeObserver(medir);
     observador.observe(pista);
     window.addEventListener('scroll', programar, { passive: true });
     return () => {
+      sincronizarRef.current = null;
       cancelAnimationFrame(pendiente);
       observador.disconnect();
       window.removeEventListener('scroll', programar);
@@ -161,6 +166,38 @@ export function SeccionProyectos() {
       return;
     }
     pista.scrollTo({ left: destino, behavior: reducido ? 'auto' : 'smooth' });
+  };
+
+  // La mascota de paso: el borde de arriba de cada laptop (px del canvas) y
+  // a qué tarjeta toca ir según el scroll
+  const medirMascota = (capa: HTMLElement) => {
+    const fijo = fijoRef.current;
+    const pista = pistaRef.current;
+    if (!fijo || !pista || !pista.children.length) return null;
+    // Primero la pista al día: lo medido y lo pintado son del mismo cuadro
+    sincronizarRef.current?.();
+    const lienzo = capa.getBoundingClientRect();
+    const tarjetas = [...pista.children] as HTMLElement[];
+    const anclas = tarjetas.map((t) => {
+      const r = (t.querySelector(`.${estilos.portatil}`) ?? t).getBoundingClientRect();
+      return { x: r.left + r.width / 2 - lienzo.left, y: r.top - lienzo.top };
+    });
+    const n = anclas.length;
+    const alto = window.innerHeight;
+    const maximo = pista.scrollWidth - pista.clientWidth;
+    const avance = maximo > 0 ? pista.scrollLeft / maximo : 0;
+    const tope = parseFloat(getComputedStyle(fijo).top) || 0;
+    // Entra cuando las laptops ya se ven; se va cuando, vista la última, el
+    // carrusel se suelta y sube; en medio, la tarjeta según el avance
+    let objetivo: number;
+    if (lienzo.top + anclas[0].y > alto * 0.74) objetivo = -1;
+    else if (lienzo.top < tope - alto * 0.05) objetivo = n;
+    else objetivo = Math.round(avance * (n - 1));
+    return {
+      anclas,
+      objetivo,
+      alturaPx: Math.min(Math.max(tarjetas[0].offsetHeight * 0.16, 64), 104),
+    };
   };
 
   const abrir = (p: Proyecto) => {
@@ -198,6 +235,10 @@ export function SeccionProyectos() {
               <TarjetaProyecto key={p.id} proyecto={p} orden={i} onAbrir={() => abrir(p)} />
             ))}
           </ul>
+
+          {/* La mascota de paso: entra por la izquierda, salta de laptop en
+              laptop y se va por la derecha (solo con la escena 3D) */}
+          <MascotaDePaso tipo="proyectos" className={estilos.mascotaCapa} medir={medirMascota} />
 
           <div className={estilos.controles}>
             <div className={estilos.puntos} role="tablist" aria-label="Elegir proyecto">

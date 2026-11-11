@@ -246,6 +246,18 @@
   opacity: 1;
 }
 
+/* La mascota (canvas 3D): termina justo en la línea de arriba de las letras
+   (--mascota-arriba/--mascota-alto los mide Footer.tsx) */
+.mascotaCapa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--mascota-arriba, 0);
+  height: var(--mascota-alto, 0);
+  z-index: 2;
+  pointer-events: none;
+}
+
 /* ---------- Tablet y escritorio */
 @media (min-width: 768px) {
   .columnas {

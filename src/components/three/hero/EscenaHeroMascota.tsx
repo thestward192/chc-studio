@@ -5,9 +5,17 @@ import { marca, mascota } from '../../../theme/theme';
 import { estimarCalidadInicial } from '../../../utils/rendimiento';
 import { heroConfig, type Expresion } from './hero.config';
 import { crearGeometriaCuerpo, crearGeometriaVisor } from './geometriaMascota';
-import { senalHero, type ExtensionLienzo, type Truco, type ViajeMascota } from './senalHero';
+import {
+  senalHero,
+  type ExtensionLienzo,
+  type RecorridoMascota,
+  type Truco,
+  type ViajeMascota,
+} from './senalHero';
 import { CARAS, pesoTruco, trucos, type Cara, type PoseTruco } from './trucosMascota';
 import { crearTexturasEfectos } from './efectosMascota';
+import { ALTO_MASCOTA } from './recorridoMascota';
+import { crearPaseo } from './paseosMascota';
 import {
   cuerpoFragment,
   cuerpoVertex,
@@ -39,6 +47,11 @@ interface Props {
    * cara; solo sigue al mouse con la mirada y la cabeza.
    */
   tranquila?: boolean;
+  /**
+   * Paseo por Proyectos, Nosotros, Contacto o el pie: sin sala, canvas
+   * transparente sobre la sección y la mascota pequeña (paseosMascota.ts).
+   */
+  recorrido?: RecorridoMascota;
 }
 
 const SIN_EXTENSION: ExtensionLienzo = { arriba: 0, abajo: 0 };
@@ -49,6 +62,9 @@ type Fase = 'casa' | 'vuelo';
 
 /** Sprites disponibles para los efectos de los trucos (Zzz, estrellas, notas…). */
 const MAX_EFECTOS = 6;
+
+/** Cámara del recorrido: campo estrecho (casi sin deformar a los lados). */
+const FOV_RECORRIDO = 16;
 
 const vecTemporal = new THREE.Vector3();
 const vecDerecha = new THREE.Vector3();
@@ -68,6 +84,7 @@ export default function EscenaHeroMascota({
   viaje,
   extension = SIN_EXTENSION,
   tranquila = false,
+  recorrido,
 }: Props) {
   const calidad: Calidad = estimarCalidadInicial() === 'alto' ? 'alto' : 'medio';
   const dpr = Math.min(window.devicePixelRatio || 1, heroConfig.dprMax);
@@ -78,13 +95,19 @@ export default function EscenaHeroMascota({
       frameloop={activo ? 'always' : 'never'}
       dpr={dpr}
       gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}
-      camera={{
-        fov: heroConfig.camara.fov,
-        position: [...heroConfig.camara.posicion],
-        near: 0.1,
-        far: 60,
+      camera={
+        recorrido
+          ? { fov: FOV_RECORRIDO, position: [0, 0, 50], near: 1, far: 400 }
+          : {
+              fov: heroConfig.camara.fov,
+              position: [...heroConfig.camara.posicion],
+              near: 0.1,
+              far: 60,
+            }
+      }
+      onCreated={({ camera }) => {
+        if (!recorrido) camera.lookAt(...heroConfig.camara.mira);
       }}
-      onCreated={({ camera }) => camera.lookAt(...heroConfig.camara.mira)}
       style={{ pointerEvents: 'none', ...style }}
       aria-hidden="true"
     >
@@ -93,7 +116,8 @@ export default function EscenaHeroMascota({
         onListo={onListo}
         viaje={viaje}
         extension={extension}
-        tranquila={tranquila}
+        tranquila={tranquila || !!recorrido}
+        recorrido={recorrido}
       />
     </Canvas>
   );
@@ -105,12 +129,14 @@ function Mascota({
   viaje,
   extension,
   tranquila,
+  recorrido,
 }: {
   calidad: Calidad;
   onListo: () => void;
   viaje?: ViajeMascota;
   extension: ExtensionLienzo;
   tranquila: boolean;
+  recorrido?: RecorridoMascota;
 }) {
   const extensionRef = useRef(extension);
   extensionRef.current = extension;
@@ -168,15 +194,30 @@ function Mascota({
     } | null,
     enCasaHero: false,
     xPrevia: 0,
+    // Salida por la izquierda de la tarjeta de Páginas web: avance 0..1 (va
+    // y vuelve por tiempo), desplazamiento (unidades), velocidad de lado,
+    // hacia dónde mira (-1 izquierda, 1 derecha) y cuánto se agacha
+    salida: 0,
+    salidaX: 0,
+    salidaY: 0,
+    salidaV: 0,
+    encarar: 0,
+    agache: 0,
+    // Paseo por Proyectos, Nosotros, Contacto o el pie
+    paseo: recorrido ? crearPaseo(recorrido.tipo) : null,
   });
 
   const flex = useMemo(() => ({ value: new THREE.Vector2() }), []);
+  const opacidadSala = useMemo(() => ({ value: 1 }), []);
   const niebla = useMemo(
     () => ({
       uNiebla: { value: new THREE.Color(marca.fondoOscuro) },
-      uNieblaRango: { value: new THREE.Vector2(...c.sala.niebla) },
+      // Sin sala (Proyectos) no hay niebla: la cámara está lejos y la apagaría
+      uNieblaRango: {
+        value: recorrido ? new THREE.Vector2(1e4, 2e4) : new THREE.Vector2(...c.sala.niebla),
+      },
     }),
-    [c.sala.niebla],
+    [c.sala.niebla, recorrido],
   );
 
   const materialCuerpo = useMemo(
@@ -271,6 +312,7 @@ function Mascota({
         uFoco: { value: new THREE.Vector3() },
         uCelda: { value: c.sala.celda },
         uAlcance: { value: c.sala.alcance },
+        uOpacidad: opacidadSala,
       },
       transparent: true,
       depthWrite: false,
@@ -278,7 +320,7 @@ function Mascota({
     const fondo = new THREE.ShaderMaterial({
       vertexShader: sueloVertex,
       fragmentShader: salaFondoFragment,
-      uniforms: { uCian: { value: new THREE.Color(mascota.cian) } },
+      uniforms: { uCian: { value: new THREE.Color(mascota.cian) }, uOpacidad: opacidadSala },
       transparent: true,
       depthWrite: false,
     });
@@ -291,13 +333,14 @@ function Mascota({
         uDpr: { value: 1 },
         uColor: { value: new THREE.Color(mascota.brilloOjo) },
         uNieblaRango: niebla.uNieblaRango,
+        uOpacidad: opacidadSala,
       },
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
     return { suelo, fondo, polvo };
-  }, [c.sala, niebla]);
+  }, [c.sala, niebla, opacidadSala]);
 
   const geometrias = useMemo(() => {
     const [anillos, segmentos] = c.cuerpo.detalle[calidad];
@@ -455,7 +498,7 @@ function Mascota({
   function caraActual(): Cara {
     const s = estado.current;
     if (caraForzada.current) return caraForzada.current;
-    if (tranquila) return 'neutro';
+    if (tranquila) return s.salida > 0.04 && s.salida < 0.96 ? 'alegre' : 'neutro';
     if (senalHero.crecer) return 'alegre';
     // Con el menú abierto mira con curiosidad a quien la llamó
     if (esDelHero && senalHero.menuAbierto) return 'curioso';
@@ -535,6 +578,10 @@ function Mascota({
         s.finFase = Math.max(s.finFase, t + 2.5);
       }
     }
+    if (!fijo && recorrido) {
+      pose = poseDelRecorrido();
+      pesoPose = pose ? 1 : 0;
+    }
     const enTruco = pose !== null && pesoPose > 0.3;
 
     // --- Expresión: pesos que se acercan con suavidad a la cara objetivo
@@ -611,8 +658,10 @@ function Mascota({
       const objetivoViaje = -(viaje?.px ?? 0) * unidadesPorPx;
       // Relevo: si la mascota está en el otro lugar, esta se oculta y espera
       // ya en la posición que pide el scroll (sin viaje ni aterrizaje)
+      // En Proyectos solo se ve mientras recorre las tarjetas
       const visible =
-        !viaje || (viaje.lugar === 'hero' ? senalHero.mascotaEnHero : !senalHero.mascotaEnHero);
+        (!viaje || (viaje.lugar === 'hero' ? senalHero.mascotaEnHero : !senalHero.mascotaEnHero)) &&
+        (!recorrido || pose !== null);
       if (paseo.current) paseo.current.visible = visible;
       // Puede hacer trucos solo si es la del hero, está a la vista y quieta en su sitio
       s.enCasaHero =
@@ -652,7 +701,42 @@ function Mascota({
         s.finFase = Math.max(s.finFase, t + 2);
         paseo.current?.position.lerp(new THREE.Vector3(), k(6));
       }
-      if (charco.current) charco.current.visible = Math.abs(s.viajeY) < 1.2;
+      if (charco.current) charco.current.visible = !recorrido && Math.abs(s.viajeY) < 1.2;
+
+      // Salida por la izquierda (tarjeta de Páginas web, rumbo a Proyectos):
+      // va y vuelve por tiempo; se agacha, despega subiendo un poco y
+      // acelera hasta salir por el borde de la tarjeta. Al volver hace lo
+      // mismo al revés: llega frenando y aterriza con un pequeño pasito.
+      const sv = vj.salida;
+      const objetivoSalida = viaje?.fuera ? 1 : 0;
+      if (!visible) s.salida = objetivoSalida;
+      else
+        s.salida = THREE.MathUtils.clamp(
+          s.salida + Math.sign(objetivoSalida - s.salida) * (delta / sv.duracion),
+          0,
+          1,
+        );
+      const u = s.salida;
+      const despegue = THREE.MathUtils.smoothstep(u, 0, sv.agache);
+      const vuelo = THREE.MathUtils.clamp((u - sv.agache) / (1 - sv.agache), 0, 1);
+      const distanciaFuera = (viaje?.distanciaFuera ?? 0) * unidadesPorPx;
+      const xPrevia = s.salidaX;
+      s.salidaX =
+        Math.sin(Math.PI * despegue) * sv.retroceso * (1 - vuelo) - distanciaFuera * vuelo ** 2.2;
+      s.salidaY = sv.subida * THREE.MathUtils.smoothstep(vuelo, 0, 0.7);
+      s.salidaV = delta > 0 && visible ? (s.salidaX - xPrevia) / delta : 0;
+      // Agachada antes de despegar (y al aterrizar de vuelta)
+      s.agache = Math.sin(Math.PI * despegue) * (1 - vuelo);
+      // Mira hacia donde vuela: a la izquierda al irse (ya desde que se
+      // agacha), a la derecha al volver y de frente al aterrizar
+      const enMarcha = u > 0.001 && u < 0.999;
+      const rumbo = !enMarcha ? 0 : objetivoSalida === 1 ? -1 : u > sv.agache ? 1 : 0;
+      s.encarar += (rumbo - s.encarar) * k(7);
+      // La sala y el brillo del suelo se apagan al despegar (la mascota pasa
+      // por delante de la ventana del navegador)
+      const apagado = 1 - THREE.MathUtils.smoothstep(u, 0.02, sv.agache + 0.08);
+      opacidadSala.value = apagado;
+      materialSuelo.uniforms.uIntensidad.value = apagado;
     }
 
     // --- Vuelo por la sala: despega, da una vuelta por el aire y aterriza en casa
@@ -682,6 +766,7 @@ function Mascota({
         // En casa (o llamada por el menú a mitad de un vuelo): vuelve a su sitio
         pa.position.multiplyScalar(1 - k(2.5));
       }
+      if (viaje?.distanciaFuera !== undefined) pa.position.set(s.salidaX, s.salidaY, 0);
       materialesSala.suelo.uniforms.uFoco.value.copy(pa.position);
       // El brillo se queda en el suelo aunque la mascota suba
       if (charco.current) charco.current.position.y = -1.02 - pa.position.y;
@@ -706,14 +791,19 @@ function Mascota({
         (1 - rebote) ** 6 * m.salto.aplaste * alegre -
         Math.cos((t / m.flotacion.periodo) * Math.PI * 2) * 0.012 * (1 - alegre);
       // Viaje: se alarga con la velocidad y se aplasta (con rebote) al aterrizar
-      const estirar = fijo ? 0 : Math.min(Math.abs(s.viajeV) * vj.estiramiento, vj.estiramientoMax);
+      const estirar = fijo
+        ? 0
+        : Math.min(
+            (Math.abs(s.viajeV) + Math.abs(s.salidaV) * 0.6) * vj.estiramiento,
+            vj.estiramientoMax,
+          );
       const golpe =
         s.aterrizaje >= 0
           ? Math.exp(-s.aterrizaje * 6) *
             Math.cos(s.aterrizaje * vj.aterrizaje.frecuencia) *
             vj.aterrizaje.fuerza
           : 0;
-      const sy = (1 - aplaste) * (1 + estirar) * (1 - golpe);
+      const sy = (1 - aplaste) * (1 + estirar) * (1 - golpe) * (1 - s.agache * 0.16);
       const sxz = 1 / Math.sqrt(sy);
       const escala = 1 + (c.crecer.escala - 1) * s.crecer;
       cu.position.y = flota + salto + (fijo ? 0 : s.viajeY);
@@ -752,11 +842,16 @@ function Mascota({
         // Perspectiva: muy arriba se la vería desde abajo (mirando al techo) y
         // muy abajo desde arriba; se gira para mirar siempre igual a la cámara
         const perspectiva = fijo ? 0 : Math.atan2(s.viajeY, s.distancia);
+        // Saliendo de la tarjeta se gira de perfil hacia donde vuela y se
+        // inclina hacia delante (al agacharse se echa un poco atrás)
+        const encarar = s.encarar;
         const objetivoX =
           poseX +
           perspectiva +
           inclinacionViaje +
-          (atento ? -puntero.current.y * m.puntero.giroX : 0);
+          Math.abs(encarar) * 0.3 -
+          s.agache * 0.12 +
+          (atento && !encarar ? -puntero.current.y * m.puntero.giroX : 0);
         const objetivoY =
           poseY +
           (atento
@@ -764,7 +859,9 @@ function Mascota({
             : tranquila
               ? 0
               : Math.sin(t * 0.37) * 0.12);
-        const giroObjetivo = giroForzado.current ?? objetivoY;
+        const giroObjetivo =
+          giroForzado.current ??
+          objetivoY + (encarar * Math.PI * 0.32 - objetivoY) * Math.abs(encarar);
         g.rotation.x += angulo(objetivoX - g.rotation.x) * k(m.puntero.suavizado);
         g.rotation.y += angulo(giroObjetivo - g.rotation.y) * k(m.puntero.suavizado);
         const ladeo = Math.sin(t * 0.9) * 0.035 + curioso * 0.15;
@@ -853,6 +950,38 @@ function Mascota({
   }
 
   /**
+   * Paseo por una sección: pide a la UI las medidas de este cuadro, pone
+   * la cámara a la distancia justa para que la mascota mida `alturaPx` y
+   * devuelve la pose (null: esperando fuera de la pantalla).
+   */
+  function poseDelRecorrido(): PoseTruco | null {
+    const datos = recorrido?.medir();
+    if (!datos) return null;
+    const cam = camera as THREE.PerspectiveCamera;
+    const pxPorUnidad = datos.alturaPx / ALTO_MASCOTA;
+    const distancia =
+      size.height / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) * pxPorUnidad);
+    if (Math.abs(cam.position.z - distancia) > 1e-3) {
+      cam.position.set(0, 0, distancia);
+      cam.updateMatrixWorld();
+    }
+    const paseo = estado.current.paseo;
+    if (!paseo) return null;
+    const pose = paseo.pose(datos, estado.current.tiempo, {
+      ancho: size.width,
+      alto: size.height,
+      pxPorUnidad,
+      distancia,
+    });
+    // Avisos para la UI (p. ej. la onda en la ventana de Nosotros)
+    if (paseo.eventos.length) {
+      paseo.eventos.forEach((evento) => recorrido?.avisar?.(evento));
+      paseo.eventos.length = 0;
+    }
+    return pose;
+  }
+
+  /**
    * Publica dónde se ve la mascota en la ventana (centro y radio en px) y si
    * acepta trucos; la UI del hero pone ahí la zona para tocarla y el menú.
    */
@@ -889,9 +1018,9 @@ function Mascota({
   // Canvas más alto que su zona: ventana desplazada de la cámara para que la
   // zona conserve su encuadre y lo extra muestre lo de arriba/abajo
   function ajustarCamara() {
-    const { arriba, abajo } = extensionRef.current;
+    const { arriba, abajo, izquierda = 0 } = extensionRef.current;
     const cam = camera as THREE.PerspectiveCamera;
-    if (!arriba && !abajo) {
+    if (!arriba && !abajo && !izquierda) {
       if (cam.view?.enabled) {
         cam.clearViewOffset();
         cam.aspect = size.width / size.height;
@@ -900,11 +1029,14 @@ function Mascota({
       return;
     }
     const altoZona = Math.max(size.height - arriba - abajo, 1);
-    const aspecto = size.width / altoZona;
+    const anchoZona = Math.max(size.width - izquierda, 1);
+    const aspecto = anchoZona / altoZona;
     const vista = cam.view;
     if (
       vista?.enabled &&
       vista.fullHeight === altoZona &&
+      vista.fullWidth === anchoZona &&
+      vista.offsetX === -izquierda &&
       vista.offsetY === -arriba &&
       vista.height === size.height &&
       vista.width === size.width &&
@@ -912,7 +1044,7 @@ function Mascota({
     )
       return;
     cam.aspect = aspecto;
-    cam.setViewOffset(size.width, altoZona, 0, -arriba, size.width, size.height);
+    cam.setViewOffset(anchoZona, altoZona, -izquierda, -arriba, size.width, size.height);
   }
 
   useFrame((_, delta) => {
@@ -926,7 +1058,7 @@ function Mascota({
 
   return (
     <group position={[0, -0.08, 0]}>
-      <group ref={sala}>
+      <group ref={sala} visible={!recorrido}>
         <mesh
           geometry={geometrias.plano}
           material={materialesSala.suelo}

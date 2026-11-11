@@ -13,12 +13,56 @@ export interface ViajeMascota {
   px: number;
   /** Dónde vive esta escena: solo se ve la mascota del lugar que tiene el relevo. */
   lugar: 'hero' | 'tarjeta';
+  /**
+   * Tarjeta de Páginas web: true cuando la tarjeta ya casi sale por arriba;
+   * la mascota despega hacia la izquierda y sale por el borde de la tarjeta
+   * (rumbo a Proyectos). Al volver a false regresa volando y aterriza.
+   */
+  fuera?: boolean;
+  /** Cuánto tiene que volar hacia la izquierda para salir de la tarjeta (px). */
+  distanciaFuera?: number;
 }
 
 /** Cuánto agrandar el canvas por arriba/abajo sin cambiar el encuadre (px). */
 export interface ExtensionLienzo {
   arriba: number;
   abajo: number;
+  /** Hacia la izquierda (para salir volando por el borde de la tarjeta). */
+  izquierda?: number;
+}
+
+/** Lugares de la segunda mitad de Inicio por los que pasa la mascota (paseosMascota.ts). */
+export type TipoPaseo = 'proyectos' | 'nosotros' | 'contacto' | 'pie';
+
+/**
+ * Paseo de la mascota por una sección (Proyectos, Nosotros, Contacto, pie):
+ * la UI mide, en px del canvas, sus puntos de apoyo (el borde de una laptop,
+ * de la ventana del estudio, del formulario, las letras del pie) y a cuál
+ * toca ir según el scroll. La escena lo pide en cada fotograma (así lo
+ * medido y lo pintado son del mismo cuadro) y avisa a la UI de momentos
+ * clave (p. ej. 'chapuzon' cuando se zambulle en la ventana de Nosotros).
+ */
+export interface RecorridoMascota {
+  tipo: TipoPaseo;
+  medir: () => DatosRecorrido | null;
+  avisar?: (evento: string) => void;
+}
+
+export interface DatosRecorrido {
+  /** Puntos de apoyo (px del canvas); qué es cada uno depende del paseo. */
+  anclas: { x: number; y: number }[];
+  /** A qué sitio toca ir según el scroll (-1: aún no llega). */
+  objetivo: number;
+  /** Alto de la mascota en px. */
+  alturaPx: number;
+  /** Punto al que mirar (px del canvas), p. ej. el campo que se está llenando. */
+  mirar?: { x: number; y: number } | null;
+  /** Algo la pone contenta (señalar Enviar, mensaje enviado). */
+  alegre?: boolean;
+  /** Cambia cuando pasa algo que debe notar (otra escena en Nosotros). */
+  aviso?: number;
+  /** Mouse (px del canvas), si está cerca; null si no. */
+  puntero?: { x: number; y: number } | null;
 }
 
 /** Animaciones que se le pueden pedir a la mascota desde el menú del hero. */

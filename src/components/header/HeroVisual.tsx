@@ -1,13 +1,11 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero } from '../../content/cabecera';
-import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { useMascota3D } from '../../hooks/useMascota3D';
+import { LimiteError } from '../three/LimiteError';
 import type { ExtensionLienzo, ViajeMascota } from '../three/hero/senalHero';
 import estilosHero from './Hero.module.css';
 
 const EscenaHeroMascota = lazy(() => import('../three/hero/EscenaHeroMascota'));
-
-/** Escritorio con mouse: único caso en el que se carga la escena 3D. */
-const CONSULTA_3D = '(min-width: 1024px) and (pointer: fine)';
 
 /** Clases del póster y del canvas; cada lugar donde aparece la mascota pone las suyas. */
 export interface ClasesMascota {
@@ -53,8 +51,7 @@ export function HeroVisual({
   const estilos = clases;
   const [extension, setExtension] = useState<ExtensionLienzo>({ arriba: 0, abajo: 0 });
   const cajaRef = useRef<HTMLDivElement>(null);
-  const reducido = usePrefersReducedMotion();
-  const escritorio = useCoincideMedia(CONSULTA_3D);
+  const mascota3D = useMascota3D();
   const [enPantalla, setEnPantalla] = useState(false);
   const [pestanaVisible, setPestanaVisible] = useState(
     () => document.visibilityState === 'visible',
@@ -64,7 +61,7 @@ export function HeroVisual({
   const [fallo, setFallo] = useState(false);
   const [sinPoster, setSinPoster] = useState(false);
 
-  const puede3D = escritorio && !reducido && !fallo && soportaWebGL();
+  const puede3D = mascota3D && !fallo;
 
   useEffect(() => {
     const caja = cajaRef.current;
@@ -102,9 +99,15 @@ export function HeroVisual({
     const medir = () => {
       const nueva = medirRef.current?.(zona);
       if (!nueva) return;
-      const redondeada = { arriba: Math.round(nueva.arriba), abajo: Math.round(nueva.abajo) };
+      const redondeada = {
+        arriba: Math.round(nueva.arriba),
+        abajo: Math.round(nueva.abajo),
+        izquierda: Math.round(nueva.izquierda ?? 0),
+      };
       setExtension((previa) =>
-        previa.arriba === redondeada.arriba && previa.abajo === redondeada.abajo
+        previa.arriba === redondeada.arriba &&
+        previa.abajo === redondeada.abajo &&
+        previa.izquierda === redondeada.izquierda
           ? previa
           : redondeada,
       );
@@ -142,54 +145,19 @@ export function HeroVisual({
               viaje={viaje}
               extension={extension}
               tranquila={tranquila}
-              style={{ marginTop: -extension.arriba, marginBottom: -extension.abajo }}
+              style={
+                {
+                  marginTop: -extension.arriba,
+                  marginBottom: -extension.abajo,
+                  marginLeft: -(extension.izquierda ?? 0),
+                  // Para la máscara del canvas (dónde empieza la zona)
+                  '--extension-izq': `${extension.izquierda ?? 0}px`,
+                } as CSSProperties
+              }
             />
           </Suspense>
         </LimiteError>
       )}
     </>
   );
-}
-
-function useCoincideMedia(consulta: string): boolean {
-  const [coincide, setCoincide] = useState(() => window.matchMedia(consulta).matches);
-  useEffect(() => {
-    const media = window.matchMedia(consulta);
-    const alCambiar = () => setCoincide(media.matches);
-    media.addEventListener('change', alCambiar);
-    return () => media.removeEventListener('change', alCambiar);
-  }, [consulta]);
-  return coincide;
-}
-
-let webglCache: boolean | undefined;
-function soportaWebGL(): boolean {
-  if (webglCache === undefined) {
-    try {
-      const lienzo = document.createElement('canvas');
-      const gl = lienzo.getContext('webgl2') ?? lienzo.getContext('webgl');
-      webglCache = !!gl;
-      (gl as WebGLRenderingContext | null)?.getExtension('WEBGL_lose_context')?.loseContext();
-    } catch {
-      webglCache = false;
-    }
-  }
-  return webglCache;
-}
-
-/** Si la escena falla (contexto WebGL perdido, shader), se queda el póster. */
-class LimiteError extends Component<
-  { children: ReactNode; onError: () => void },
-  { error: boolean }
-> {
-  state = { error: false };
-  static getDerivedStateFromError() {
-    return { error: true };
-  }
-  componentDidCatch() {
-    this.props.onError();
-  }
-  render() {
-    return this.state.error ? null : this.props.children;
-  }
 }

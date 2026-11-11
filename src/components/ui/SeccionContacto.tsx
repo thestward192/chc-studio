@@ -15,6 +15,7 @@ import {
   opcionesServicio,
   type IconoMedio,
 } from '../../content/contacto';
+import { MascotaDePaso } from './MascotaDePaso';
 import estilos from './SeccionContacto.module.css';
 
 const iconos: Record<IconoMedio, Icon> = {
@@ -30,11 +31,19 @@ const iconos: Record<IconoMedio, Icon> = {
  * chevrones; a la derecha, un formulario en listas agrupadas con píldoras
  * para elegir servicios. Sin servidor: al enviar se abre la app de correo
  * con el mensaje armado.
+ *
+ * La mascota vuelve aquí pequeña: se asoma por detrás del vidrio del
+ * formulario y sube a sentarse en su borde; mira el campo que se está
+ * llenando y se alegra al señalar "Enviar" (o al enviar).
  */
 export function SeccionContacto() {
   const seccionRef = useRef<HTMLElement>(null);
   const [elegidos, setElegidos] = useState<string[]>([]);
   const [enviado, setEnviado] = useState(false);
+  const formularioRef = useRef<HTMLFormElement>(null);
+  /** Campo enfocado y si se señala "Enviar" (la mascota los lee en cada fotograma). */
+  const enfocadoRef = useRef<HTMLElement | null>(null);
+  const senalandoEnviarRef = useRef(false);
 
   useEffect(() => {
     const seccion = seccionRef.current;
@@ -50,6 +59,29 @@ export function SeccionContacto() {
     observador.observe(seccion);
     return () => observador.disconnect();
   }, []);
+
+  // La mascota: sentada en el borde de arriba del formulario (a la derecha)
+  // mientras el formulario está a la vista; si no, escondida detrás
+  const medirMascota = (capa: HTMLElement) => {
+    const formulario = formularioRef.current;
+    if (!formulario) return null;
+    const lienzo = capa.getBoundingClientRect();
+    const r = formulario.getBoundingClientRect();
+    const alto = window.innerHeight;
+    const foco = enfocadoRef.current?.getBoundingClientRect();
+    return {
+      anclas: [{ x: r.left + r.width * 0.86 - lienzo.left, y: r.top - lienzo.top }],
+      objetivo: r.top < alto * 0.6 && r.bottom > alto * 0.3 ? 0 : -1,
+      alturaPx: 84,
+      mirar: foco
+        ? {
+            x: foco.left + foco.width / 2 - lienzo.left,
+            y: foco.top + foco.height / 2 - lienzo.top,
+          }
+        : null,
+      alegre: senalandoEnviarRef.current || enviado,
+    };
+  };
 
   const alternar = (opcion: string) =>
     setElegidos((lista) =>
@@ -144,72 +176,90 @@ export function SeccionContacto() {
           </ul>
         </div>
 
-        {/* Formulario: listas agrupadas como en Ajustes */}
-        <form className={estilos.formulario} onSubmit={enviar}>
-          <h3 className={estilos.formularioTitulo}>{formularioContacto.titulo}</h3>
+        {/* Formulario: listas agrupadas como en Ajustes; detrás, la mascota */}
+        <div className={estilos.formularioZona}>
+          <MascotaDePaso tipo="contacto" className={estilos.mascotaCapa} medir={medirMascota} />
+          <form
+            ref={formularioRef}
+            className={estilos.formulario}
+            onSubmit={enviar}
+            onFocus={(e) => {
+              enfocadoRef.current = e.target.matches('input, textarea') ? e.target : null;
+            }}
+            onBlur={() => {
+              enfocadoRef.current = null;
+            }}
+          >
+            <h3 className={estilos.formularioTitulo}>{formularioContacto.titulo}</h3>
 
-          <div className={estilos.grupo}>
-            <label className={estilos.campo}>
-              <span>Nombre</span>
-              <input name="nombre" required autoComplete="name" placeholder="Tu nombre" />
-            </label>
-            <label className={estilos.campo}>
-              <span>Correo</span>
-              <input
-                name="correo"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="tu@correo.com"
-              />
-            </label>
-            <label className={estilos.campo}>
-              <span>Empresa</span>
-              <input name="empresa" autoComplete="organization" placeholder="Opcional" />
-            </label>
-          </div>
-
-          <fieldset className={estilos.opciones}>
-            <legend>¿Qué necesitas?</legend>
-            <div className={estilos.pildoras}>
-              {opcionesServicio.map((opcion) => {
-                const activa = elegidos.includes(opcion);
-                return (
-                  <button
-                    key={opcion}
-                    type="button"
-                    className={estilos.pildora}
-                    aria-pressed={activa}
-                    onClick={() => alternar(opcion)}
-                  >
-                    {activa && <CheckCircle size={15} weight="fill" aria-hidden="true" />}
-                    {opcion}
-                  </button>
-                );
-              })}
+            <div className={estilos.grupo}>
+              <label className={estilos.campo}>
+                <span>Nombre</span>
+                <input name="nombre" required autoComplete="name" placeholder="Tu nombre" />
+              </label>
+              <label className={estilos.campo}>
+                <span>Correo</span>
+                <input
+                  name="correo"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="tu@correo.com"
+                />
+              </label>
+              <label className={estilos.campo}>
+                <span>Empresa</span>
+                <input name="empresa" autoComplete="organization" placeholder="Opcional" />
+              </label>
             </div>
-          </fieldset>
 
-          <div className={estilos.grupo}>
-            <label className={`${estilos.campo} ${estilos.campoMensaje}`}>
-              <span>Mensaje</span>
-              <textarea
-                name="mensaje"
-                required
-                rows={4}
-                placeholder="Cuéntanos de tu negocio y qué te gustaría lograr."
-              />
-            </label>
-          </div>
+            <fieldset className={estilos.opciones}>
+              <legend>¿Qué necesitas?</legend>
+              <div className={estilos.pildoras}>
+                {opcionesServicio.map((opcion) => {
+                  const activa = elegidos.includes(opcion);
+                  return (
+                    <button
+                      key={opcion}
+                      type="button"
+                      className={estilos.pildora}
+                      aria-pressed={activa}
+                      onClick={() => alternar(opcion)}
+                    >
+                      {activa && <CheckCircle size={15} weight="fill" aria-hidden="true" />}
+                      {opcion}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
 
-          <button type="submit" className={estilos.enviar}>
-            {formularioContacto.boton}
-            <PaperPlaneTilt size={18} weight="fill" aria-hidden="true" />
-          </button>
-          <p className={estilos.nota} role="status">
-            {enviado ? formularioContacto.enviado : formularioContacto.nota}
-          </p>
-        </form>
+            <div className={estilos.grupo}>
+              <label className={`${estilos.campo} ${estilos.campoMensaje}`}>
+                <span>Mensaje</span>
+                <textarea
+                  name="mensaje"
+                  required
+                  rows={4}
+                  placeholder="Cuéntanos de tu negocio y qué te gustaría lograr."
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className={estilos.enviar}
+              onPointerEnter={() => (senalandoEnviarRef.current = true)}
+              onPointerLeave={() => (senalandoEnviarRef.current = false)}
+            >
+              {formularioContacto.boton}
+              <PaperPlaneTilt size={18} weight="fill" aria-hidden="true" />
+            </button>
+            <p className={estilos.nota} role="status">
+              {enviado ? formularioContacto.enviado : formularioContacto.nota}
+            </p>
+          </form>
+        </div>
       </div>
     </section>
   );

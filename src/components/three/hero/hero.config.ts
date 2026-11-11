@@ -135,6 +135,12 @@ export const heroConfig = {
     estiramientoMax: 0.28,
     /** Aplaste al aterrizar: fuerza, duración (s) y frecuencia del rebote. */
     aterrizaje: { fuerza: 0.24, duracion: 0.9, frecuencia: 19 },
+    /**
+     * Salida por la izquierda de la tarjeta de Páginas web (rumbo a
+     * Proyectos): duración (s), tramo inicial en que se agacha, pasito atrás
+     * antes de despegar y cuánto sube mientras se aleja (unidades).
+     */
+    salida: { duracion: 1.25, agache: 0.2, retroceso: 0.18, subida: 0.12 },
   },
 
   movimiento: {

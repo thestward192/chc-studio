@@ -339,22 +339,53 @@
   visibility: hidden;
 }
 
-/* Canvas 3D: ocupa la zona y se difumina hacia arriba y hacia el navegador */
+/*
+ * Canvas 3D: ocupa la zona (y se alarga hasta los bordes de arriba e
+ * izquierdo de la tarjeta) y se difumina hacia arriba y hacia el navegador.
+ * --extension-izq (HeroVisual) es lo que se alarga a la izquierda: hasta ahí
+ * no se ve nada. Cuando la mascota sale volando hacia Proyectos
+ * ([data-fuera]) la máscara se abre hasta el borde de la tarjeta (la sala
+ * 3D se apaga a la vez) y al volver se cierra cuando ya aterrizó.
+ */
+@property --mascara-izq {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 .mascotaLienzo {
+  --mascara-izq: var(--extension-izq, 0px);
   position: absolute !important;
   inset: 0;
   width: auto !important;
   height: auto !important;
   opacity: 0;
-  transition: opacity 0.8s var(--easing-ui);
+  transition:
+    opacity 0.8s var(--easing-ui),
+    --mascara-izq 0.4s var(--easing-ui) 1s;
   -webkit-mask-image:
     linear-gradient(to bottom, transparent, #000 22%),
-    linear-gradient(to right, transparent, #000 18%);
+    linear-gradient(
+      to right,
+      transparent var(--mascara-izq),
+      #000 calc(var(--mascara-izq) + (100% - var(--extension-izq, 0px)) * 0.18)
+    );
   mask-image:
     linear-gradient(to bottom, transparent, #000 22%),
-    linear-gradient(to right, transparent, #000 18%);
+    linear-gradient(
+      to right,
+      transparent var(--mascara-izq),
+      #000 calc(var(--mascara-izq) + (100% - var(--extension-izq, 0px)) * 0.18)
+    );
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
+}
+
+.mascotaZona[data-fuera] .mascotaLienzo {
+  --mascara-izq: 0px;
+  transition:
+    opacity 0.8s var(--easing-ui),
+    --mascara-izq 0.3s var(--easing-ui);
 }
 
 .mascotaLienzoLista {

@@ -145,10 +145,16 @@ function Etiquetas({ servicio }: { servicio: Servicio }) {
   );
 }
 
-/** El canvas sube hasta el borde superior de la tarjeta: la mascota entra por ahí. */
+/**
+ * El canvas sube hasta el borde superior de la tarjeta (la mascota entra por
+ * ahí) y llega hasta el izquierdo (por ahí se va volando a Proyectos).
+ */
 const extenderHastaArriba = (zona: HTMLElement) => {
   const tarjeta = zona.parentElement?.getBoundingClientRect();
-  return { arriba: tarjeta ? zona.getBoundingClientRect().top - tarjeta.top : 0, abajo: 0 };
+  const r = zona.getBoundingClientRect();
+  return tarjeta
+    ? { arriba: r.top - tarjeta.top, abajo: 0, izquierda: r.left - tarjeta.left }
+    : { arriba: 0, abajo: 0 };
 };
 
 /** La mascota del hero, con las clases de esta tarjeta. */
@@ -182,8 +188,18 @@ function SalaMascota() {
     // pasa la mitad de la pantalla) y termina con la tarjeta arriba, a la
     // vista. Al empezar está entera por encima del borde de la tarjeta.
     const llegada = limitar((alto * 0.55 - tarjeta.top) / (alto * 0.45), 0, 1);
-    const desdeArriba = el.getBoundingClientRect().top - tarjeta.top + el.offsetHeight * 0.6 + 200;
+    const zona = el.getBoundingClientRect();
+    const desdeArriba = zona.top - tarjeta.top + el.offsetHeight * 0.6 + 200;
     viaje.px = -((1 - llegada) ** 1.6) * desdeArriba;
+    // Cuando la tarjeta ya casi sale por arriba (la mascota está por
+    // perderse de vista), despega hacia la izquierda rumbo a Proyectos;
+    // con margen para que no vaya y venga en el límite
+    viaje.fuera = tarjeta.bottom < alto * (viaje.fuera ? 0.66 : 0.6);
+    // Del centro de la zona hasta pasar el borde izquierdo de la tarjeta, con
+    // la mascota entera (mide ~70% del ancho de la zona, 320 px como mucho)
+    viaje.distanciaFuera =
+      zona.left + zona.width / 2 - tarjeta.left + Math.min(zona.width * 0.7, 320) * 0.6;
+    el.toggleAttribute('data-fuera', viaje.fuera);
     return viaje.px;
   });
 

@@ -17,9 +17,13 @@ export const encabezadoNosotros = {
 
 export interface EscenaNosotros {
   id: string;
-  /** Texto del control segmentado. */
+  /** Nombre corto (control y textos breves). */
   etiqueta: string;
   titulo: string;
+  /** Línea corta bajo el nombre en la lista del equipo. */
+  detalle: string;
+  /** Inicial para el avatar (vacío en el taller, que lleva un ícono). */
+  inicial: string;
   descripcion: string;
   /** Gustos (decoran su oficina); vacío para el taller. */
   gustos: string[];
@@ -35,6 +39,8 @@ export const escenasNosotros: EscenaNosotros[] = [
     id: 'taller',
     etiqueta: 'Taller',
     titulo: 'El taller',
+    detalle: 'Donde trabajamos juntos',
+    inicial: '',
     descripcion:
       'Donde trabajamos juntos y colgamos los proyectos. Desde aquí se entra a cada oficina.',
     gustos: [],
@@ -47,6 +53,8 @@ export const escenasNosotros: EscenaNosotros[] = [
     id: persona.id,
     etiqueta: persona.nombreCorto,
     titulo: persona.nombre,
+    detalle: persona.gustos.join(' · '),
+    inicial: persona.nombreCorto.charAt(0),
     descripcion: `Su oficina está hecha de lo que le gusta: ${listaGustos(persona, true)}.`,
     gustos: persona.gustos,
     imagen: `/equipo/oficina-${persona.slug}.jpg`,

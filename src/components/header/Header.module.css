@@ -7,16 +7,31 @@
   overflow-x: clip; /* nunca scroll horizontal de la página */
 }
 
-/* ---------- Fila de servicios (móvil: deslizable con scroll-snap) */
+/*
+ * Fila de servicios estilo "chapternav" de apple.com: cada servicio es un
+ * ícono de app de iOS con su nombre pequeño debajo. Es el puente oscuro entre
+ * la tarjeta del hero y el panel de Servicios: los tres forman una sola
+ * superficie, separada solo por líneas finas de luz. Móvil: deslizable.
+ */
 .franja {
   display: flex;
-  gap: 0.75rem;
-  margin: 0 -0.75rem;
-  padding: 1.75rem 1.25rem 2.25rem;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1.75rem 1rem 2rem;
+  background: var(--bg-dark);
+  -webkit-font-smoothing: antialiased;
+  border-block: 1px solid;
+  border-image: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--accent-cyan) 30%, transparent),
+      transparent
+    )
+    1;
   list-style: none;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: 1.25rem;
+  scroll-padding-inline: 1rem;
   scrollbar-width: none;
 }
 
@@ -30,57 +45,84 @@
 }
 
 .servicio {
-  position: relative;
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1.1rem 0.5rem 0.5rem;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 0.98rem;
-  color: var(--text-dark);
+  gap: 0.6rem;
+  min-width: 5.5rem;
+  padding: 0.5rem 0.25rem;
+  color: var(--text-light);
   text-decoration: none;
-  white-space: nowrap;
-  background: var(--text-light);
-  border: 1px solid color-mix(in srgb, var(--text-dark) 8%, transparent);
-  border-radius: 999px;
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-dark) 6%, transparent);
-  transition:
-    transform 0.25s var(--easing-ui),
-    box-shadow 0.25s var(--easing-ui),
-    border-color 0.25s var(--easing-ui);
+  border-radius: 18px;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Baldosa del icono: fondo oscuro de la marca con el icono en verde */
+/* Ícono de app: squircle oscuro con brillo arriba y el ícono en verde */
 .baldosa {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: 15px;
   color: var(--accent-green);
-  background: var(--bg-dark);
-  transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.5, 1);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, #fff 10%, transparent), transparent 60%),
+    var(--surface);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, #fff 10%, transparent),
+    0 10px 22px -12px #000;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.4, 0.5, 1),
+    box-shadow 0.3s var(--easing-ui);
 }
 
-.servicio:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--accent-cyan) 45%, transparent);
-  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
+/* Reflejo del degradado de marca bajo el ícono, aparece al señalar */
+.baldosa::after {
+  content: '';
+  position: absolute;
+  inset: auto 18% -6px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  filter: blur(8px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s var(--easing-ui);
+}
+
+.etiqueta {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-align: center;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--text-light) 70%, transparent);
+  transition: color 0.2s var(--easing-ui);
 }
 
 .servicio:hover .baldosa {
-  transform: rotate(-8deg) scale(1.06);
+  transform: translateY(-3px) scale(1.04);
 }
 
-.servicio:active {
-  transform: translateY(0) scale(0.98);
+.servicio:hover .baldosa::after {
+  opacity: 0.75;
+}
+
+.servicio:hover .etiqueta {
+  color: var(--text-light);
+}
+
+.servicio:active .baldosa {
+  transform: scale(0.94);
 }
 
 .servicio:focus-visible {
   outline: 2px solid var(--accent-cyan);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 /* Entrada escalonada al aparecer en pantalla (data-visible lo pone Header.tsx) */
@@ -94,45 +136,67 @@
     transition:
       opacity 0.6s var(--easing-ui),
       transform 0.6s var(--easing-ui);
-    transition-delay: calc(var(--i, 0) * 70ms);
+    transition-delay: calc(var(--i, 0) * 60ms);
   }
 }
 
-/* ---------- Escritorio: una fila repartida, sin scroll */
+/* ---------- Desde tablet caben todos: fila centrada, sin scroll */
+@media (min-width: 640px) {
+  .franja {
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 2.25rem 1.5rem 2.5rem;
+    overflow: visible;
+  }
+
+  .servicio {
+    min-width: 7rem;
+  }
+
+  .etiqueta {
+    font-size: 0.82rem;
+  }
+}
+
 @media (min-width: 1024px) {
   .header {
     padding: 1rem 1rem 0;
   }
 
   .franja {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem 1.25rem;
-    margin: 0 auto;
-    max-width: 1180px;
-    padding: 2.25rem 1.5rem 2.75rem;
-    overflow: visible;
+    gap: 3rem;
+    padding: 3rem 1.5rem 3.25rem;
   }
 
   .servicio {
-    padding: 0.55rem 1.4rem 0.55rem 0.55rem;
-    font-size: 1.02rem;
+    gap: 0.75rem;
   }
 
   .baldosa {
-    width: 44px;
-    height: 44px;
+    width: 66px;
+    height: 66px;
+    border-radius: 18px;
+  }
+
+  .baldosa svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .etiqueta {
+    font-size: 0.9rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .servicio,
-  .baldosa {
+  .baldosa,
+  .baldosa::after,
+  .etiqueta {
     transition: none;
   }
 
-  .servicio:hover,
-  .servicio:hover .baldosa {
+  .servicio:hover .baldosa,
+  .servicio:active .baldosa {
     transform: none;
   }
 }

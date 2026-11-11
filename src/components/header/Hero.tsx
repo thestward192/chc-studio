@@ -1,6 +1,6 @@
 import { useRef, type CSSProperties } from 'react';
 import { Cube } from '@phosphor-icons/react/dist/csr/Cube';
-import { ArrowUpRight } from '@phosphor-icons/react/dist/csr/ArrowUpRight';
+import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
 import { hero } from '../../content/cabecera';
 import { senalHero } from '../three/hero/senalHero';
 import { BotonPill } from './BotonPill';
@@ -11,9 +11,11 @@ import estilos from './Hero.module.css';
 const orden = (i: number) => ({ '--i': i }) as CSSProperties;
 
 /**
- * Hero dentro de la tarjeta oscura: titular, subtítulo, botón y prueba
- * social a la izquierda; la mascota CHC a la derecha, paseando por una sala
- * 3D sin fondo (o su póster). Señalar el botón la hace crecer y ponerse alegre.
+ * Hero estilo página de producto de Apple dentro de la tarjeta oscura:
+ * antetítulo, titular enorme centrado y subtítulo; debajo, la mascota CHC
+ * como foto de producto, paseando por una sala 3D sin fondo (o su póster),
+ * y a sus pies el botón + enlace "›". Señalar el botón la hace crecer y
+ * ponerse alegre.
  */
 export function Hero() {
   const visualRef = useRef<HTMLDivElement>(null);
@@ -29,6 +31,10 @@ export function Hero() {
   return (
     <section className={estilos.tarjeta} aria-labelledby="hero-titular">
       <div className={estilos.texto}>
+        <p className={`${estilos.antetitulo} ${estilos.entrada}`} style={orden(linea++)}>
+          {hero.antetitulo}
+        </p>
+
         <h1 id="hero-titular" className={estilos.titular}>
           {hero.titular.map((partes, i) => (
             <span key={i} className={`${estilos.linea} ${estilos.entrada}`} style={orden(linea++)}>
@@ -48,29 +54,6 @@ export function Hero() {
         <p className={`${estilos.subtitulo} ${estilos.entrada}`} style={orden(linea++)}>
           {hero.subtitulo}
         </p>
-
-        <div className={estilos.entrada} style={orden(linea++)}>
-          <BotonPill
-            etiqueta={hero.boton.etiqueta}
-            destino={hero.boton.destino}
-            tamano="grande"
-            onActivo={alActivarBoton}
-          />
-        </div>
-
-        {/* Prueba social sin cifras: la propia web es la muestra */}
-        <p className={`${estilos.prueba} ${estilos.entrada}`} style={orden(linea++)}>
-          <span className={estilos.pruebaIcono} aria-hidden="true">
-            <Cube size={20} weight="regular" />
-          </span>
-          <span className={estilos.pruebaTexto}>
-            {hero.prueba.texto}{' '}
-            <a className={estilos.pruebaEnlace} href={hero.prueba.enlace.href}>
-              {hero.prueba.enlace.etiqueta}
-              <ArrowUpRight size={15} weight="bold" aria-hidden="true" />
-            </a>
-          </span>
-        </p>
       </div>
 
       <div
@@ -80,6 +63,26 @@ export function Hero() {
       >
         <HeroVisual />
       </div>
+
+      {/* Bajo la mascota, sobre el suelo de la sala: el modelo queda despejado */}
+      <div className={`${estilos.acciones} ${estilos.entrada}`} style={orden(linea++)}>
+        <BotonPill
+          etiqueta={hero.boton.etiqueta}
+          destino={hero.boton.destino}
+          tamano="grande"
+          onActivo={alActivarBoton}
+        />
+        <a className={estilos.enlace} href={hero.prueba.enlace.href}>
+          {hero.prueba.enlace.etiqueta}
+          <CaretRight size={14} weight="bold" aria-hidden="true" />
+        </a>
+      </div>
+
+      {/* Prueba social sin cifras: la propia web es la muestra */}
+      <p className={`${estilos.prueba} ${estilos.entrada}`} style={orden(linea++)}>
+        <Cube size={16} weight="regular" aria-hidden="true" />
+        {hero.prueba.texto}
+      </p>
     </section>
   );
 }

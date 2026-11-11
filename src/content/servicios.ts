@@ -12,6 +12,7 @@ export interface Servicio {
 
 // Los mismos cinco servicios (y en el mismo orden) que la fila de la cabecera.
 export const encabezadoServicios = {
+  antetitulo: 'Servicios',
   /** `destacado` va con el degradado de marca, como en el titular del hero. */
   titular: [
     { texto: 'Todo tu negocio digital, en ' },
@@ -66,6 +67,17 @@ export const servicios: Servicio[] = [
     incluye: ['Mantenimiento', 'Respaldos', 'Seguridad', 'Mejoras'],
   },
 ];
+
+/** Textos de las animaciones de las tarjetas (ilustrativos, sin datos reales). */
+export const animacionesServicios = {
+  web: { url: 'tunegocio.cr' },
+  sistema: { ventana: 'Panel · Inventario' },
+  soporte: { estado: 'Monitoreo activo' },
+  seo: {
+    busqueda: 'desarrollo web en Costa Rica',
+    resultado: 'tunegocio.cr',
+  },
+};
 
 /** Cierre de la sección: para quien todavía no sabe qué servicio necesita. */
 export const cierreServicios = {

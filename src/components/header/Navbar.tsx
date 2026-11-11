@@ -14,11 +14,11 @@ interface Props {
 }
 
 /**
- * Navbar. En escritorio, los enlaces van en una "pestaña" oscura que sube
- * desde la tarjeta del hero (con esquinas invertidas a los lados); el logo y
- * el botón quedan en las zonas claras recortadas. Una sola barra con el
- * degradado se desliza hasta el enlace activo (o el que está bajo el mouse).
- * En tablet y móvil: logo + botón de menú que abre un panel a todo el ancho.
+ * Navbar estilo iOS: cápsula de vidrio esmerilado fija arriba. En escritorio,
+ * logo a la izquierda, enlaces al centro y botón a la derecha; una píldora
+ * clara se desliza hasta el enlace activo (o el que está bajo el mouse), como
+ * un control segmentado. En tablet y móvil: logo + botón de menú que abre una
+ * hoja de vidrio oscuro a todo el ancho.
  */
 export function Navbar({ onVolverIntro }: Props) {
   const [abierto, setAbierto] = useState(false);
@@ -79,8 +79,8 @@ export function Navbar({ onVolverIntro }: Props) {
         )}
       </div>
 
-      {/* Pestaña oscura (solo escritorio) */}
-      <div className={estilos.pestana}>
+      {/* Enlaces centrales (solo escritorio) */}
+      <div className={estilos.centro}>
         <ul ref={listaRef} className={estilos.enlaces} onPointerLeave={() => setSobre(null)}>
           {enlacesNav.map((enlace) => (
             <li key={enlace.id}>

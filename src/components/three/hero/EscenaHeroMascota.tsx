@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { marca, mascota } from '../../../theme/theme';
 import { estimarCalidadInicial } from '../../../utils/rendimiento';
 import { heroConfig, type Expresion } from './hero.config';
 import { crearGeometriaCuerpo, crearGeometriaVisor } from './geometriaMascota';
-import { senalHero } from './senalHero';
+import { senalHero, type ExtensionLienzo, type ViajeMascota } from './senalHero';
 import {
   cuerpoFragment,
   cuerpoVertex,
@@ -27,7 +27,19 @@ interface Props {
   /** Se llama cuando ya se pintó el primer fotograma (para el fundido desde el póster). */
   onListo: () => void;
   className?: string;
+  style?: CSSProperties;
+  /** Desplazamiento pedido por el scroll (solo se mueve la mascota, no la sala). */
+  viaje?: ViajeMascota;
+  /** El canvas es más alto que su zona: la cámara mantiene el encuadre de la zona. */
+  extension?: ExtensionLienzo;
+  /**
+   * Modo tranquilo (tarjeta de Páginas web): no vuela, no salta ni cambia de
+   * cara; solo sigue al mouse con la mirada y la cabeza.
+   */
+  tranquila?: boolean;
 }
+
+const SIN_EXTENSION: ExtensionLienzo = { arriba: 0, abajo: 0 };
 
 type Calidad = 'alto' | 'medio';
 
@@ -42,7 +54,15 @@ type Fase = 'casa' | 'vuelo';
  * volar, dando vueltas en el aire, y vuelve. Solo se monta en escritorio con puntero fino; el resto de casos
  * usa el póster estático.
  */
-export default function EscenaHeroMascota({ activo, onListo, className }: Props) {
+export default function EscenaHeroMascota({
+  activo,
+  onListo,
+  className,
+  style,
+  viaje,
+  extension = SIN_EXTENSION,
+  tranquila = false,
+}: Props) {
   const calidad: Calidad = estimarCalidadInicial() === 'alto' ? 'alto' : 'medio';
   const dpr = Math.min(window.devicePixelRatio || 1, heroConfig.dprMax);
 
@@ -59,15 +79,35 @@ export default function EscenaHeroMascota({ activo, onListo, className }: Props)
         far: 60,
       }}
       onCreated={({ camera }) => camera.lookAt(...heroConfig.camara.mira)}
-      style={{ pointerEvents: 'none' }}
+      style={{ pointerEvents: 'none', ...style }}
       aria-hidden="true"
     >
-      <Mascota calidad={calidad} onListo={onListo} />
+      <Mascota
+        calidad={calidad}
+        onListo={onListo}
+        viaje={viaje}
+        extension={extension}
+        tranquila={tranquila}
+      />
     </Canvas>
   );
 }
 
-function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }) {
+function Mascota({
+  calidad,
+  onListo,
+  viaje,
+  extension,
+  tranquila,
+}: {
+  calidad: Calidad;
+  onListo: () => void;
+  viaje?: ViajeMascota;
+  extension: ExtensionLienzo;
+  tranquila: boolean;
+}) {
+  const extensionRef = useRef(extension);
+  extensionRef.current = extension;
   const paseo = useRef<THREE.Group>(null);
   const sala = useRef<THREE.Group>(null);
   const grupo = useRef<THREE.Group>(null);
@@ -103,6 +143,14 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
     rumbo: 0,
     rumboSuave: 0,
     inclinacion: 0,
+    // Viaje por la página: desplazamiento vertical (unidades), velocidad,
+    // si venía de lejos y tiempo desde el aterrizaje (-1: no aterrizando)
+    viajeY: 0,
+    viajeV: 0,
+    lejos: false,
+    aterrizaje: -1,
+    /** Distancia cámara-mascota (para compensar la perspectiva del viaje). */
+    distancia: 8.6,
   });
 
   const flex = useMemo(() => ({ value: new THREE.Vector2() }), []);
@@ -348,6 +396,7 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
   function caraActual(): Expresion {
     const s = estado.current;
     if (caraForzada.current) return caraForzada.current;
+    if (tranquila) return 'neutro';
     if (senalHero.crecer) return 'alegre';
     if (s.tiempo >= s.finPaso) {
       s.paso = (s.paso + 1) % c.rutina.length;
@@ -399,6 +448,8 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
         THREE.MathUtils.clamp(puntero.current.x, -1, 1),
         THREE.MathUtils.clamp(puntero.current.y, -1, 1),
       );
+    } else if (tranquila) {
+      s.objetivoMirada.set(0, 0);
     } else if (!fijo && t >= s.proximaMirada) {
       s.objetivoMirada.set((Math.random() * 2 - 1) * 0.6, (Math.random() * 2 - 1) * 0.4);
       s.proximaMirada = t + 1.4 + Math.random() * 2.2;
@@ -412,12 +463,64 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
     );
 
     // --- Botón del hero: crece y brilla
-    s.crecer += ((fijo ? 0 : senalHero.crecer ? 1 : 0) - s.crecer) * k(c.crecer.suavizado);
+    s.crecer +=
+      ((fijo || tranquila ? 0 : senalHero.crecer ? 1 : 0) - s.crecer) * k(c.crecer.suavizado);
     materialCuerpo.uniforms.uBrillo.value = s.crecer;
+
+    // --- Viaje por la página: un muelle lleva a la mascota al desplazamiento
+    // que pide el scroll (px de pantalla pasados a unidades a su distancia)
+    const vj = c.viaje;
+    if (!fijo) {
+      const cam = camera as THREE.PerspectiveCamera;
+      const ext = extensionRef.current;
+      const altoZona = Math.max(size.height - ext.arriba - ext.abajo, 1);
+      const distancia = cam.position.distanceTo(paseo.current?.position ?? new THREE.Vector3());
+      s.distancia = distancia;
+      const unidadesPorPx =
+        (2 * distancia * Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2)) / altoZona;
+      const objetivoViaje = -(viaje?.px ?? 0) * unidadesPorPx;
+      // Relevo: si la mascota está en el otro lugar, esta se oculta y espera
+      // ya en la posición que pide el scroll (sin viaje ni aterrizaje)
+      const visible =
+        !viaje || (viaje.lugar === 'hero' ? senalHero.mascotaEnHero : !senalHero.mascotaEnHero);
+      if (paseo.current) paseo.current.visible = visible;
+      if (!visible) {
+        s.viajeY = objetivoViaje;
+        s.viajeV = 0;
+        s.lejos = Math.abs(objetivoViaje) > 0.8;
+        s.aterrizaje = -1;
+      }
+      s.viajeV +=
+        ((objetivoViaje - s.viajeY) * vj.muelle.rigidez - s.viajeV * vj.muelle.amortiguacion) *
+        delta;
+      s.viajeY += s.viajeV * delta;
+      // Aterriza cuando vuelve a casa desde lejos
+      if (Math.abs(s.viajeY) > 0.8) s.lejos = true;
+      else if (s.lejos && Math.abs(s.viajeY) < 0.08) {
+        s.lejos = false;
+        s.aterrizaje = 0;
+        // Recién llegada se queda en casa un rato antes de volar por la sala
+        s.finFase = t + azarEntre(c.vuelo.enCasa);
+      }
+      if (s.aterrizaje >= 0) {
+        s.aterrizaje += delta;
+        if (s.aterrizaje > vj.aterrizaje.duracion) s.aterrizaje = -1;
+      }
+      // De viaje no vuela por la sala: vuelve a casa y espera
+      if (Math.abs(s.viajeY) > 0.03 || Math.abs(objetivoViaje) > 0.03) {
+        if (s.fase === 'vuelo') {
+          s.fase = 'casa';
+          s.ruta = null;
+        }
+        s.finFase = Math.max(s.finFase, t + 2);
+        paseo.current?.position.lerp(new THREE.Vector3(), k(6));
+      }
+      if (charco.current) charco.current.visible = Math.abs(s.viajeY) < 1.2;
+    }
 
     // --- Vuelo por la sala: despega, da una vuelta por el aire y aterriza en casa
     const v = c.vuelo;
-    if (!fijo && t >= s.finFase) {
+    if (!fijo && !tranquila && t >= s.finFase) {
       s.inicioFase = t;
       if (s.fase === 'casa') {
         s.fase = 'vuelo';
@@ -452,17 +555,28 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
     const cu = cuerpo.current;
     if (g && cu) {
       const flota =
-        Math.sin((t / m.flotacion.periodo) * Math.PI * 2) * m.flotacion.amplitud * (1 - alegre);
+        Math.sin((t / m.flotacion.periodo) * Math.PI * 2) *
+        m.flotacion.amplitud *
+        (tranquila ? 0.35 : 1) *
+        (1 - alegre);
       const rebote = Math.abs(Math.sin(t * Math.PI * m.salto.frecuencia));
       const salto = rebote * m.salto.altura * alegre;
       // Aplaste al tocar el suelo y estiramiento al subir
       const aplaste =
         (1 - rebote) ** 6 * m.salto.aplaste * alegre -
         Math.cos((t / m.flotacion.periodo) * Math.PI * 2) * 0.012 * (1 - alegre);
-      const sy = 1 - aplaste;
+      // Viaje: se alarga con la velocidad y se aplasta (con rebote) al aterrizar
+      const estirar = fijo ? 0 : Math.min(Math.abs(s.viajeV) * vj.estiramiento, vj.estiramientoMax);
+      const golpe =
+        s.aterrizaje >= 0
+          ? Math.exp(-s.aterrizaje * 6) *
+            Math.cos(s.aterrizaje * vj.aterrizaje.frecuencia) *
+            vj.aterrizaje.fuerza
+          : 0;
+      const sy = (1 - aplaste) * (1 + estirar) * (1 - golpe);
       const sxz = 1 / Math.sqrt(sy);
       const escala = 1 + (c.crecer.escala - 1) * s.crecer;
-      cu.position.y = flota + salto;
+      cu.position.y = flota + salto + (fijo ? 0 : s.viajeY);
       cu.scale.set(sxz * escala, sy * escala, sxz * escala);
       materialSuelo.uniforms.uAltura.value =
         Math.max(cu.position.y + (paseo.current?.position.y ?? 0), 0) * 0.9;
@@ -487,10 +601,29 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
       } else {
         // En casa sigue al puntero
         const atento = dentro;
-        const objetivoX = poseX + (atento ? -puntero.current.y * m.puntero.giroX : 0);
+        // De viaje se inclina hacia donde va (cabeza abajo al caer)
+        const inclinacionViaje = fijo
+          ? 0
+          : THREE.MathUtils.clamp(
+              -s.viajeV * vj.inclinacion,
+              -vj.inclinacionMax,
+              vj.inclinacionMax,
+            );
+        // Perspectiva: muy arriba se la vería desde abajo (mirando al techo) y
+        // muy abajo desde arriba; se gira para mirar siempre igual a la cámara
+        const perspectiva = fijo ? 0 : Math.atan2(s.viajeY, s.distancia);
+        const objetivoX =
+          poseX +
+          perspectiva +
+          inclinacionViaje +
+          (atento ? -puntero.current.y * m.puntero.giroX : 0);
         const objetivoY =
           poseY +
-          (atento ? puntero.current.x * m.puntero.giroY - poseY * 0.6 : Math.sin(t * 0.37) * 0.12);
+          (atento
+            ? puntero.current.x * m.puntero.giroY - poseY * 0.6
+            : tranquila
+              ? 0
+              : Math.sin(t * 0.37) * 0.12);
         const giroObjetivo = giroForzado.current ?? objetivoY;
         g.rotation.x += angulo(objetivoX - g.rotation.x) * k(m.puntero.suavizado);
         g.rotation.y += angulo(giroObjetivo - g.rotation.y) * k(m.puntero.suavizado);
@@ -528,8 +661,38 @@ function Mascota({ calidad, onListo }: { calidad: Calidad; onListo: () => void }
     if (destellos.current) destellos.current.visible = curioso > 0.01;
   }
 
+  // Canvas más alto que su zona: ventana desplazada de la cámara para que la
+  // zona conserve su encuadre y lo extra muestre lo de arriba/abajo
+  function ajustarCamara() {
+    const { arriba, abajo } = extensionRef.current;
+    const cam = camera as THREE.PerspectiveCamera;
+    if (!arriba && !abajo) {
+      if (cam.view?.enabled) {
+        cam.clearViewOffset();
+        cam.aspect = size.width / size.height;
+        cam.updateProjectionMatrix();
+      }
+      return;
+    }
+    const altoZona = Math.max(size.height - arriba - abajo, 1);
+    const aspecto = size.width / altoZona;
+    const vista = cam.view;
+    if (
+      vista?.enabled &&
+      vista.fullHeight === altoZona &&
+      vista.offsetY === -arriba &&
+      vista.height === size.height &&
+      vista.width === size.width &&
+      Math.abs(cam.aspect - aspecto) < 1e-6
+    )
+      return;
+    cam.aspect = aspecto;
+    cam.setViewOffset(size.width, altoZona, 0, -arriba, size.width, size.height);
+  }
+
   useFrame((_, delta) => {
     if (estado.current.fijo) return;
+    ajustarCamara();
     aplicarFotograma(Math.min(delta, 1 / 20));
     // Avisar tras dos fotogramas (shaders ya compilados y pintados)
     if (estado.current.fotogramas < 3 && ++estado.current.fotogramas === 2) onListo();

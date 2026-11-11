@@ -70,7 +70,11 @@ export const servicios: Servicio[] = [
 
 /** Textos de las animaciones de las tarjetas (ilustrativos, sin datos reales). */
 export const animacionesServicios = {
-  web: { url: 'tunegocio.cr' },
+  web: {
+    url: 'tunegocio.cr',
+    boton: 'Escríbenos',
+    aviso: { titulo: 'Nuevo mensaje', texto: 'Hola, quiero cotizar mi página' },
+  },
   sistema: { ventana: 'Panel · Inventario' },
   soporte: { estado: 'Monitoreo activo' },
   seo: {

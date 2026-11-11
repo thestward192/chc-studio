@@ -8,6 +8,7 @@ import { CloudArrowUp } from '@phosphor-icons/react/dist/csr/CloudArrowUp';
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
 import { TrendUp } from '@phosphor-icons/react/dist/csr/TrendUp';
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { ChatCircleDots } from '@phosphor-icons/react/dist/csr/ChatCircleDots';
 import {
   animacionesServicios,
   cierreServicios,
@@ -17,6 +18,9 @@ import {
 } from '../../content/servicios';
 import { hero } from '../../content/cabecera';
 import { BotonPill } from '../header/BotonPill';
+import { HeroVisual, type ClasesMascota } from '../header/HeroVisual';
+import { limitar, useVariableScroll } from '../../hooks/useVariableScroll';
+import type { ViajeMascota } from '../three/hero/senalHero';
 import { iconosServicio } from './iconosServicio';
 import estilos from './SeccionServicios.module.css';
 
@@ -141,12 +145,48 @@ function Etiquetas({ servicio }: { servicio: Servicio }) {
   );
 }
 
+/** El canvas sube hasta el borde superior de la tarjeta: la mascota entra por ahí. */
+const extenderHastaArriba = (zona: HTMLElement) => {
+  const tarjeta = zona.parentElement?.getBoundingClientRect();
+  return { arriba: tarjeta ? zona.getBoundingClientRect().top - tarjeta.top : 0, abajo: 0 };
+};
+
+/** La mascota del hero, con las clases de esta tarjeta. */
+const clasesMascota: ClasesMascota = {
+  escena: estilos.mascotaEscena,
+  poster: estilos.mascotaPoster,
+  oculto: estilos.mascotaOculta,
+  lienzo: estilos.mascotaLienzo,
+  lienzoListo: estilos.mascotaLienzoLista,
+};
+
 /**
- * Páginas web: una ventana de navegador donde la página se arma bloque a
- * bloque, y la mascota flotando delante sobre el suelo de la sala, que
- * recorre una onda de luz.
+ * Páginas web: una ventana de navegador que cuenta la historia del servicio
+ * (la página se arma, un cursor pulsa "Escríbenos" y llega un mensaje de un
+ * cliente) y, delante, la mascota del hero (la misma escena 3D, o su póster).
+ * Al aparecer la tarjeta, la mascota entra cayendo desde su borde superior,
+ * como si viniera del hero (allí se hunde al bajar): parece que recorre la
+ * página.
  */
 function SalaMascota() {
+  const zonaRef = useRef<HTMLDivElement>(null);
+
+  // Llega desde arriba mientras la tarjeta entra en pantalla y se queda
+  // en su sitio cuando la tarjeta ya está a la vista (aterriza con rebote).
+  // --viaje mueve el póster; viaje.px, la escena 3D (solo la mascota).
+  const viaje = useRef<ViajeMascota>({ px: 0, lugar: 'tarjeta' }).current;
+  useVariableScroll(zonaRef, '--viaje', (el, alto) => {
+    const tarjeta = el.parentElement?.getBoundingClientRect();
+    if (!tarjeta) return 0;
+    // Empieza a bajar después del relevo (el hero ya se fue y la tarjeta
+    // pasa la mitad de la pantalla) y termina con la tarjeta arriba, a la
+    // vista. Al empezar está entera por encima del borde de la tarjeta.
+    const llegada = limitar((alto * 0.55 - tarjeta.top) / (alto * 0.45), 0, 1);
+    const desdeArriba = el.getBoundingClientRect().top - tarjeta.top + el.offsetHeight * 0.6 + 200;
+    viaje.px = -((1 - llegada) ** 1.6) * desdeArriba;
+    return viaje.px;
+  });
+
   return (
     <>
       <span className={estilos.cuadricula} aria-hidden="true" />
@@ -160,23 +200,51 @@ function SalaMascota() {
         <div className={estilos.pagina}>
           <span className={estilos.bloqueTitulo} style={{ '--k': 0 } as CSSProperties} />
           <span className={estilos.bloqueTexto} style={{ '--k': 1 } as CSSProperties} />
-          <span className={estilos.bloqueBoton} style={{ '--k': 2 } as CSSProperties} />
+          <span className={estilos.bloqueBoton} style={{ '--k': 2 } as CSSProperties}>
+            {animacionesServicios.web.boton}
+          </span>
           <div className={estilos.bloqueTarjetas}>
             {[3, 4, 5].map((k) => (
               <span key={k} style={{ '--k': k } as CSSProperties} />
             ))}
           </div>
+          <div className={estilos.bloqueBanda} style={{ '--k': 6 } as CSSProperties}>
+            <span />
+            <span />
+            <span className={estilos.bandaBoton} />
+          </div>
+          <div className={estilos.bloqueResena} style={{ '--k': 7 } as CSSProperties}>
+            <span className={estilos.avatar} />
+            <span />
+            <span />
+          </div>
+          <div className={estilos.bloquePie} style={{ '--k': 8 } as CSSProperties}>
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+        <svg className={estilos.cursor} viewBox="0 0 24 24" width="22" height="22">
+          <path d="M4 2.5 19.5 12l-6.6 1.6 3.8 7.2-2.6 1.4-3.8-7.3L5.4 19.6Z" />
+        </svg>
+        <div className={estilos.aviso}>
+          <span className={estilos.avisoIcono}>
+            <ChatCircleDots size={16} weight="fill" />
+          </span>
+          <span>
+            <strong>{animacionesServicios.web.aviso.titulo}</strong>
+            {animacionesServicios.web.aviso.texto}
+          </span>
         </div>
       </div>
-      <img
-        className={estilos.mascota}
-        src={hero.poster}
-        alt=""
-        width={1306}
-        height={1306}
-        loading="lazy"
-        decoding="async"
-      />
+      <div ref={zonaRef} className={estilos.mascotaZona} aria-hidden="true">
+        <HeroVisual
+          clases={clasesMascota}
+          viaje={viaje}
+          medirExtension={extenderHastaArriba}
+          tranquila
+        />
+      </div>
     </>
   );
 }

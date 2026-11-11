@@ -20,6 +20,13 @@ export interface Proyecto {
   servicio?: IconoServicio;
 }
 
+export const encabezadoProyectos = {
+  antetitulo: 'Proyectos',
+  titular: 'Proyectos que ya están en marcha.',
+  subtitulo:
+    'Una muestra de lo que construimos. Desliza para recorrerlos o entra a la sala 3D del estudio para verlos en grande.',
+};
+
 // TODO(contenido real): proyectos de marcador. Sustituir por los proyectos
 // reales. La posición de cada cuadro en la sala está en
 // src/components/three/estudio/estudio.config.ts (no aquí).

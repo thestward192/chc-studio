@@ -2,7 +2,8 @@ import { useRef, type CSSProperties } from 'react';
 import { Cube } from '@phosphor-icons/react/dist/csr/Cube';
 import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
 import { hero } from '../../content/cabecera';
-import { senalHero } from '../three/hero/senalHero';
+import { senalHero, type ViajeMascota } from '../three/hero/senalHero';
+import { limitar, useVariableScroll } from '../../hooks/useVariableScroll';
 import { BotonPill } from './BotonPill';
 import { HeroVisual } from './HeroVisual';
 import estilos from './Hero.module.css';
@@ -20,6 +21,29 @@ const orden = (i: number) => ({ '--i': i }) as CSSProperties;
 export function Hero() {
   const visualRef = useRef<HTMLDivElement>(null);
   let linea = 0;
+
+  // Viaje de la mascota: al bajar, solo ella cae (la sala se queda) un poco
+  // más rápido que el scroll, así se ve bajar y salir por el borde inferior
+  // de la tarjeta, tapada por la parte clara. Reaparece llegando a la
+  // tarjeta de Páginas web. --viaje mueve el póster; viaje.px, la escena 3D.
+  const viaje = useRef<ViajeMascota>({ px: 0, lugar: 'hero' }).current;
+  useVariableScroll(visualRef, '--viaje', (el, alto) => {
+    const tarjeta = el.parentElement?.getBoundingClientRect();
+    if (!tarjeta) return 0;
+    // Relevo: es un solo personaje. Mientras queda hero en pantalla vive
+    // aquí; luego pasa a la tarjeta de Páginas web (nunca en los dos)
+    const enHero = tarjeta.bottom > alto * 0.15;
+    senalHero.mascotaEnHero = enHero;
+    document.documentElement.dataset.mascota = enHero ? 'hero' : 'tarjeta';
+    viaje.px = limitar(-tarjeta.top, 0, tarjeta.height) * 1.25;
+    return viaje.px;
+  });
+  // El canvas llega hasta el borde inferior de la tarjeta para que la
+  // mascota salga justo por ahí
+  const medirExtension = (zona: HTMLElement) => {
+    const tarjeta = zona.parentElement?.getBoundingClientRect();
+    return { arriba: 0, abajo: tarjeta ? tarjeta.bottom - zona.getBoundingClientRect().bottom : 0 };
+  };
 
   // El botón "hace crecer": la escena 3D lo lee de senalHero; el póster
   // reacciona por CSS con data-crecer.
@@ -61,7 +85,7 @@ export function Hero() {
         className={`${estilos.visual} ${estilos.entradaVisual}`}
         aria-hidden="true"
       >
-        <HeroVisual />
+        <HeroVisual viaje={viaje} medirExtension={medirExtension} />
       </div>
 
       {/* Bajo la mascota, sobre el suelo de la sala: el modelo queda despejado */}

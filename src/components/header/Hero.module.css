@@ -188,6 +188,7 @@
 }
 
 .poster {
+  translate: 0 var(--viaje, 0px); /* viaje de la mascota (Hero.tsx, al hacer scroll) */
   position: absolute;
   inset: 0;
   display: block;
@@ -201,6 +202,11 @@
 
 .oculto {
   opacity: 0;
+}
+
+/* Relevo: si la mascota ya está en la tarjeta de Páginas web, aquí no se ve */
+:global(html[data-mascota='tarjeta']) .poster {
+  visibility: hidden;
 }
 
 /*

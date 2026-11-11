@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { marca, mascota } from '../../../theme/theme';
+import { mascota } from '../../../theme/theme';
 import { estimarCalidadInicial } from '../../../utils/rendimiento';
 import { heroConfig, type Expresion } from './hero.config';
 import { crearGeometriaCuerpo, crearGeometriaVisor } from './geometriaMascota';
@@ -14,11 +14,10 @@ import {
 } from './senalHero';
 import { CARAS, pesoTruco, trucos, type Cara, type PoseTruco } from './trucosMascota';
 import { crearTexturasEfectos } from './efectosMascota';
+import { crearMaterialesMascota } from './materialesMascota';
 import { ALTO_MASCOTA } from './recorridoMascota';
 import { crearPaseo } from './paseosMascota';
 import {
-  cuerpoFragment,
-  cuerpoVertex,
   destellosFragment,
   polvoFragment,
   polvoVertex,
@@ -27,8 +26,6 @@ import {
   salaSueloVertex,
   sueloFragment,
   sueloVertex,
-  visorFragment,
-  visorVertex,
 } from '../shaders/mascota';
 
 interface Props {
@@ -207,67 +204,13 @@ function Mascota({
     paseo: recorrido ? crearPaseo(recorrido.tipo) : null,
   });
 
-  const flex = useMemo(() => ({ value: new THREE.Vector2() }), []);
+  // Cuerpo y visor (compartidos con los paseos y las salas del estudio).
+  // Sin sala (Proyectos y demás paseos) no hay niebla: la cámara está lejos
+  const { flex, niebla, cuerpo: materialCuerpo, visor: materialVisor } = useMemo(
+    () => crearMaterialesMascota(recorrido ? {} : { niebla: c.sala.niebla }),
+    [recorrido, c.sala.niebla],
+  );
   const opacidadSala = useMemo(() => ({ value: 1 }), []);
-  const niebla = useMemo(
-    () => ({
-      uNiebla: { value: new THREE.Color(marca.fondoOscuro) },
-      // Sin sala (Proyectos) no hay niebla: la cámara está lejos y la apagaría
-      uNieblaRango: {
-        value: recorrido ? new THREE.Vector2(1e4, 2e4) : new THREE.Vector2(...c.sala.niebla),
-      },
-    }),
-    [c.sala.niebla, recorrido],
-  );
-
-  const materialCuerpo = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: cuerpoVertex,
-        fragmentShader: cuerpoFragment,
-        uniforms: {
-          uFlex: flex,
-          uAqua: { value: new THREE.Color(mascota.aqua) },
-          uCian: { value: new THREE.Color(mascota.cian) },
-          uMenta: { value: new THREE.Color(mascota.menta) },
-          uBlanco: { value: new THREE.Color(mascota.blanco) },
-          uLuz: { value: new THREE.Vector3(...c.luz) },
-          uBrillo: { value: 0 },
-          uRojo: { value: 0 },
-          ...niebla,
-        },
-      }),
-    [flex, niebla, c.luz],
-  );
-
-  const materialVisor = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: visorVertex,
-        fragmentShader: visorFragment,
-        uniforms: {
-          uFlex: flex,
-          uVisor: { value: new THREE.Color(mascota.visor) },
-          uCian: { value: new THREE.Color(mascota.cian) },
-          uOjo: { value: new THREE.Color(mascota.ojo) },
-          uBrilloOjo: { value: new THREE.Color(mascota.brilloOjo) },
-          uLuz: { value: new THREE.Vector3(...c.luz) },
-          uExpresion: { value: new THREE.Vector3(1, 0, 0) },
-          uExpresion2: { value: new THREE.Vector4(0, 0, 0, 0) },
-          uGiroOjos: { value: 0 },
-          uParpadeo: { value: 1 },
-          uMirada: { value: new THREE.Vector2() },
-          uOjos: { value: new THREE.Vector3(c.ojos.separacion, c.ojos.largo, c.ojos.radio) },
-          uSemiejes: {
-            value: new THREE.Vector2(c.visor.semiancho, c.visor.semialto).divideScalar(
-              c.visor.escalaOjos,
-            ),
-          },
-          ...niebla,
-        },
-      }),
-    [flex, niebla, c.luz, c.ojos, c.visor],
-  );
 
   const materialSuelo = useMemo(
     () =>

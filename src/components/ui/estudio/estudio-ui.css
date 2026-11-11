@@ -251,116 +251,153 @@
 
 /* ------------------------------------------------------------ Carga */
 
+/*
+ * Pantalla de carga: la mascota camina hacia la sala sobre un suelo que
+ * avanza. --carga-color es la luz de la sala (cian en el taller, el color de
+ * cada integrante en su oficina). data-fase: cargando → listo → entrando.
+ */
 .eui-carga {
+  --carga-color: var(--accent-cyan);
   position: fixed;
   inset: 0;
   z-index: 50;
   display: grid;
-  place-items: center;
-  padding: 1.5rem;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.1rem 1.5rem;
   overflow: hidden;
+  color: #fff;
   background:
     radial-gradient(
-      circle at 50% 40%,
-      color-mix(in srgb, var(--accent-green) 18%, transparent),
-      transparent 36%
+      55% 42% at 50% 40%,
+      color-mix(in srgb, var(--carga-color) 24%, transparent),
+      transparent 70%
     ),
     radial-gradient(
-      circle at 60% 58%,
-      color-mix(in srgb, var(--accent-cyan) 14%, transparent),
-      transparent 44%
+      80% 50% at 50% 115%,
+      color-mix(in srgb, var(--accent-green) 12%, transparent),
+      transparent 70%
     ),
     var(--bg-dark);
 }
 
-/* Anillos concéntricos de fondo, como en el hero */
-.eui-carga__anillos {
+/* Suelo: cuadrícula en perspectiva que se acerca (la mascota avanza) */
+.eui-carga__suelo {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(1100px, 160vmax);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
+  left: -60%;
+  right: -60%;
+  bottom: -8%;
+  height: 170%; /* inclinado queda en el tercio de abajo de la pantalla */
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--carga-color) 38%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--carga-color) 26%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 64px 64px;
+  transform: perspective(900px) rotateX(60deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 20%, transparent 80%);
+  mask-image: linear-gradient(to top, #000 20%, transparent 80%);
   pointer-events: none;
 }
 
-.eui-carga__anillos circle {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.07);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.eui-carga__logo {
+  position: relative;
+  justify-self: start;
 }
 
-.eui-carga__caja {
+.eui-carga__centro {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.1rem;
-  width: min(400px, 100%);
-  padding: 2rem 1.75rem 1.75rem;
+  justify-content: center;
+  gap: 0.85rem;
+  width: min(420px, 100%);
   text-align: center;
-  border-radius: 34px;
 }
 
-.eui-carga__ilustracion {
+/* La mascota (el póster del hero), su halo y su sombra */
+.eui-carga__escena {
   position: relative;
-  width: 200px;
-  height: 128px;
-  margin-bottom: 0.25rem;
+  width: 168px;
+  height: 196px;
+  margin-bottom: 0.5rem;
 }
 
-.eui-carga__svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.eui-carga__trazo {
-  fill: none;
-  stroke: var(--accent-cyan);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.eui-carga__trazo--destacado {
-  stroke: var(--accent-green);
-}
-
-.eui-carga__engranaje {
+.eui-carga__halo {
   position: absolute;
-  display: grid;
-  color: var(--accent-cyan);
+  inset: 8% -10% 18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--carga-color) 42%, transparent),
+    transparent 66%
+  );
+  filter: blur(12px);
 }
 
-.eui-carga__engranaje--a {
-  right: -6px;
-  bottom: -6px;
+/* La base del cuerpo queda a ~22% del borde inferior del póster */
+.eui-carga__sombra {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: 104px;
+  height: 18px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
 }
 
-.eui-carga__engranaje--b {
-  right: 26px;
-  bottom: 22px;
-  color: var(--accent-green);
+.eui-carga__cuerpo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: block;
+  transform-origin: 50% 100%;
+}
+
+.eui-carga__mascota {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 26px color-mix(in srgb, var(--carga-color) 45%, transparent));
 }
 
 .eui-carga__titulo {
   margin: 0;
+  font-family: var(--fuente-ui-titulos);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 2.85rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 
 .eui-carga__mensaje {
-  min-height: 1.4em;
-  margin: 0;
-  font-size: 0.92rem;
+  min-height: 1.45em;
+  margin: -0.25rem 0 0.35rem;
+  font-size: 0.98rem;
   font-weight: 500;
-  color: var(--ui-texto);
+  letter-spacing: -0.01em;
+  color: var(--ui-texto-tenue);
 }
 
-/* Barra fina, como la de descarga de iOS */
+.eui-carga__mensaje span {
+  display: inline-block;
+}
+
+/* Barra de progreso, como la de descarga de iOS, con la luz de la sala */
+.eui-carga__progreso {
+  width: min(320px, 100%);
+}
+
 .eui-carga__barra {
-  width: 100%;
-  height: 4px;
+  height: 6px;
   overflow: hidden;
   background: var(--ui-relleno-fuerte);
   border-radius: 999px;
@@ -368,22 +405,213 @@
 
 .eui-carga__relleno {
   height: 100%;
-  background: var(--accent-gradient);
+  background: linear-gradient(90deg, var(--accent-green), var(--carga-color));
   border-radius: inherit;
-  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
-  transition: width 0.35s var(--easing-ui);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--carga-color) 70%, transparent);
+  transform-origin: left;
+  transition: transform 0.45s var(--easing-ui);
 }
 
 .eui-carga__porcentaje {
-  margin: -0.5rem 0 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.76rem;
   color: var(--ui-texto-tenue);
-  font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
 }
 
-.eui-carga .eui-boton--primario {
+.eui-carga__entrar {
   min-height: 3rem;
+  margin-top: 0.6rem;
   font-size: 0.95rem;
+}
+
+/* El botón espera (sin ocupar la vista) hasta que la sala está lista */
+.eui-carga[data-fase='cargando'] .eui-carga__entrar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Consejos para moverse: cápsulas de vidrio abajo */
+.eui-carga__consejos {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eui-carga__consejos li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(235, 240, 245, 0.82);
+  background: var(--ui-relleno);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+  border: 0.5px solid var(--ui-linea);
+  border-radius: 999px;
+}
+
+.eui-carga__consejos svg {
+  color: var(--carga-color);
+}
+
+@media (min-width: 700px) {
+  .eui-carga {
+    padding: 1.25rem 1.5rem 2rem;
+  }
+
+  .eui-carga__escena {
+    width: 196px;
+    height: 226px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Caminando: dos saltitos por ciclo, balanceándose a cada lado */
+  .eui-carga[data-fase='cargando'] .eui-carga__cuerpo {
+    animation: carga-paso 1.1s linear infinite;
+  }
+
+  .eui-carga[data-fase='cargando'] .eui-carga__sombra {
+    animation: carga-sombra 0.55s ease-in-out infinite alternate;
+  }
+
+  .eui-carga[data-fase='cargando'] .eui-carga__suelo {
+    animation: carga-suelo 1.1s linear infinite;
+  }
+
+  /* Lista: se para, salta contenta y se queda flotando */
+  .eui-carga[data-fase='listo'] .eui-carga__cuerpo {
+    animation:
+      carga-feliz 1.15s cubic-bezier(0.3, 0.7, 0.4, 1) both,
+      carga-flotar 3.2s ease-in-out 1.15s infinite;
+  }
+
+  .eui-carga[data-fase='listo'] .eui-carga__sombra {
+    animation: carga-sombra-feliz 1.15s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  }
+
+  /* Al entrar: salta hacia la sala */
+  .eui-carga[data-fase='entrando'] .eui-carga__cuerpo {
+    animation: carga-entrar 0.7s cubic-bezier(0.5, 0, 0.75, 0) both;
+  }
+
+  .eui-carga__mensaje span {
+    animation: carga-mensaje 0.45s var(--easing-ui) both;
+  }
+
+  .eui-carga__consejos li {
+    animation: carga-mensaje 0.6s var(--easing-ui) both;
+    animation-delay: calc(0.3s + var(--i) * 0.1s);
+  }
+}
+
+@keyframes carga-paso {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.07, 0.9) rotate(-4deg);
+  }
+  12% {
+    transform: translateY(-7px) scale(0.96, 1.06) rotate(-2deg);
+  }
+  25% {
+    transform: translateY(-18px) scale(1, 1.02) rotate(0deg);
+  }
+  38% {
+    transform: translateY(-7px) scale(0.97, 1.04) rotate(2deg);
+  }
+  50% {
+    transform: translateY(0) scale(1.07, 0.9) rotate(4deg);
+  }
+  62% {
+    transform: translateY(-7px) scale(0.96, 1.06) rotate(2deg);
+  }
+  75% {
+    transform: translateY(-18px) scale(1, 1.02) rotate(0deg);
+  }
+  88% {
+    transform: translateY(-7px) scale(0.97, 1.04) rotate(-2deg);
+  }
+}
+
+@keyframes carga-sombra {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.78);
+    opacity: 0.6;
+  }
+}
+
+@keyframes carga-suelo {
+  to {
+    background-position: 0 64px;
+  }
+}
+
+@keyframes carga-feliz {
+  0% {
+    transform: translateY(0) scale(1.06, 0.92);
+  }
+  16% {
+    transform: translateY(0) scale(1.14, 0.84);
+  }
+  40% {
+    transform: translateY(-48px) scale(0.93, 1.1) rotate(-7deg);
+  }
+  56% {
+    transform: translateY(-52px) scale(1, 1) rotate(5deg);
+  }
+  76% {
+    transform: translateY(0) scale(1.12, 0.86) rotate(0deg);
+  }
+  88% {
+    transform: translateY(-7px) scale(0.98, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes carga-sombra-feliz {
+  40%,
+  56% {
+    transform: scale(0.55);
+    opacity: 0.45;
+  }
+}
+
+@keyframes carga-flotar {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes carga-entrar {
+  to {
+    transform: translateY(-40px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes carga-mensaje {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 /* ------------------------------------------------------------ HUD */

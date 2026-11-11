@@ -6,10 +6,16 @@
 export const textosSala = {
   /** Línea bajo el logo en la pantalla de carga. */
   subCarga: 'Taller 3D',
+  /** Título grande de la pantalla de carga. */
+  tituloCarga: 'El taller',
+  /** Color de la luz de la sala (tiñe la pantalla de carga). */
+  colorCarga: '#1ec8d8',
   /** Línea bajo el logo en el HUD. */
   subHud: (proyectos: number, puertas: number) =>
     `Taller 3D: ${proyectos} proyectos y ${puertas} puertas`,
   etiquetaCarga: 'Cargando el taller',
+  /** Consejos para moverse (pantalla de carga). */
+  consejos: ['Arrastra para mirar', 'Rueda para acercarte', 'Toca los objetos y a la mascota'],
   mensajesCarga: [
     'Compilando shaders…',
     'Sirviendo café…',

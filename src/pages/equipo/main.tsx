@@ -36,6 +36,8 @@ if (!integrante) {
 prepararOficina();
 Object.assign(textosSala, {
   subCarga: `Oficina de ${integrante.nombreCorto}`,
+  tituloCarga: `La oficina de ${integrante.nombreCorto}`,
+  colorCarga: integrante.colorLuz,
   subHud: () => `Oficina de ${integrante.nombre}`,
   etiquetaCarga: `Cargando la oficina de ${integrante.nombre}`,
   mensajesCarga: mensajesCargaOficina[integrante.slug] ?? textosSala.mensajesCarga,

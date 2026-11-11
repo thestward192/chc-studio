@@ -14,13 +14,13 @@ así**, qué problemas aparecieron y cuál es el plan para las habitaciones.
 | Inicio (intro laptop) | `src/pages/inicio/Inicio.tsx` | `three/EscenaIntroLaptop.tsx` | `three/laptop.config.ts` | props + `estadoIntro.ts` |
 | Estudio | `src/pages/estudio/Estudio.tsx` | `three/EscenaSalaProyectos.tsx` | `three/estudio/estudio.config.ts` | zustand `estadoEstudio.ts` |
 | Oficinas (4) | `src/pages/equipo/Oficina.tsx` | `three/EscenaOficina.tsx` | `three/oficina/oficinas.config.ts` (+ `estudio.config.ts` vía `aplicarConfigSala`) | zustand `estadoEstudio.ts` (el mismo) |
-| Inicio (Núcleo del hero) | `src/components/header/HeroVisual.tsx` | `three/hero/EscenaHeroNucleo.tsx` | `three/hero/hero.config.ts` | objeto mutable `senalHero.ts` |
+| Inicio (mascota del hero) | `src/components/header/HeroVisual.tsx` | `three/hero/EscenaHeroMascota.tsx` | `three/hero/hero.config.ts` | objeto mutable `senalHero.ts` |
 
-**Núcleo del hero (patrón "escena pequeña con póster").** Canvas transparente
+**Mascota del hero (patrón "escena pequeña con póster").** Canvas transparente
 sobre HTML: se carga con `lazy` solo en escritorio con mouse, tras
 `IntersectionObserver` + `requestIdleCallback`, y usa `frameloop="never"`
 cuando sale de pantalla o se oculta la pestaña. Siempre hay un póster
-(`public/hero/nucleo.webp`) renderizado desde la propia escena con el hook de
+(`public/hero/mascota.webp`) renderizado desde la propia escena con el hook de
 desarrollo `window.__heroPoster()` y `scripts/capturar-poster-hero.mjs`. La UI
 le habla a la escena por un objeto mutable sin three (`senalHero`), así el
 bundle principal no arrastra la librería. Sirve de plantilla para cualquier

@@ -1,0 +1,458 @@
+/*
+ * Servicios: continúa la página clara del header (fondo --bg-page, tarjetas
+ * blancas, una tarjeta oscura destacada como la del hero). Radios: tarjetas
+ * 24px, botones y etiquetas en píldora, baldosas de icono redondas.
+ */
+.seccion {
+  background: var(--bg-page);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  scroll-margin-top: 1rem;
+}
+
+.contenedor {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 3.5rem 1rem 4rem;
+}
+
+/* ---------- Encabezado: titular y texto apilados, alineados a la izquierda */
+.encabezado {
+  max-width: 40rem;
+  margin-bottom: 2.25rem;
+}
+
+.titular {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 7.5vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.degradado {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitulo {
+  max-width: 34rem;
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-dark-muted);
+}
+
+/* ---------- Rejilla bento (móvil: una columna) */
+.rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 1.6rem 1.5rem 1.5rem;
+  background: var(--text-light);
+  border: 1px solid color-mix(in srgb, var(--text-dark) 8%, transparent);
+  border-radius: 24px;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-dark) 5%, transparent);
+  scroll-margin-top: 1.5rem;
+  transition:
+    transform 0.35s var(--easing-ui),
+    box-shadow 0.35s var(--easing-ui),
+    border-color 0.35s var(--easing-ui);
+}
+
+.tarjeta:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent-cyan) 40%, transparent);
+  box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--accent-cyan) 55%, transparent);
+}
+
+/* Baldosa del icono: la misma de la fila de servicios de la cabecera */
+.baldosa {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: var(--accent-green);
+  background: var(--bg-dark);
+  transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.5, 1);
+}
+
+.tarjeta:hover .baldosa {
+  transform: rotate(-8deg) scale(1.06);
+}
+
+.nombre {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+}
+
+.descripcion {
+  max-width: 34rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-dark-muted);
+}
+
+/* Lo que incluye: etiquetas en píldora al pie de la tarjeta */
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: auto 0 0;
+  padding: 1.25rem 0 0;
+  list-style: none;
+}
+
+.etiquetas li {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  background: color-mix(in srgb, var(--text-dark) 5%, transparent);
+  border-radius: 999px;
+}
+
+/* ---------- Páginas web: tarjeta destacada oscura, como la del hero */
+/* En móvil la mascota va debajo de las etiquetas (espacio reservado abajo) */
+.web {
+  padding-bottom: 12.5rem;
+  color: var(--text-light);
+  background: var(--bg-dark);
+  border-color: transparent;
+}
+
+.web .baldosa {
+  background: color-mix(in srgb, var(--accent-green) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 30%, transparent);
+}
+
+.web .nombre {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.web .descripcion {
+  max-width: 24rem;
+  color: var(--text-muted);
+}
+
+.web .etiquetas li {
+  color: var(--text-light);
+  background: color-mix(in srgb, var(--text-light) 9%, transparent);
+}
+
+.web .nombre,
+.web .descripcion,
+.web .etiquetas {
+  position: relative;
+  z-index: 1;
+}
+
+/* Suelo de la sala del hero: cuadrícula en perspectiva que se apaga hacia arriba */
+.cuadricula {
+  position: absolute;
+  inset: 38% -30% -10%;
+  z-index: -1;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent-cyan) 38%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent-cyan) 28%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 44px 44px;
+  transform: perspective(420px) rotateX(62deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 40%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 40%, transparent 92%);
+  pointer-events: none;
+}
+
+/* La mascota flota en la esquina, con su brillo en el suelo */
+.mascota {
+  position: absolute;
+  right: -1.5rem;
+  bottom: -1rem;
+  z-index: 0;
+  width: min(50%, 220px);
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 0 40px color-mix(in srgb, var(--accent-cyan) 22%, transparent));
+}
+
+/* ---------- Automatizaciones: tres herramientas unidas por una línea */
+.flujo {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin: auto 0 0;
+  padding: 1.5rem 0 0;
+  list-style: none;
+}
+
+/* La línea pasa por el centro de las baldosas; un pulso de luz la recorre */
+.flujo::before {
+  content: '';
+  position: absolute;
+  top: calc(1.5rem + 21px);
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--accent-cyan) 45%,
+      var(--accent-green) 55%,
+      transparent
+    ),
+    color-mix(in srgb, var(--text-dark) 10%, transparent);
+  background-size:
+    40% 100%,
+    100% 100%;
+  background-repeat: no-repeat;
+  background-position:
+    -60% 0,
+    0 0;
+  border-radius: 2px;
+}
+
+.nodo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.nodoIcono {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: var(--bg-dark);
+  background: var(--text-light);
+  border: 1px solid color-mix(in srgb, var(--text-dark) 12%, transparent);
+  box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--text-dark) 40%, transparent);
+}
+
+/* ---------- Soporte continuo: degradado suave de marca */
+.soporte {
+  background:
+    radial-gradient(
+      120% 140% at 100% 0%,
+      color-mix(in srgb, var(--accent-cyan) 22%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent-green) 14%, var(--text-light)),
+      var(--text-light) 70%
+    );
+}
+
+.soporte .etiquetas li {
+  background: color-mix(in srgb, var(--text-light) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+}
+
+/* ---------- Cierre */
+.cierre {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cierre p {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* ---------- Tablet: dos columnas (web y soporte a lo ancho) */
+@media (min-width: 768px) {
+  .contenedor {
+    padding: 4.5rem 1.5rem 5rem;
+  }
+
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'web web'
+      'sistema automatizacion'
+      'seo soporte';
+  }
+
+  .web {
+    grid-area: web;
+    min-height: 23rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .web .descripcion {
+    max-width: 22rem;
+  }
+
+  .mascota {
+    width: min(48%, 300px);
+  }
+  .sistema {
+    grid-area: sistema;
+  }
+  .automatizacion {
+    grid-area: automatizacion;
+  }
+  .seo {
+    grid-area: seo;
+  }
+  .soporte {
+    grid-area: soporte;
+  }
+
+  .cierre {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.25rem 1.25rem 1.75rem;
+    background: var(--text-light);
+    border: 1px solid color-mix(in srgb, var(--text-dark) 8%, transparent);
+    border-radius: 24px;
+  }
+}
+
+/* ---------- Escritorio: web grande a la izquierda, soporte a lo ancho abajo */
+@media (min-width: 1024px) {
+  .contenedor {
+    padding: 6rem 1.5rem 6rem;
+  }
+
+  .encabezado {
+    margin-bottom: 3rem;
+  }
+
+  .rejilla {
+    grid-template-columns: 1fr 1fr minmax(0, 1.05fr);
+    grid-template-areas:
+      'web web sistema'
+      'web web automatizacion'
+      'seo soporte soporte';
+    gap: 1.25rem;
+  }
+
+  .tarjeta {
+    padding: 1.9rem 1.85rem 1.75rem;
+  }
+
+  .web {
+    min-height: 0;
+    padding: 2.4rem 2.25rem 2.25rem;
+  }
+
+  .mascota {
+    right: -0.5rem;
+    bottom: -0.5rem;
+    width: min(56%, 360px);
+  }
+}
+
+/* ---------- Movimiento: entrada escalonada, flotación y pulso del flujo */
+@media (prefers-reduced-motion: no-preference) {
+  .seccion:not([data-visible]) .encabezado,
+  .seccion:not([data-visible]) .tarjeta {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  .encabezado {
+    transition:
+      opacity 0.7s var(--easing-ui),
+      transform 0.7s var(--easing-ui);
+  }
+
+  .tarjeta {
+    transition:
+      opacity 0.7s var(--easing-ui),
+      transform 0.7s var(--easing-ui),
+      box-shadow 0.35s var(--easing-ui),
+      border-color 0.35s var(--easing-ui);
+    transition-delay: calc(0.1s + var(--i, 0) * 80ms), calc(0.1s + var(--i, 0) * 80ms), 0s, 0s;
+  }
+
+  .tarjeta:hover {
+    transition-delay: 0s;
+  }
+
+  .mascota {
+    animation: flotar 4.5s ease-in-out infinite;
+  }
+
+  .flujo::before {
+    animation: pulso 2.8s var(--easing-ui) infinite;
+  }
+}
+
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+@keyframes pulso {
+  from {
+    background-position:
+      -60% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      160% 0,
+      0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta,
+  .baldosa {
+    transition: none;
+  }
+
+  .tarjeta:hover,
+  .tarjeta:hover .baldosa {
+    transform: none;
+  }
+}

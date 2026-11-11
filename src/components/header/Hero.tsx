@@ -12,15 +12,15 @@ const orden = (i: number) => ({ '--i': i }) as CSSProperties;
 
 /**
  * Hero dentro de la tarjeta oscura: titular, subtítulo, botón y prueba
- * social a la izquierda; el "Núcleo CHC" (3D o póster) con anillos y halo a
- * la derecha. Señalar el botón hace crecer el núcleo.
+ * social a la izquierda; la mascota CHC a la derecha, paseando por una sala
+ * 3D sin fondo (o su póster). Señalar el botón la hace crecer y ponerse alegre.
  */
 export function Hero() {
   const visualRef = useRef<HTMLDivElement>(null);
   let linea = 0;
 
-  // El botón "hace crecer": la escena 3D lo lee de senalHero; el póster y el
-  // halo reaccionan por CSS con data-crecer.
+  // El botón "hace crecer": la escena 3D lo lee de senalHero; el póster
+  // reacciona por CSS con data-crecer.
   const alActivarBoton = (activo: boolean) => {
     senalHero.crecer = activo;
     visualRef.current?.toggleAttribute('data-crecer', activo);
@@ -78,30 +78,6 @@ export function Hero() {
         className={`${estilos.visual} ${estilos.entradaVisual}`}
         aria-hidden="true"
       >
-        <div className={estilos.resplandor} />
-        <svg className={estilos.anillos} viewBox="0 0 400 400">
-          <circle className={estilos.anillo} cx="200" cy="200" r="196" />
-          <circle className={estilos.anillo} cx="200" cy="200" r="150" />
-          {/* Dos arcos abiertos como las dos "C" del logo, girando en sentidos opuestos */}
-          <g className={estilos.giroA}>
-            <circle
-              className={`${estilos.anillo} ${estilos.arco}`}
-              cx="200"
-              cy="200"
-              r="118"
-              pathLength="100"
-            />
-          </g>
-          <g className={estilos.giroB}>
-            <circle
-              className={`${estilos.anillo} ${estilos.arco}`}
-              cx="200"
-              cy="200"
-              r="84"
-              pathLength="100"
-            />
-          </g>
-        </svg>
         <HeroVisual />
       </div>
     </section>

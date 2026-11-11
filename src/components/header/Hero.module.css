@@ -117,8 +117,8 @@
   border-radius: 4px;
 }
 
-/* ---------- Parte visual: anillos, resplandor y núcleo */
-/* Anillos, halo y núcleo comparten centro (--centro-y) y tamaño (--tam) */
+/* ---------- Parte visual: póster de la mascota y sala 3D */
+/* El póster usa un centro (--centro-y) y un tamaño (--tam) */
 .visual {
   --centro-y: 52%;
   --tam: min(112%, 440px);
@@ -127,67 +127,7 @@
   margin-top: 1.5rem;
 }
 
-.resplandor {
-  position: absolute;
-  left: 50%;
-  top: var(--centro-y);
-  width: calc(var(--tam) * 0.7);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--accent-green) 70%, transparent),
-    color-mix(in srgb, var(--accent-cyan) 45%, transparent) 45%,
-    transparent 70%
-  );
-  filter: blur(40px);
-  opacity: 0.32;
-  transform: translate(-50%, -50%);
-  animation: respirar 7s ease-in-out infinite;
-  transition: opacity 0.5s var(--easing-ui);
-  pointer-events: none;
-}
-
-.anillos {
-  position: absolute;
-  left: 50%;
-  top: var(--centro-y);
-  width: var(--tam);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  overflow: visible;
-  pointer-events: none;
-}
-
-.anillo {
-  fill: none;
-  stroke: var(--border-glass);
-  stroke-width: 1.2;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Arcos abiertos: 78 % del círculo dibujado, como una "C" */
-.arco {
-  stroke-width: 1.6;
-  stroke-dasharray: 78 22;
-  stroke-linecap: round;
-}
-
-.giroA,
-.giroB {
-  transform-box: view-box;
-  transform-origin: center;
-}
-
-.giroA {
-  animation: girar 60s linear infinite;
-}
-
-.giroB {
-  animation: girar 80s linear infinite reverse;
-}
-
-/* Núcleo: póster estático y canvas 3D en la misma caja cuadrada */
+/* Póster estático en una caja cuadrada */
 .escena {
   position: absolute;
   left: 50%;
@@ -198,12 +138,11 @@
   pointer-events: none;
 }
 
-.poster,
-.lienzo {
-  position: absolute !important;
+.poster {
+  position: absolute;
   inset: 0;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
 }
 
 .poster {
@@ -218,22 +157,34 @@
   opacity: 0;
 }
 
+/*
+ * Sala 3D: el canvas ocupa toda la zona oscura de la columna (hasta los
+ * bordes de la tarjeta) y se difumina hacia el texto y hacia arriba.
+ */
 .lienzo {
+  position: absolute !important;
+  inset: 0;
+  width: auto !important;
+  height: auto !important;
   opacity: 0;
   transition: opacity 0.8s var(--easing-ui);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 22%),
+    linear-gradient(to bottom, transparent, #000 18%);
+  mask-image:
+    linear-gradient(to right, transparent, #000 22%),
+    linear-gradient(to bottom, transparent, #000 18%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .lienzoListo {
   opacity: 1;
 }
 
-/* Señalar "Empecemos tu proyecto": el núcleo crece (el 3D lo hace en la escena) */
+/* Señalar "Empecemos tu proyecto": la mascota crece (el 3D lo hace en la escena) */
 .visual[data-crecer] .poster {
   transform: scale(1.06);
-}
-
-.visual[data-crecer] .resplandor {
-  opacity: 0.55;
 }
 
 /* ---------- Entrada escalonada al cargar */
@@ -268,24 +219,6 @@
   }
 }
 
-@keyframes girar {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes respirar {
-  0%,
-  100% {
-    opacity: 0.26;
-    transform: translate(-50%, -50%) scale(0.94);
-  }
-  50% {
-    opacity: 0.4;
-    transform: translate(-50%, -50%) scale(1.04);
-  }
-}
-
 /* ---------- Tablet */
 @media (min-width: 640px) {
   .tarjeta {
@@ -303,7 +236,7 @@
   }
 }
 
-/* ---------- Escritorio: dos columnas; el núcleo se sale por el borde inferior */
+/* ---------- Escritorio: dos columnas; la sala ocupa la columna derecha */
 @media (min-width: 1024px) {
   .tarjeta {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -329,14 +262,16 @@
     min-height: 0;
     margin-top: 0;
   }
+
+  /* La sala llega hasta el borde superior de la tarjeta y entra un poco bajo el texto */
+  .lienzo {
+    inset: -3.5rem 0 0 -4rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .entrada,
-  .entradaVisual,
-  .resplandor,
-  .giroA,
-  .giroB {
+  .entradaVisual {
     animation: none;
   }
 

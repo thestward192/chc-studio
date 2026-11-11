@@ -1,4 +1,4 @@
-// Genera public/hero/nucleo.webp: render estático del "Núcleo CHC" con la
+// Genera public/hero/mascota.webp: render estático de la mascota CHC con la
 // pose fija de hero.config.ts (`poster`). Se usa en móvil, con movimiento
 // reducido, sin WebGL y como póster mientras carga la escena 3D.
 //
@@ -36,5 +36,5 @@ await navegador.close();
 
 const base64 = datos.replace(/^data:image\/webp;base64,/, '');
 mkdirSync('public/hero', { recursive: true });
-writeFileSync('public/hero/nucleo.webp', Buffer.from(base64, 'base64'));
-console.log(`public/hero/nucleo.webp: ${((base64.length * 0.75) / 1024).toFixed(1)} KB`);
+writeFileSync('public/hero/mascota.webp', Buffer.from(base64, 'base64'));
+console.log(`public/hero/mascota.webp: ${((base64.length * 0.75) / 1024).toFixed(1)} KB`);

@@ -3,14 +3,14 @@ import { hero } from '../../content/cabecera';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import estilos from './Hero.module.css';
 
-const EscenaHeroNucleo = lazy(() => import('../three/hero/EscenaHeroNucleo'));
+const EscenaHeroMascota = lazy(() => import('../three/hero/EscenaHeroMascota'));
 
 /** Escritorio con mouse: único caso en el que se carga la escena 3D. */
 const CONSULTA_3D = '(min-width: 1024px) and (pointer: fine)';
 
 /**
- * Parte visual del hero: el "Núcleo CHC". Siempre se pinta primero el
- * póster (render estático del mismo objeto). En escritorio con mouse, sin
+ * Parte visual del hero: la mascota CHC. Siempre se pinta primero el
+ * póster (render estático del mismo personaje). En escritorio con mouse, sin
  * movimiento reducido y con WebGL, cuando el hero está en pantalla y el
  * navegador queda libre, se carga la escena 3D y se funde sobre el póster.
  */
@@ -55,23 +55,26 @@ export function HeroVisual() {
 
   const con3D = puede3D && cargar;
 
+  // El póster va en una caja cuadrada; el canvas 3D ocupa toda la zona oscura
   return (
-    <div ref={cajaRef} className={estilos.escena}>
-      {!sinPoster && (
-        <img
-          className={`${estilos.poster} ${con3D && listo ? estilos.oculto : ''}`}
-          src={hero.poster}
-          alt=""
-          width={1306}
-          height={1306}
-          decoding="async"
-          onError={() => setSinPoster(true)}
-        />
-      )}
+    <>
+      <div ref={cajaRef} className={estilos.escena}>
+        {!sinPoster && (
+          <img
+            className={`${estilos.poster} ${con3D && listo ? estilos.oculto : ''}`}
+            src={hero.poster}
+            alt=""
+            width={1306}
+            height={1306}
+            decoding="async"
+            onError={() => setSinPoster(true)}
+          />
+        )}
+      </div>
       {con3D && (
         <LimiteError onError={() => setFallo(true)}>
           <Suspense fallback={null}>
-            <EscenaHeroNucleo
+            <EscenaHeroMascota
               className={`${estilos.lienzo} ${listo ? estilos.lienzoListo : ''}`}
               activo={enPantalla && pestanaVisible}
               onListo={() => setListo(true)}
@@ -79,7 +82,7 @@ export function HeroVisual() {
           </Suspense>
         </LimiteError>
       )}
-    </div>
+    </>
   );
 }
 

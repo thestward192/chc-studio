@@ -32,8 +32,8 @@ export const hero = {
     texto: 'Todo el 3D de esta web lo programamos nosotros.',
     enlace: { etiqueta: 'Explorar el estudio 3D', href: '/estudio.html' },
   },
-  /** Render estático del Núcleo 3D (móvil, movimiento reducido, sin WebGL y póster de carga). */
-  poster: '/hero/nucleo.webp',
+  /** Render estático de la mascota 3D (móvil, movimiento reducido, sin WebGL y póster de carga). */
+  poster: '/hero/mascota.webp',
 };
 
 export const volverIntro = {

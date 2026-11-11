@@ -1,3 +1,5 @@
+import type { IconoServicio } from './cabecera';
+
 export interface Proyecto {
   id: string;
   titulo: string;
@@ -14,6 +16,8 @@ export interface Proyecto {
   urlProyecto?: string;
   /** Página del caso completo (opcional). */
   urlCaso?: string;
+  /** Servicio principal (mismo icono que en Servicios). */
+  servicio?: IconoServicio;
 }
 
 // TODO(contenido real): proyectos de marcador. Sustituir por los proyectos
@@ -30,6 +34,7 @@ export const proyectos: Proyecto[] = [
       'Descripción de marcador del proyecto 1. Sustituir por el detalle real: problema, solución, resultado.',
     tecnologias: ['Tecnología A', 'Tecnología B'],
     colorMarcador: '#3d8bff',
+    servicio: 'web',
     urlProyecto: 'https://example.com/',
     urlCaso: '/#proyectos',
   },
@@ -43,6 +48,7 @@ export const proyectos: Proyecto[] = [
       'Descripción de marcador del proyecto 2. Sustituir por el detalle real: problema, solución, resultado.',
     tecnologias: ['Tecnología C', 'Tecnología D'],
     colorMarcador: '#ff8a2a',
+    servicio: 'sistema',
     urlProyecto: 'https://example.com/',
     urlCaso: '/#proyectos',
   },
@@ -56,6 +62,7 @@ export const proyectos: Proyecto[] = [
       'Descripción de marcador del proyecto 3. Sustituir por el detalle real: problema, solución, resultado.',
     tecnologias: ['Tecnología E'],
     colorMarcador: '#7bd88f',
+    servicio: 'automatizacion',
     urlProyecto: 'https://example.com/',
     urlCaso: '/#proyectos',
   },
@@ -69,6 +76,7 @@ export const proyectos: Proyecto[] = [
       'Descripción de marcador del proyecto 4. Sustituir por el detalle real: problema, solución, resultado.',
     tecnologias: ['Tecnología F'],
     colorMarcador: '#c792ea',
+    servicio: 'web',
     urlProyecto: 'https://example.com/',
     urlCaso: '/#proyectos',
   },
@@ -82,6 +90,7 @@ export const proyectos: Proyecto[] = [
       'Descripción de marcador del proyecto 5. Sustituir por el detalle real: problema, solución, resultado.',
     tecnologias: ['Tecnología G', 'Tecnología H', 'Tecnología I'],
     colorMarcador: '#ff5fa2',
+    servicio: 'seo',
     urlProyecto: 'https://example.com/',
     urlCaso: '/#proyectos',
   },

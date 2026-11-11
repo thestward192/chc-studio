@@ -10,7 +10,7 @@ interface Props {
   tamano?: 'normal' | 'grande';
   className?: string;
   onNavegar?: () => void;
-  /** Avisa cuando el botón está señalado o enfocado (lo usa el Núcleo 3D del hero). */
+  /** Avisa cuando el botón está señalado o enfocado (lo usa la mascota 3D del hero). */
   onActivo?: (activo: boolean) => void;
 }
 

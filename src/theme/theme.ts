@@ -25,7 +25,7 @@ export const colores = {
 
 /**
  * Marca del header de Inicio (espejo de --bg-dark, --surface, --accent-*).
- * Lo usa la escena 3D del hero ("Núcleo CHC").
+ * Lo usa la escena 3D del hero (mascota).
  */
 export const marca = {
   fondoPagina: '#f4f6f8',
@@ -41,6 +41,17 @@ export const marca = {
   bordeCristal: 'rgba(255, 255, 255, 0.1)',
   fuenteTitulos: "'Sora', system-ui, sans-serif",
   fuenteTexto: "'Inter', system-ui, sans-serif",
+} as const;
+
+/** Mascota del hero de Inicio (espejo de los `--mascota-*` de tokens.css). */
+export const mascota = {
+  aqua: '#2ee6c0',
+  cian: '#00b6d9',
+  visor: '#0e141b',
+  blanco: '#f5f7fa',
+  menta: '#c9f3e8',
+  ojo: '#b8fdff',
+  brilloOjo: '#2fe3ff',
 } as const;
 
 /**

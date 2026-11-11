@@ -115,6 +115,15 @@
   --accent-gradient: linear-gradient(135deg, #3deb8a, #1ec8d8);
   --border-glass: rgba(255, 255, 255, 0.1);
 
+  /* Mascota del hero (paleta de su hoja de personaje). Espejo en theme.ts (`mascota`) */
+  --mascota-aqua: #2ee6c0; /* parte baja del cuerpo, brillo del suelo */
+  --mascota-cian: #00b6d9; /* bordes translúcidos, luz de contra */
+  --mascota-visor: #0e141b; /* visor de cristal negro */
+  --mascota-blanco: #f5f7fa; /* parte alta del cuerpo */
+  --mascota-menta: #c9f3e8; /* transición del blanco al aqua */
+  --mascota-ojo: #b8fdff; /* centro de los ojos */
+  --mascota-brillo-ojo: #2fe3ff; /* halo de los ojos */
+
   /* Tipografía de marca (Google Fonts, cargadas en index.html) */
   --font-heading: 'Sora', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;

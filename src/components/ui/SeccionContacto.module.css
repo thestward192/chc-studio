@@ -1,0 +1,431 @@
+/*
+ * Contacto con el lenguaje de iOS: listas agrupadas (tarjetas blancas con
+ * filas y separadores finos que empiezan después del ícono, como en
+ * Ajustes), íconos de app y chevrones. Página clara con brillos de marca.
+ */
+.seccion {
+  color: var(--text-dark);
+  background:
+    radial-gradient(
+      45% 40% at 85% 30%,
+      color-mix(in srgb, var(--accent-cyan) 10%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 40% at 10% 80%,
+      color-mix(in srgb, var(--accent-green) 9%, transparent),
+      transparent 70%
+    ),
+    var(--bg-page);
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  scroll-margin-top: 1rem;
+}
+
+.contenedor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 4rem 1rem 4.5rem;
+}
+
+/* ---------- Encabezado */
+.antetitulo {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  letter-spacing: -0.015em;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.titular {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 5.6vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.degradado {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitulo {
+  max-width: 30rem;
+  margin: 1rem 0 0;
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--text-dark-muted);
+}
+
+/* ---------- Lista agrupada (medios de contacto y campos del formulario) */
+.grupo {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--text-dark) 5%, transparent),
+    0 12px 30px -22px color-mix(in srgb, var(--text-dark) 30%, transparent);
+}
+
+.columnaInfo .grupo {
+  margin-top: 2rem;
+}
+
+/* Fila de medio de contacto */
+.fila {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 62px;
+  padding: 0.7rem 1rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.2s var(--easing-ui);
+}
+
+a.fila:hover {
+  background: color-mix(in srgb, var(--text-dark) 3%, transparent);
+}
+
+a.fila:active {
+  background: color-mix(in srgb, var(--text-dark) 6%, transparent);
+}
+
+a.fila:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: -2px;
+}
+
+/* Separador fino que empieza después del ícono, como en iOS */
+.grupo li + li .fila::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 3.85rem;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--text-dark) 9%, transparent);
+}
+
+/* Ícono de app (squircle de color) */
+.icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  color: #fff;
+  border-radius: 9px;
+  background: var(--bg-dark);
+}
+
+.icono[data-medio='correo'] {
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+}
+
+.icono[data-medio='whatsapp'] {
+  background: #25d366;
+}
+
+.icono[data-medio='telefono'] {
+  color: var(--text-on-accent);
+  background: var(--accent-green);
+}
+
+.icono[data-medio='ubicacion'] {
+  color: var(--accent-cyan);
+}
+
+.filaTexto {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.filaTitulo {
+  font-weight: 500;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.filaValor {
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--text-dark-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: color-mix(in srgb, var(--text-dark) 30%, transparent);
+  transition: transform 0.2s var(--easing-ui);
+}
+
+a.fila:hover .chevron {
+  transform: translateX(2px);
+}
+
+/* ---------- Formulario: una hoja de vidrio con listas agrupadas */
+.formulario {
+  display: grid;
+  gap: 1.15rem;
+  padding: 1.5rem 1.1rem 1.25rem;
+  background: color-mix(in srgb, #fff 55%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid color-mix(in srgb, #fff 80%, transparent);
+  border-radius: 28px;
+  box-shadow: 0 30px 70px -40px color-mix(in srgb, var(--text-dark) 40%, transparent);
+}
+
+.formularioTitulo {
+  margin: 0 0 0.15rem 0.35rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+/* Campo: etiqueta a la izquierda y valor a la derecha, como en Ajustes */
+.campo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 52px;
+  padding: 0 1rem;
+  cursor: text;
+  transition: background-color 0.2s var(--easing-ui);
+}
+
+.campo + .campo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--text-dark) 9%, transparent);
+}
+
+.campo > span {
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  transition: color 0.2s var(--easing-ui);
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+  color: var(--text-dark);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.campo input::placeholder,
+.campo textarea::placeholder {
+  color: color-mix(in srgb, var(--text-dark) 35%, transparent);
+}
+
+.campo:focus-within {
+  background: color-mix(in srgb, var(--accent-cyan) 6%, transparent);
+}
+
+.campo:focus-within > span {
+  color: color-mix(in srgb, var(--accent-cyan) 70%, var(--text-dark));
+}
+
+/* Error solo después de que la persona tocó el campo */
+.campo:has(:user-invalid) > span {
+  color: #e5484d;
+}
+
+.campoMensaje {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem 0.9rem;
+}
+
+.campoMensaje textarea {
+  min-height: 6.5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* "¿Qué necesitas?": encabezado de grupo y píldoras */
+.opciones {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.opciones legend {
+  margin-bottom: 0.55rem;
+  padding: 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dark-muted);
+}
+
+.pildoras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.pildora {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.95rem;
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+  color: var(--text-dark);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--text-dark) 10%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color 0.25s var(--easing-ui),
+    color 0.25s var(--easing-ui),
+    border-color 0.25s var(--easing-ui),
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+.pildora:hover {
+  border-color: color-mix(in srgb, var(--accent-cyan) 50%, transparent);
+}
+
+.pildora:active {
+  transform: scale(0.96);
+}
+
+.pildora[aria-pressed='true'] {
+  color: #fff;
+  background: var(--bg-dark);
+  border-color: var(--bg-dark);
+}
+
+.pildora[aria-pressed='true'] svg {
+  color: var(--accent-green);
+}
+
+.pildora:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+/* Botón de enviar: grande, a todo el ancho */
+.enviar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 54px;
+  margin-top: 0.25rem;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 12px 30px -14px color-mix(in srgb, var(--accent-cyan) 80%, transparent);
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--easing-ui),
+    box-shadow 0.25s var(--easing-ui),
+    filter 0.25s var(--easing-ui);
+}
+
+.enviar:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 18px 36px -14px color-mix(in srgb, var(--accent-cyan) 90%, transparent);
+}
+
+.enviar:active {
+  transform: scale(0.98);
+}
+
+.enviar:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+.nota {
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-dark-muted);
+}
+
+/* ---------- Escritorio: info a la izquierda (fija al bajar), formulario a la derecha */
+@media (min-width: 960px) {
+  .contenedor {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+    gap: 4rem;
+    padding: 6.5rem 1.5rem 7rem;
+  }
+
+  .columnaInfo {
+    position: sticky;
+    top: 7rem;
+  }
+
+  .formulario {
+    padding: 2rem 1.75rem 1.5rem;
+  }
+}
+
+/* ---------- Entrada */
+@media (prefers-reduced-motion: no-preference) {
+  .seccion:not([data-visible]) .columnaInfo,
+  .seccion:not([data-visible]) .formulario {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .columnaInfo,
+  .formulario {
+    transition:
+      opacity 0.8s var(--easing-ui),
+      transform 0.8s var(--easing-ui);
+  }
+
+  .formulario {
+    transition-delay: 0.12s;
+  }
+}

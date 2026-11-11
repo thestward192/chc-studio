@@ -6,9 +6,10 @@ export interface EnlaceNav {
 }
 
 export const enlacesNav: EnlaceNav[] = [
-  { id: 'nosotros', etiqueta: 'Nosotros' },
+  // Mismo orden que las secciones en la página
   { id: 'servicios', etiqueta: 'Servicios' },
   { id: 'proyectos', etiqueta: 'Proyectos' },
+  { id: 'nosotros', etiqueta: 'Nosotros' },
   { id: 'contacto', etiqueta: 'Contacto' },
 ];
 

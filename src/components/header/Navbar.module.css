@@ -391,8 +391,22 @@
     align-items: center;
   }
 
+  /* Botón compacto: entra en la cápsula con el mismo margen arriba y abajo */
   .ctaEscritorio.ctaEscritorio {
     display: inline-flex;
+    gap: 0.55rem;
+    padding: 0.25rem 0.25rem 0.25rem 1rem;
+    font-size: 0.86rem;
+    box-shadow: none;
+  }
+
+  .ctaEscritorio > span:last-child {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .zonaCta {
+    padding-right: 0.15rem;
   }
 
   /* Entre 1024 y 1279 px el botón Intro va solo con icono */

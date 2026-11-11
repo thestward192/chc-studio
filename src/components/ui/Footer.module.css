@@ -1,0 +1,292 @@
+/*
+ * Pie de página: panel oscuro redondeado (cierra la página como el hero la
+ * abre) con columnas de enlaces y la marca en gigante al final.
+ */
+.pie {
+  padding: 0 0.75rem 0.75rem;
+  background: var(--bg-page);
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: color-mix(in srgb, var(--text-light) 62%, transparent);
+  background:
+    radial-gradient(
+      60% 50% at 50% 100%,
+      color-mix(in srgb, var(--accent-cyan) 16%, transparent),
+      transparent 70%
+    ),
+    var(--bg-dark);
+  border-radius: 28px;
+}
+
+.contenedor {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 3.5rem 1.25rem 0;
+}
+
+/* ---------- Marca, lema y columnas */
+.superior {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.presentacion {
+  max-width: 22rem;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  color: var(--text-light);
+  text-decoration: none;
+}
+
+.logo span {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lema {
+  margin: 0.9rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.cta {
+  display: inline-flex;
+  margin-top: 1.25rem;
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  letter-spacing: -0.01em;
+  color: var(--text-on-accent);
+  text-decoration: none;
+  background: var(--accent-gradient);
+  border-radius: 999px;
+  transition: transform 0.25s var(--easing-ui);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 1.5rem;
+}
+
+.columnas h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: -0.005em;
+  color: var(--text-light);
+}
+
+.columnas ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.columnas a {
+  font-size: 0.86rem;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color 0.2s var(--easing-ui);
+}
+
+.columnas a:hover {
+  color: var(--text-light);
+}
+
+/* ---------- Barra legal */
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  margin-top: 3rem;
+  padding: 1.25rem 0;
+  font-size: 0.78rem;
+  border-top: 1px solid color-mix(in srgb, #fff 10%, transparent);
+}
+
+.legal p {
+  margin: 0;
+}
+
+.arriba {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  background: color-mix(in srgb, #fff 8%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 10%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s var(--easing-ui);
+}
+
+.arriba:hover {
+  background: color-mix(in srgb, #fff 14%, transparent);
+}
+
+.arriba svg {
+  transition: transform 0.25s var(--easing-ui);
+}
+
+.arriba:hover svg {
+  transform: translateY(-2px);
+}
+
+.logo:focus-visible,
+.cta:focus-visible,
+.columnas a:focus-visible,
+.arriba:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- "CHC STUDIO" gigante, a todo el ancho y cortado por el borde.
+   El tamaño sale del ancho del bloque (cqw), así siempre cabe justo. */
+.marcaGigante {
+  --luz-x: 50%;
+  --luz-y: 50%;
+  position: relative;
+  margin-top: 1rem;
+  padding: 0 0.5rem;
+  container-type: inline-size;
+  user-select: none;
+}
+
+.capaBase,
+.capaLuz {
+  display: flex;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15.6cqw;
+  line-height: 0.78;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+  /* La parte de abajo de las letras queda bajo el borde del panel */
+  margin-bottom: -0.17em;
+}
+
+.capaBase span,
+.capaLuz span {
+  display: inline-block;
+}
+
+/* Base: blanco muy tenue que se apaga hacia abajo; STUDIO con la marca */
+.capaBase span {
+  color: transparent;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #fff 17%, transparent),
+    color-mix(in srgb, #fff 3%, transparent) 85%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.capaBase .letraStudio {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent-green) 50%, transparent),
+    color-mix(in srgb, var(--accent-cyan) 6%, transparent) 85%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Luz: la misma palabra encima, visible solo en un círculo alrededor del mouse */
+.capaLuz {
+  position: absolute;
+  inset: 0 0.5rem;
+  color: color-mix(in srgb, #fff 70%, transparent);
+  -webkit-mask-image: radial-gradient(
+    circle 18cqw at var(--luz-x) var(--luz-y),
+    #000,
+    transparent 75%
+  );
+  mask-image: radial-gradient(circle 18cqw at var(--luz-x) var(--luz-y), #000, transparent 75%);
+  opacity: 0;
+  transition: opacity 0.4s var(--easing-ui);
+  pointer-events: none;
+}
+
+.capaLuz .letraStudio {
+  color: var(--accent-green);
+}
+
+.marcaGigante:hover .capaLuz {
+  opacity: 1;
+}
+
+/* ---------- Tablet y escritorio */
+@media (min-width: 768px) {
+  .columnas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .pie {
+    padding: 0 1rem 1rem;
+  }
+
+  .panel {
+    border-radius: 36px;
+  }
+
+  .contenedor {
+    padding: 5rem 1.5rem 0;
+  }
+
+  .superior {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr);
+    gap: 4rem;
+  }
+
+  .legal {
+    margin-top: 4rem;
+  }
+}
+
+/* ---------- Entrada de las letras gigantes */
+@media (prefers-reduced-motion: no-preference) {
+  .marcaGigante:not([data-visible]) .capaBase span {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+
+  .capaBase span {
+    transition:
+      opacity 0.8s var(--easing-ui),
+      transform 0.9s cubic-bezier(0.22, 1.2, 0.36, 1);
+    transition-delay: calc(var(--i) * 55ms);
+  }
+}

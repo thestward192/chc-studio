@@ -1,41 +1,39 @@
 /*
- * Servicios: un panel oscuro redondeado (como la tarjeta del hero) sobre la
- * página clara, con tarjetas de vidrio oscuro y tipografía estilo Apple.
- * Cada tarjeta lleva una animación de luz con el degradado de marca.
+ * Servicios: página clara (como en las páginas del iPhone, el hero es el
+ * bloque oscuro y lo que sigue respira en claro) con un bento mixto: la
+ * mayoría de tarjetas claras y dos oscuras de acento (Páginas web y
+ * Automatizaciones). Soporte lleva un degradado menta suave.
+ *
+ * Cada tarjeta define su tinta: --tinta (color base de líneas, píldoras y
+ * esqueletos, mezclado en %), --texto y --fondo-solido. Así las mismas
+ * animaciones funcionan sobre claro y sobre oscuro.
  */
 .seccion {
   --dur-flujo: 3.4s;
-  padding: 0 0.75rem;
-  background: var(--bg-page);
-  font-family: var(--font-text);
-  scroll-margin-top: 1rem;
-}
-
-.panel {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  color: var(--text-light);
+  padding: 0 0.75rem;
+  color: var(--text-dark);
   background:
     radial-gradient(
-      60% 40% at 15% 0%,
-      color-mix(in srgb, var(--accent-green) 10%, transparent),
+      50% 30% at 85% 20%,
+      color-mix(in srgb, var(--accent-cyan) 9%, transparent),
       transparent 70%
     ),
     radial-gradient(
-      50% 35% at 95% 30%,
-      color-mix(in srgb, var(--accent-cyan) 10%, transparent),
+      45% 30% at 10% 60%,
+      color-mix(in srgb, var(--accent-green) 8%, transparent),
       transparent 70%
     ),
-    var(--bg-dark);
-  border-radius: 0 0 28px 28px; /* arriba empalma con la fila de servicios del header */
+    var(--bg-page);
+  font-family: var(--font-text);
   -webkit-font-smoothing: antialiased;
+  scroll-margin-top: 1rem;
 }
 
 .contenedor {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 3.5rem 1rem 1.25rem;
+  padding: 1rem 0.25rem 3.5rem;
 }
 
 /* ---------- Encabezado centrado, como el hero */
@@ -80,7 +78,7 @@
   font-size: clamp(1rem, 1.3vw, 1.15rem);
   line-height: 1.5;
   letter-spacing: -0.01em;
-  color: color-mix(in srgb, var(--text-light) 64%, transparent);
+  color: var(--text-dark-muted);
   text-wrap: balance;
 }
 
@@ -94,24 +92,24 @@
   list-style: none;
 }
 
-/* Tarjeta de vidrio oscuro con un brillo fino arriba */
+/* Tarjeta clara (por defecto): blanca con sombra suave */
 .tarjeta {
+  --tinta: var(--text-dark);
+  --texto: var(--text-dark);
+  --fondo-solido: #fff;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   isolation: isolate;
   padding: 1.6rem 1.5rem 1.5rem;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, #fff 5%, transparent),
-      color-mix(in srgb, #fff 1.5%, transparent) 60%
-    ),
-    var(--surface);
-  border: 1px solid color-mix(in srgb, #fff 8%, transparent);
+  color: var(--texto);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--text-dark) 7%, transparent);
   border-radius: 26px;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--text-dark) 5%, transparent),
+    0 14px 34px -22px color-mix(in srgb, var(--text-dark) 25%, transparent);
   scroll-margin-top: 1.5rem;
   transition:
     transform 0.35s var(--easing-ui),
@@ -121,10 +119,49 @@
 
 .tarjeta:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--accent-cyan) 35%, transparent);
+  border-color: color-mix(in srgb, var(--accent-cyan) 40%, transparent);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent),
-    0 24px 50px -28px color-mix(in srgb, var(--accent-cyan) 55%, transparent);
+    0 1px 2px color-mix(in srgb, var(--text-dark) 5%, transparent),
+    0 24px 50px -26px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
+}
+
+/* Tarjetas oscuras de acento: vidrio oscuro, como la tarjeta del hero */
+.web,
+.automatizacion {
+  --tinta: #fff;
+  --texto: var(--text-light);
+  --fondo-solido: var(--surface);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #fff 5%, transparent),
+      color-mix(in srgb, #fff 1.5%, transparent) 60%
+    ),
+    var(--bg-dark);
+  border-color: transparent;
+  box-shadow: 0 20px 44px -26px color-mix(in srgb, var(--bg-dark) 80%, transparent);
+}
+
+/* Soporte: degradado menta suave de marca (claro, pero no solo blanco) */
+.soporte {
+  background:
+    radial-gradient(
+      70% 120% at 100% 0%,
+      color-mix(in srgb, var(--accent-cyan) 20%, transparent),
+      transparent 65%
+    ),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-green) 16%, #fff), #fff 75%);
+  border-color: color-mix(in srgb, var(--accent-cyan) 22%, transparent);
+}
+
+.automatizacion {
+  background:
+    radial-gradient(
+      90% 70% at 50% 110%,
+      color-mix(in srgb, var(--accent-cyan) 16%, transparent),
+      transparent 70%
+    ),
+    var(--bg-dark);
 }
 
 .cuerpo {
@@ -171,7 +208,7 @@
   font-size: 0.96rem;
   line-height: 1.55;
   letter-spacing: -0.01em;
-  color: color-mix(in srgb, var(--text-light) 62%, transparent);
+  color: color-mix(in srgb, var(--texto) 62%, transparent);
 }
 
 /* Lo que incluye: etiquetas en píldora de vidrio */
@@ -189,9 +226,9 @@
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: -0.005em;
-  color: color-mix(in srgb, var(--text-light) 85%, transparent);
-  background: color-mix(in srgb, #fff 7%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 6%, transparent);
+  color: color-mix(in srgb, var(--texto) 85%, transparent);
+  background: color-mix(in srgb, var(--tinta) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tinta) 6%, transparent);
   border-radius: 999px;
 }
 
@@ -206,7 +243,8 @@
       color-mix(in srgb, var(--accent-cyan) 18%, transparent),
       transparent 70%
     ),
-    linear-gradient(180deg, color-mix(in srgb, #fff 4%, transparent), transparent 50%), #0d1118;
+    linear-gradient(180deg, color-mix(in srgb, var(--tinta) 4%, transparent), transparent 50%),
+    #0d1118;
 }
 
 .web .nombre {
@@ -274,9 +312,9 @@
   z-index: 0;
   overflow: hidden;
   background:
-    linear-gradient(180deg, color-mix(in srgb, #fff 6%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--tinta) 6%, transparent), transparent 40%),
     color-mix(in srgb, var(--surface) 88%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tinta) 10%, transparent);
   border-radius: 16px;
   box-shadow: 0 30px 60px -30px #000;
   -webkit-backdrop-filter: blur(8px);
@@ -286,7 +324,7 @@
 .navegador .ventanaBarra {
   margin: 0;
   padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid color-mix(in srgb, #fff 7%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--tinta) 7%, transparent);
 }
 
 .url {
@@ -295,7 +333,7 @@
   margin-inline: auto !important;
   padding: 0.2rem 0.75rem;
   text-align: center;
-  background: color-mix(in srgb, #fff 6%, transparent);
+  background: color-mix(in srgb, var(--tinta) 6%, transparent);
   border-radius: 999px;
 }
 
@@ -308,7 +346,7 @@
 .pagina span {
   display: block;
   border-radius: 6px;
-  background: color-mix(in srgb, #fff 10%, transparent);
+  background: color-mix(in srgb, var(--tinta) 10%, transparent);
 }
 
 .pagina .bloqueTitulo {
@@ -316,8 +354,8 @@
   height: 16px;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, #fff 55%, transparent),
-    color-mix(in srgb, #fff 25%, transparent)
+    color-mix(in srgb, var(--tinta) 55%, transparent),
+    color-mix(in srgb, var(--tinta) 25%, transparent)
   );
 }
 
@@ -342,8 +380,8 @@
 
 .bloqueTarjetas span {
   height: 54px;
-  border: 1px solid color-mix(in srgb, #fff 7%, transparent);
-  background: color-mix(in srgb, #fff 5%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--tinta) 7%, transparent);
+  background: color-mix(in srgb, var(--tinta) 5%, transparent) !important;
 }
 
 /* ================================================================
@@ -368,7 +406,7 @@
   border-radius: 2px;
   background: repeating-linear-gradient(
     90deg,
-    color-mix(in srgb, #fff 16%, transparent) 0 6px,
+    color-mix(in srgb, var(--tinta) 16%, transparent) 0 6px,
     transparent 6px 11px
   );
 }
@@ -421,7 +459,7 @@
   font-weight: 500;
   letter-spacing: -0.01em;
   text-align: center;
-  color: color-mix(in srgb, var(--text-light) 72%, transparent);
+  color: color-mix(in srgb, var(--texto) 72%, transparent);
 }
 
 .nodoIcono {
@@ -462,7 +500,7 @@
   right: 0;
   bottom: calc(var(--icono) / 2 + 6px);
   height: 22px;
-  border: 1.5px dashed color-mix(in srgb, #fff 16%, transparent);
+  border: 1.5px dashed color-mix(in srgb, var(--tinta) 16%, transparent);
   border-bottom: 0;
   border-radius: 16px 16px 0 0;
 }
@@ -474,8 +512,8 @@
   width: 100%;
   margin-top: 1.5rem;
   padding: 0.7rem 0.85rem 0.9rem;
-  background: color-mix(in srgb, #000 22%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 8%, transparent);
+  background: color-mix(in srgb, var(--tinta) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tinta) 8%, transparent);
   border-radius: 16px;
 }
 
@@ -490,7 +528,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: color-mix(in srgb, #fff 18%, transparent);
+  background: color-mix(in srgb, var(--tinta) 18%, transparent);
 }
 
 .ventanaBarra em {
@@ -498,7 +536,7 @@
   font-style: normal;
   font-size: 0.7rem;
   font-weight: 500;
-  color: color-mix(in srgb, var(--text-light) 50%, transparent);
+  color: color-mix(in srgb, var(--texto) 50%, transparent);
 }
 
 .grafico {
@@ -507,7 +545,7 @@
   gap: 6px;
   height: 78px;
   padding-bottom: 6px;
-  border-bottom: 1px solid color-mix(in srgb, #fff 10%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--tinta) 10%, transparent);
 }
 
 .grafico span {
@@ -528,7 +566,7 @@
 .filas span {
   height: 7px;
   border-radius: 4px;
-  background: color-mix(in srgb, #fff 9%, transparent);
+  background: color-mix(in srgb, var(--tinta) 9%, transparent);
 }
 
 .filas span:last-child {
@@ -551,9 +589,9 @@
   gap: 0.5rem;
   padding: 0.6rem 0.9rem;
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--text-light) 80%, transparent);
-  background: color-mix(in srgb, #fff 7%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 9%, transparent);
+  color: color-mix(in srgb, var(--texto) 80%, transparent);
+  background: color-mix(in srgb, var(--tinta) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tinta) 9%, transparent);
   border-radius: 999px;
 }
 
@@ -598,15 +636,15 @@
   height: var(--fila);
   padding: 0 0.85rem;
   border-radius: 12px;
-  background: color-mix(in srgb, #fff 4%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 6%, transparent);
+  background: color-mix(in srgb, var(--tinta) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tinta) 6%, transparent);
 }
 
 .resultados li span {
   height: 7px;
   width: 70%;
   border-radius: 4px;
-  background: color-mix(in srgb, #fff 12%, transparent);
+  background: color-mix(in srgb, var(--tinta) 12%, transparent);
 }
 
 /* Sin animación queda la foto final: tu negocio primero */
@@ -627,14 +665,14 @@
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--text-light);
+  color: var(--texto);
   background:
     linear-gradient(
       90deg,
       color-mix(in srgb, var(--accent-green) 18%, transparent),
       color-mix(in srgb, var(--accent-cyan) 10%, transparent)
     ),
-    var(--surface);
+    var(--fondo-solido);
   border-color: color-mix(in srgb, var(--accent-cyan) 45%, transparent);
   box-shadow: 0 10px 24px -14px var(--accent-cyan);
   transform: translateY(0);
@@ -659,8 +697,14 @@
   gap: 1rem;
   margin-top: 1rem;
   padding: 1.4rem 1.5rem;
-  background: color-mix(in srgb, #fff 4%, transparent);
-  border: 1px solid color-mix(in srgb, #fff 8%, transparent);
+  color: var(--text-light);
+  background:
+    radial-gradient(
+      60% 140% at 100% 50%,
+      color-mix(in srgb, var(--accent-cyan) 22%, transparent),
+      transparent 70%
+    ),
+    var(--bg-dark);
   border-radius: 26px;
 }
 
@@ -674,12 +718,8 @@
 
 /* ---------- Tablet: dos columnas (web y soporte a lo ancho) */
 @media (min-width: 768px) {
-  .panel {
-    border-radius: 0 0 32px 32px;
-  }
-
   .contenedor {
-    padding: 4.5rem 1.5rem 1.5rem;
+    padding: 1.5rem 1.5rem 4.5rem;
   }
 
   .rejilla {
@@ -755,12 +795,8 @@
     padding: 0 1rem;
   }
 
-  .panel {
-    border-radius: 0 0 36px 36px;
-  }
-
   .contenedor {
-    padding: 6rem 1.5rem 1.5rem;
+    padding: 1.5rem 1.5rem 6rem;
   }
 
   .encabezado {
@@ -858,9 +894,9 @@
   margin-top: 1.1rem;
   padding: 0.35rem 0.8rem 0.35rem 0.65rem;
   font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--accent-green);
-  background: color-mix(in srgb, var(--accent-green) 10%, transparent);
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent-green) 40%, var(--text-dark));
+  background: color-mix(in srgb, var(--accent-green) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent-green) 25%, transparent);
   border-radius: 999px;
 }
@@ -1051,14 +1087,14 @@
 @keyframes retorno {
   0%,
   70% {
-    border-color: color-mix(in srgb, #fff 16%, transparent);
+    border-color: color-mix(in srgb, var(--tinta) 16%, transparent);
   }
   82% {
     border-color: var(--accent-cyan);
     filter: drop-shadow(0 0 6px var(--accent-cyan));
   }
   100% {
-    border-color: color-mix(in srgb, #fff 16%, transparent);
+    border-color: color-mix(in srgb, var(--tinta) 16%, transparent);
   }
 }
 
@@ -1066,7 +1102,7 @@
   0%,
   100% {
     transform: scaleY(0.35);
-    opacity: 0.55;
+    opacity: 0.8;
   }
   45%,
   60% {

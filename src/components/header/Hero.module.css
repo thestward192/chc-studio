@@ -11,7 +11,7 @@
   overflow: hidden;
   padding: 3.25rem 1.25rem 0;
   background: var(--bg-dark);
-  border-radius: 28px 28px 0 0; /* abajo empalma con la fila de servicios */
+  border-radius: 28px;
   color: var(--text-light);
   text-align: center;
   isolation: isolate;
@@ -132,7 +132,8 @@
   align-items: center;
   gap: 0.45rem;
   margin: 0;
-  padding: 0.25rem 0 1.75rem;
+  /* abajo deja sitio al Dock de servicios, que se monta sobre el borde */
+  padding: 0.25rem 0 calc(3rem + 1.5rem);
   font-family: var(--font-text);
   font-size: clamp(0.72rem, 3.2vw, 0.82rem);
   letter-spacing: -0.005em;
@@ -268,7 +269,11 @@
 @media (min-width: 640px) {
   .tarjeta {
     padding: 4.5rem 2.5rem 0;
-    border-radius: 32px 32px 0 0;
+    border-radius: 32px;
+  }
+
+  .prueba {
+    padding-bottom: calc(3.5rem + 1.6rem);
   }
 
   .titular {
@@ -291,7 +296,7 @@
 @media (min-width: 1024px) {
   .tarjeta {
     padding: 3.5rem 0 0;
-    border-radius: 36px 36px 0 0;
+    border-radius: 36px;
   }
 
   /* Dos líneas anchas: "Tecnología que hace" / "crecer tu negocio." */
@@ -308,6 +313,10 @@
 
   .acciones {
     margin: -7rem 0 1.75rem;
+  }
+
+  .prueba {
+    padding-bottom: calc(3.9rem + 1.75rem);
   }
 
   .visual {

@@ -13,7 +13,8 @@ interface Props {
 
 /**
  * Cabecera de Inicio: navbar de vidrio estilo iOS (fijo mientras se recorre
- * la cabecera), hero en la tarjeta oscura y, debajo, la fila de servicios.
+ * la cabecera), hero en la tarjeta oscura y el Dock de servicios montado
+ * sobre su borde inferior.
  */
 export function Header({ onVolverIntro }: Props) {
   const filaRef = useRef<HTMLUListElement>(null);

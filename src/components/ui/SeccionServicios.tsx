@@ -21,8 +21,9 @@ import { iconosServicio } from './iconosServicio';
 import estilos from './SeccionServicios.module.css';
 
 /**
- * Servicios: panel oscuro (como la tarjeta del hero) con una rejilla bento de
- * los mismos cinco servicios de la fila de la cabecera. Cada tarjeta tiene su
+ * Servicios: rejilla bento sobre la página clara con los mismos cinco
+ * servicios de la fila de la cabecera; Páginas web y Automatizaciones son las
+ * tarjetas oscuras de acento. Cada tarjeta tiene su
  * pequeña animación de luz: la mascota sobre la sala (web), un panel con
  * barras (sistemas), herramientas que se encienden al paso de una chispa
  * (automatizaciones y soporte) y un resultado que sube al primer lugar (SEO).
@@ -53,34 +54,32 @@ export function SeccionServicios() {
       className={estilos.seccion}
       aria-labelledby="servicios-titular"
     >
-      <div className={estilos.panel}>
-        <div className={estilos.contenedor}>
-          <header className={estilos.encabezado}>
-            <p className={estilos.antetitulo}>{encabezadoServicios.antetitulo}</p>
-            <h2 id="servicios-titular" className={estilos.titular}>
-              {encabezadoServicios.titular.map((parte, i) =>
-                parte.destacado ? (
-                  <span key={i} className={estilos.degradado}>
-                    {parte.texto}
-                  </span>
-                ) : (
-                  parte.texto
-                ),
-              )}
-            </h2>
-            <p className={estilos.subtitulo}>{encabezadoServicios.subtitulo}</p>
-          </header>
+      <div className={estilos.contenedor}>
+        <header className={estilos.encabezado}>
+          <p className={estilos.antetitulo}>{encabezadoServicios.antetitulo}</p>
+          <h2 id="servicios-titular" className={estilos.titular}>
+            {encabezadoServicios.titular.map((parte, i) =>
+              parte.destacado ? (
+                <span key={i} className={estilos.degradado}>
+                  {parte.texto}
+                </span>
+              ) : (
+                parte.texto
+              ),
+            )}
+          </h2>
+          <p className={estilos.subtitulo}>{encabezadoServicios.subtitulo}</p>
+        </header>
 
-          <ul className={estilos.rejilla}>
-            {servicios.map((servicio, i) => (
-              <TarjetaServicio key={servicio.id} servicio={servicio} orden={i} />
-            ))}
-          </ul>
+        <ul className={estilos.rejilla}>
+          {servicios.map((servicio, i) => (
+            <TarjetaServicio key={servicio.id} servicio={servicio} orden={i} />
+          ))}
+        </ul>
 
-          <div className={estilos.cierre}>
-            <p>{cierreServicios.texto}</p>
-            <BotonPill etiqueta={hero.boton.etiqueta} destino={hero.boton.destino} />
-          </div>
+        <div className={estilos.cierre}>
+          <p>{cierreServicios.texto}</p>
+          <BotonPill etiqueta={hero.boton.etiqueta} destino={hero.boton.destino} />
         </div>
       </div>
     </section>

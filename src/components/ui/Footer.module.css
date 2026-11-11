@@ -169,14 +169,14 @@
   border-radius: 6px;
 }
 
-/* ---------- "CHC STUDIO" gigante, a todo el ancho y cortado por el borde.
+/* ---------- "CHC STUDIO" gigante, a todo el ancho y completo.
    El tamaño sale del ancho del bloque (cqw), así siempre cabe justo. */
 .marcaGigante {
   --luz-x: 50%;
   --luz-y: 50%;
   position: relative;
-  margin-top: 1rem;
-  padding: 0 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0 0.5rem 1.1rem;
   container-type: inline-size;
   user-select: none;
 }
@@ -187,12 +187,12 @@
   justify-content: center;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 15.6cqw;
-  line-height: 0.78;
+  font-size: 15.2cqw;
+  /* Caja de la línea más alta que las letras: el degradado (background-clip)
+     solo pinta dentro de ella, con menos se cortaban arriba y abajo */
+  line-height: 1.02;
   letter-spacing: -0.035em;
   white-space: nowrap;
-  /* La parte de abajo de las letras queda bajo el borde del panel */
-  margin-bottom: -0.17em;
 }
 
 .capaBase span,
@@ -205,8 +205,8 @@
   color: transparent;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, #fff 17%, transparent),
-    color-mix(in srgb, #fff 3%, transparent) 85%
+    color-mix(in srgb, #fff 20%, transparent) 15%,
+    color-mix(in srgb, #fff 5%, transparent) 90%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -215,8 +215,8 @@
 .capaBase .letraStudio {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--accent-green) 50%, transparent),
-    color-mix(in srgb, var(--accent-cyan) 6%, transparent) 85%
+    color-mix(in srgb, var(--accent-green) 60%, transparent) 15%,
+    color-mix(in srgb, var(--accent-cyan) 12%, transparent) 90%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -225,7 +225,7 @@
 /* Luz: la misma palabra encima, visible solo en un círculo alrededor del mouse */
 .capaLuz {
   position: absolute;
-  inset: 0 0.5rem;
+  inset: 0 0.5rem auto;
   color: color-mix(in srgb, #fff 70%, transparent);
   -webkit-mask-image: radial-gradient(
     circle 18cqw at var(--luz-x) var(--luz-y),
@@ -260,6 +260,10 @@
 
   .panel {
     border-radius: 36px;
+  }
+
+  .marcaGigante {
+    padding-bottom: 1.75rem;
   }
 
   .contenedor {

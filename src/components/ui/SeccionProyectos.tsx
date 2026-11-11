@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { ArrowUpRight } from '@phosphor-icons/react/dist/csr/ArrowUpRight';
 import { CaretLeft } from '@phosphor-icons/react/dist/csr/CaretLeft';
 import { CaretRight } from '@phosphor-icons/react/dist/csr/CaretRight';
@@ -8,13 +8,20 @@ import { MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass'
 import { WhatsappLogo } from '@phosphor-icons/react/dist/csr/WhatsappLogo';
 import { EnvelopeSimple } from '@phosphor-icons/react/dist/csr/EnvelopeSimple';
 import { Table } from '@phosphor-icons/react/dist/csr/Table';
-import { encabezadoProyectos, proyectos, type Proyecto } from '../../content/proyectos';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import {
+  dominioProyecto,
+  encabezadoProyectos,
+  proyectos,
+  type Proyecto,
+} from '../../content/proyectos';
 import { servicios } from '../../content/servicios';
 import { hero } from '../../content/cabecera';
 import estilos from './SeccionProyectos.module.css';
 
+// Etiqueta del tipo: la del proyecto (p. ej. "E-commerce") o la del servicio
 const nombreServicio = (p: Proyecto) =>
-  servicios.find((s) => s.icono === p.servicio)?.titulo ?? null;
+  p.tipo ?? servicios.find((s) => s.icono === p.servicio)?.titulo ?? null;
 
 /**
  * Proyectos al estilo del carrusel "Conoce el iPhone" de apple.com: tarjetas
@@ -209,7 +216,8 @@ function TarjetaProyecto({
           {servicio && <p className={estilos.servicio}>{servicio}</p>}
           <h3 className={estilos.tarjetaTitulo}>{p.titulo}</h3>
           <p className={estilos.tarjetaDatos}>
-            {p.cliente} · {p.anio}
+            {p.anio && <span>{p.anio}</span>}
+            {p.estado && <Estado estado={p.estado} />}
           </p>
         </div>
         <Portatil proyecto={p} />
@@ -226,13 +234,67 @@ function TarjetaProyecto({
   );
 }
 
-/** Hoja de detalle (estilo iOS) dentro del <dialog>: la laptop arriba, el texto debajo. */
+/**
+ * Hoja de detalle (estilo iOS) dentro del <dialog>. En escritorio, dos
+ * columnas que se ven enteras sin desplazarse: a la izquierda la captura
+ * grande (con miniaturas) y las características; a la derecha el título,
+ * la ficha, la descripción, las tecnologías y el enlace. En móvil, apiladas.
+ */
 function Detalle({ proyecto: p }: { proyecto: Proyecto }) {
   const servicio = nombreServicio(p);
+  const galeria = p.galeria ?? [];
+  const [vista, setVista] = useState(0);
+  const datos = [
+    p.anio && { etiqueta: 'Año', valor: String(p.anio) },
+    p.estado && { etiqueta: 'Estado', valor: <Estado estado={p.estado} /> },
+    servicio && { etiqueta: 'Tipo', valor: servicio },
+  ].filter(Boolean) as { etiqueta: string; valor: ReactNode }[];
   return (
     <article className={estilos.detalle}>
-      <div className={estilos.detalleVisual} aria-hidden="true">
-        <Portatil proyecto={p} />
+      <div className={estilos.detalleVisual}>
+        {galeria.length > 0 ? (
+          // La captura tal cual, en una ventana con la dirección del sitio
+          <div className={estilos.vista} aria-hidden="true">
+            <div className={estilos.vistaBarra}>
+              <span />
+              <span />
+              <span />
+              <em>{dominioProyecto(p) ?? 'Acceso privado'}</em>
+            </div>
+            <div className={estilos.vistaImagenes}>
+              {galeria.map((src, i) => (
+                <img
+                  key={src}
+                  className={estilos.vistaImagen}
+                  data-activa={i === vista ? '' : undefined}
+                  src={src}
+                  alt=""
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <Portatil proyecto={p} />
+        )}
+        {/* Miniaturas: eligen qué captura se ve */}
+        {galeria.length > 1 && (
+          <div className={estilos.miniaturas} role="group" aria-label="Capturas del proyecto">
+            {galeria.map((src, i) => (
+              <button
+                key={src}
+                type="button"
+                className={estilos.miniatura}
+                aria-pressed={i === vista}
+                aria-label={`Captura ${i + 1} de ${galeria.length}`}
+                onClick={() => setVista(i)}
+              >
+                <img src={src} alt="" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <Caracteristicas proyecto={p} />
       </div>
       <div className={estilos.detalleTexto}>
         {servicio && <p className={estilos.servicio}>{servicio}</p>}
@@ -240,9 +302,25 @@ function Detalle({ proyecto: p }: { proyecto: Proyecto }) {
           {p.titulo}
         </h3>
         <p className={estilos.tarjetaDatos}>
-          {p.cliente} · {p.anio}
+          {p.cliente}
+          {p.rol && ` · ${p.rol}`}
         </p>
+
+        {/* Ficha corta, como la de "Información" en la App Store */}
+        <dl className={estilos.ficha}>
+          {datos.map((d) => (
+            <div key={d.etiqueta}>
+              <dt>{d.etiqueta}</dt>
+              <dd>{d.valor}</dd>
+            </div>
+          ))}
+        </dl>
+
         <p className={estilos.detalleDescripcion}>{p.descripcion}</p>
+        {/* En móvil van aquí, después del texto (en escritorio, en el panel oscuro) */}
+        <Caracteristicas proyecto={p} claras />
+
+        <h4 className={estilos.detalleSubtitulo}>Tecnologías</h4>
         <ul className={estilos.tecnologias} aria-label="Tecnologías">
           {p.tecnologias.map((t) => (
             <li key={t}>{t}</li>
@@ -250,7 +328,7 @@ function Detalle({ proyecto: p }: { proyecto: Proyecto }) {
         </ul>
         {p.urlProyecto && (
           <a className={estilos.verProyecto} href={p.urlProyecto} target="_blank" rel="noreferrer">
-            Ver el proyecto
+            Visitar el sitio
             <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
           </a>
         )}
@@ -259,19 +337,106 @@ function Detalle({ proyecto: p }: { proyecto: Proyecto }) {
   );
 }
 
+/** Lista de características (versión oscura del panel o clara del texto). */
+function Caracteristicas({ proyecto: p, claras }: { proyecto: Proyecto; claras?: boolean }) {
+  if (!p.caracteristicas?.length) return null;
+  return (
+    <div className={claras ? estilos.caracteristicasMovil : estilos.bloqueCaracteristicas}>
+      <h4 className={estilos.detalleSubtitulo}>Características</h4>
+      <ul className={estilos.caracteristicas}>
+        {p.caracteristicas.map((c) => (
+          <li key={c}>
+            <CheckCircle size={18} weight="fill" aria-hidden="true" />
+            {c}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Estado del proyecto; "En línea" lleva un punto verde que late y "Privado", uno gris. */
+function Estado({ estado }: { estado: NonNullable<Proyecto['estado']> }) {
+  return (
+    <span
+      className={estilos.estado}
+      data-estado={
+        estado === 'En línea' ? 'linea' : estado === 'Privado' ? 'privado' : 'desarrollo'
+      }
+    >
+      {estado}
+    </span>
+  );
+}
+
+const PAUSA_GALERIA = 3800;
+
 /**
  * Laptop estilo MacBook (bisel fino, muesca y base) con pantalla 16:10. Si
- * el proyecto tiene captura real (`imagenAlta`, idealmente 1600×1000) se
- * muestra entera; si no, una app de escritorio dibujada según el servicio.
+ * el proyecto tiene capturas reales (`galeria`) se muestran y, si son
+ * varias, se turnan con un fundido (o se ve la que diga `indice`); si no,
+ * una app de escritorio dibujada según el servicio.
  */
-function Portatil({ proyecto: p }: { proyecto: Proyecto }) {
+function Portatil({ proyecto: p, indice }: { proyecto: Proyecto; indice?: number }) {
+  const galeria = p.galeria ?? [];
+  const [turno, setTurno] = useState(0);
+  const pantallaRef = useRef<HTMLDivElement>(null);
+
+  // Turnos automáticos solo si nadie elige, hay varias y la laptop se ve
+  useEffect(() => {
+    const pantalla = pantallaRef.current;
+    if (indice !== undefined || galeria.length < 2 || !pantalla) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let id = 0;
+    const observador = new IntersectionObserver(([e]) => {
+      window.clearInterval(id);
+      if (e.isIntersecting) {
+        id = window.setInterval(() => setTurno((t) => (t + 1) % galeria.length), PAUSA_GALERIA);
+      }
+    });
+    observador.observe(pantalla);
+    return () => {
+      observador.disconnect();
+      window.clearInterval(id);
+    };
+  }, [indice, galeria.length]);
+
+  const actual = indice ?? turno;
   return (
     <div className={estilos.portatil} aria-hidden="true">
       <div className={estilos.tapa}>
-        <div className={estilos.pantalla}>
+        <div ref={pantallaRef} className={estilos.pantalla}>
           <span className={estilos.muesca} />
-          {p.imagenAlta ? (
-            <img className={estilos.captura} src={p.imagenAlta} alt="" loading="lazy" />
+          {galeria.length > 0 ? (
+            // Escritorio de Mac: la captura entera en una ventana del
+            // navegador (sin recortar los lados) y el Dock abajo
+            <div className={estilos.escritorio}>
+              <div className={estilos.navegador}>
+                <div className={estilos.navegadorBarra}>
+                  <span />
+                  <span />
+                  <span />
+                  <em>{dominioProyecto(p) ?? 'Acceso privado'}</em>
+                </div>
+                <div className={estilos.navegadorVista}>
+                  {galeria.map((src, i) => (
+                    <img
+                      key={src}
+                      className={estilos.captura}
+                      data-activa={i === actual ? '' : undefined}
+                      src={src}
+                      alt=""
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className={estilos.dock}>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <span key={i} />
+                ))}
+              </div>
+            </div>
           ) : (
             <AppDeMarca servicio={p.servicio} />
           )}

@@ -311,12 +311,184 @@
   transform: translateX(-50%);
 }
 
+/* ---------- Escritorio de Mac con la captura real: fondo de marca, una
+   ventana de navegador con la imagen entera (sin recortar los lados) y el
+   Dock. Todo en cqw, así escala igual en la tarjeta y en la hoja. */
+.escritorio {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 4.5cqw 4cqw 7.6cqw;
+  background:
+    radial-gradient(
+      70% 60% at 30% 20%,
+      color-mix(in srgb, var(--accent-green) 35%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      70% 70% at 85% 90%,
+      color-mix(in srgb, var(--accent-cyan) 45%, transparent),
+      transparent 70%
+    ),
+    #1a2333;
+}
+
+.navegador {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 1.1cqw;
+  box-shadow:
+    0 0 0 0.12cqw rgba(0, 0, 0, 0.25),
+    0 2.5cqw 5cqw -1cqw rgba(0, 0, 0, 0.55);
+}
+
+/* Barra con el semáforo de macOS y la dirección del sitio */
+.navegadorBarra {
+  display: flex;
+  align-items: center;
+  gap: 0.75cqw;
+  height: 3.4cqw;
+  padding: 0 1.2cqw;
+  background: #e9ecf1;
+}
+
+.navegadorBarra span {
+  width: 1.05cqw;
+  height: 1.05cqw;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.navegadorBarra span:nth-child(2) {
+  background: #febc2e;
+}
+
+.navegadorBarra span:nth-child(3) {
+  background: #28c840;
+}
+
+.navegadorBarra em {
+  margin: 0 auto;
+  padding: 0.35cqw 4cqw;
+  font-family: var(--font-text);
+  font-size: 1.35cqw;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+  color: #5b6372;
+  background: #fff;
+  border-radius: 0.7cqw;
+  /* Compensa el semáforo para que la dirección quede centrada */
+  translate: -2.2cqw 0;
+}
+
+/* Vista: la primera captura da la altura (su proporción real, con tope);
+   las demás se apilan encima y se turnan con un fundido */
+.navegadorVista {
+  position: relative;
+}
+
 .captura {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.9s var(--easing-ui);
+}
+
+.captura:first-child {
+  position: relative;
+  height: auto;
+  max-height: 45.5cqw;
+}
+
+.captura[data-activa] {
+  opacity: 1;
+}
+
+/* Dock de vidrio con íconos de app */
+.dock {
+  position: absolute;
+  bottom: 1.3cqw;
+  left: 50%;
+  display: flex;
+  gap: 0.7cqw;
+  padding: 0.6cqw;
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 0.1cqw solid rgba(255, 255, 255, 0.25);
+  border-radius: 1.6cqw;
+  translate: -50% 0;
+}
+
+.dock span {
+  width: 3.2cqw;
+  height: 3.2cqw;
+  border-radius: 0.8cqw;
+  background: var(--accent-gradient);
+}
+
+.dock span:nth-child(2) {
+  background: linear-gradient(160deg, #6e8bff, #4a63e6);
+}
+
+.dock span:nth-child(3) {
+  background: linear-gradient(160deg, #ffb340, #ff8a1f);
+}
+
+.dock span:nth-child(4) {
+  background: linear-gradient(160deg, #ff5e7a, #e5364f);
+}
+
+.dock span:nth-child(5) {
+  background: linear-gradient(160deg, #f2f4f7, #c9ced6);
+}
+
+/* Estado del proyecto: "En línea" con punto verde que late */
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.6rem;
+  font-weight: 500;
+  color: var(--texto, var(--text-dark));
+}
+
+.estado::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f5a524;
+}
+
+.estado[data-estado='linea']::before {
+  background: #30d158;
+  box-shadow: 0 0 0 0 color-mix(in srgb, #30d158 60%, transparent);
+  animation: latido 2s ease-out infinite;
+}
+
+@keyframes latido {
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+.estado[data-estado='privado']::before {
+  background: #8e8e93;
+}
+
+.estado:first-child,
+.ficha .estado {
+  margin-left: 0;
 }
 
 /* ---------- Apps de escritorio dibujadas (una por servicio) */
@@ -826,9 +998,10 @@
 
 /* ---------- Hoja de detalle (<dialog>), como las de iOS */
 .hoja {
-  width: min(860px, calc(100% - 1.5rem));
+  width: min(1240px, calc(100% - 1.5rem));
   max-width: none;
-  max-height: min(88vh, 720px);
+  max-height: 92vh;
+  max-height: 92dvh;
   margin: auto;
   padding: 0;
   overflow: visible;
@@ -852,7 +1025,8 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  max-height: min(88vh, 720px);
+  max-height: 92vh;
+  max-height: 92dvh;
   overflow: auto;
   overscroll-behavior: contain;
   background: #fff;
@@ -891,7 +1065,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin: 1.4rem 0 0;
+  margin: 0.75rem 0 0;
   padding: 0;
   list-style: none;
 }
@@ -952,9 +1126,13 @@
   outline-offset: 2px;
 }
 
-/* Panel oscuro de la hoja con la laptop grande */
+/* Panel oscuro de la hoja con la captura grande y las características */
 .detalleVisual {
-  padding: 3.5rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.75rem 1.25rem 1.75rem;
+  color: #fff;
   background:
     radial-gradient(
       90% 70% at 50% 100%,
@@ -971,6 +1149,221 @@
   width: min(86%, 620px);
   margin: 0 auto;
   transform: none;
+}
+
+/* Captura grande: ventana con el semáforo de macOS y la dirección */
+.vista {
+  overflow: hidden;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 30px 60px -24px rgba(0, 0, 0, 0.7);
+}
+
+.vistaBarra {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  background: #e9ecf1;
+}
+
+.vistaBarra span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.vistaBarra span:nth-child(2) {
+  background: #febc2e;
+}
+
+.vistaBarra span:nth-child(3) {
+  background: #28c840;
+}
+
+.vistaBarra em {
+  margin: 0 auto;
+  padding: 3px 2.5rem;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 500;
+  color: #5b6372;
+  background: #fff;
+  border-radius: 6px;
+  translate: -18px 0;
+}
+
+/* La primera imagen da la altura (con tope); las demás se apilan encima */
+.vistaImagenes {
+  position: relative;
+}
+
+.vistaImagen {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.5s var(--easing-ui);
+}
+
+.vistaImagen:first-child {
+  position: relative;
+  height: auto;
+  max-height: 46vh;
+}
+
+.vistaImagen[data-activa] {
+  opacity: 1;
+}
+
+/* Miniaturas bajo la captura */
+.miniaturas {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.miniatura {
+  width: clamp(64px, 18vw, 112px);
+  aspect-ratio: 2 / 1;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #fff 14%, transparent);
+  opacity: 0.55;
+  cursor: pointer;
+  transition:
+    opacity 0.25s var(--easing-ui),
+    box-shadow 0.25s var(--easing-ui),
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+.miniatura img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.miniatura:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+.miniatura[aria-pressed='true'] {
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--accent-green);
+}
+
+.miniatura:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+/* Ficha (Año, Estado, Tipo): columnas con separadores, como la App Store */
+.ficha {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 1.5rem 0 0;
+  padding: 0.9rem 0;
+  border-block: 1px solid color-mix(in srgb, var(--text-dark) 9%, transparent);
+}
+
+.ficha > div {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: center;
+  padding: 0 0.5rem;
+  text-align: center;
+}
+
+.ficha > div + div {
+  border-left: 1px solid color-mix(in srgb, var(--text-dark) 9%, transparent);
+}
+
+.ficha dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-dark-muted);
+}
+
+.ficha dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.detalleSubtitulo {
+  margin: 1.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+/* Características (en el panel oscuro): celdas de vidrio con check verde,
+   en dos columnas cuando hay espacio */
+.bloqueCaracteristicas {
+  display: none;
+  margin-top: 0.5rem;
+}
+
+/* Versión clara, bajo la descripción (solo en móvil y tablet) */
+.caracteristicasMovil .caracteristicas li {
+  color: var(--text-dark);
+  background: color-mix(in srgb, var(--text-dark) 4%, transparent);
+  border-color: transparent;
+}
+
+.bloqueCaracteristicas .detalleSubtitulo {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.caracteristicas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caracteristicas li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+}
+
+.caracteristicas svg {
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  color: #30d158;
 }
 
 /* ---------- Tablet y escritorio */
@@ -997,6 +1390,52 @@
 
   .detalleTexto {
     padding: 2.25rem 3rem 2.75rem;
+  }
+}
+
+/* Escritorio: dos columnas, todo a la vista sin desplazarse */
+@media (min-width: 1024px) {
+  .detalle {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    min-height: min(640px, 92vh);
+  }
+
+  .detalleVisual {
+    padding: 2.25rem 2rem 2rem;
+  }
+
+  .bloqueCaracteristicas {
+    display: block;
+  }
+
+  .caracteristicasMovil {
+    display: none;
+  }
+
+  .detalleTexto {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3.25rem 2.75rem 2.25rem 2.5rem;
+  }
+
+  .detalleTitulo {
+    font-size: clamp(1.7rem, 2.3vw, 2.2rem);
+  }
+
+  .detalleDescripcion {
+    margin-top: 1.1rem;
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
+  .ficha {
+    margin-top: 1.25rem;
+  }
+
+  .verProyecto {
+    align-self: flex-start;
+    margin-top: 1.5rem;
   }
 }
 

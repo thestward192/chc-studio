@@ -90,7 +90,7 @@ export function MenuPausa() {
         {GRUPOS.filter((grupo) => puente.listar(grupo.grupo).length > 0).map((grupo) => (
           <section key={grupo.grupo}>
             <p className="eui-etiqueta eui-menu__seccion">{textosSala.grupos[grupo.grupo]}</p>
-            <div className="eui-menu__rejilla">
+            <div className="eui-menu__rejilla" data-grupo={grupo.grupo}>
               {puente.listar(grupo.grupo).map((item) => (
                 <button
                   key={item.id}
@@ -109,44 +109,61 @@ export function MenuPausa() {
         ))}
 
         <p className="eui-etiqueta eui-menu__seccion">Ambiente</p>
-        <div className="eui-menu__fila">
-          <button type="button" className="eui-boton" onClick={alternarNoche}>
-            <span className="eui-boton__icono" aria-hidden="true">
-              {noche ? <Sun size={18} /> : <Moon size={18} />}
-            </span>
-            {noche ? 'Pasar a día' : 'Pasar a noche'}
-          </button>
-          <button
-            type="button"
-            className="eui-boton"
-            aria-pressed={sonido}
-            onClick={alternarSonido}
-          >
-            <span className="eui-boton__icono" aria-hidden="true">
-              {sonido ? <SpeakerHigh size={18} /> : <SpeakerSlash size={18} />}
-            </span>
-            {sonido ? 'Sonido activado' : 'Sonido apagado'}
-          </button>
-        </div>
+        {/* Lista agrupada con interruptores, como en Ajustes */}
+        <ul className="eui-grupo">
+          <li>
+            <button
+              type="button"
+              className="eui-celda"
+              role="switch"
+              aria-checked={noche}
+              onClick={alternarNoche}
+            >
+              <span className="eui-celda__icono" aria-hidden="true">
+                {noche ? <Moon size={17} weight="fill" /> : <Sun size={17} weight="fill" />}
+              </span>
+              <span className="eui-celda__texto">Modo noche</span>
+              <span className="eui-interruptor" aria-hidden="true" />
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="eui-celda"
+              role="switch"
+              aria-checked={sonido}
+              onClick={alternarSonido}
+            >
+              <span className="eui-celda__icono" data-tono="sonido" aria-hidden="true">
+                {sonido ? (
+                  <SpeakerHigh size={17} weight="fill" />
+                ) : (
+                  <SpeakerSlash size={17} weight="fill" />
+                )}
+              </span>
+              <span className="eui-celda__texto">Sonido</span>
+              <span className="eui-interruptor" aria-hidden="true" />
+            </button>
+          </li>
+        </ul>
 
         <p className="eui-etiqueta eui-menu__seccion">Calidad gráfica</p>
-        <div className="eui-menu__fila">
+        <div className="eui-segmentado" role="group" aria-label="Calidad gráfica">
           {NIVELES.map((nivel) => (
             <button
               key={nivel.texto}
               type="button"
-              className="eui-boton"
               aria-pressed={forzada === nivel.valor}
               onClick={() => useEstudio.getState().set({ calidadForzada: nivel.valor })}
             >
               {nivel.texto}
             </button>
           ))}
-          <span className="eui-menu__dato eui-mono">
-            Nivel actual: {forzada ?? calidad}
-            {forzada ? ' (fijado)' : ' (automático)'} · {fps} FPS
-          </span>
         </div>
+        <p className="eui-menu__dato">
+          Nivel actual: {forzada ?? calidad}
+          {forzada ? ' (fijado)' : ' (automático)'} · {fps} FPS
+        </p>
       </div>
     </div>
   );

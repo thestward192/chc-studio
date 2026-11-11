@@ -149,7 +149,7 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
         <div className="eui-carga__titulo">
           <LogoEstudio tamano="grande" sub={textosSala.subCarga} comoTitulo />
         </div>
-        <p className="eui-carga__mensaje eui-mono" aria-live="polite">
+        <p className="eui-carga__mensaje" aria-live="polite">
           {listo ? textosSala.listo : textosSala.mensajesCarga[mensaje]}
         </p>
         <div
@@ -162,7 +162,7 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
         >
           <div className="eui-carga__relleno" style={{ width: `${porcentaje}%` }} />
         </div>
-        <p className="eui-carga__porcentaje eui-mono">
+        <p className="eui-carga__porcentaje">
           {porcentaje}% · {paso}
         </p>
         <button

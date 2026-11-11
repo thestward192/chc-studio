@@ -1,19 +1,21 @@
 import * as THREE from 'three';
 import { marca } from '../../theme/theme';
-import { ctaNav, enlacesNav, hero } from '../../content/cabecera';
+import { ctaNav, enlacesNav, hero, volverIntro } from '../../content/cabecera';
 
 const ANCHO = 1280;
 const ALTO = 800; // 16:10, como la pantalla
 
 /**
- * Dibuja en un <canvas> una miniatura del header de Inicio (navbar con la
- * pestaña oscura, tarjeta del hero con titular, botón y el Núcleo) con los
- * colores y tipografías de marca. Es lo que muestra la pantalla de la laptop
- * al encenderse. El centro de la pantalla cae dentro de la tarjeta oscura,
- * que es el color al que se funde el zoom final (`marca.fondoOscuro`).
+ * Dibuja en un <canvas> una miniatura del header de Inicio tal como se ve
+ * ahora (estilo iPhone): navbar de vidrio en cápsula con el chip "Intro",
+ * tarjeta oscura con el titular centrado, la mascota sobre su piso y los
+ * botones debajo, con la letra del sistema (SF Pro, o Inter). Es lo que
+ * muestra la pantalla de la laptop al encenderse. El centro de la pantalla
+ * cae dentro de la tarjeta oscura (entre el subtítulo y la mascota), que es
+ * el color al que se funde el zoom final (`marca.fondoOscuro`).
  *
  * Se dibuja al instante con lo que haya y se vuelve a dibujar cuando cargan
- * las fuentes (Sora/Inter) y el póster del Núcleo; `alActualizar` avisa para
+ * la fuente y el póster de la mascota; `alActualizar` avisa para
  * pedir un fotograma nuevo (la escena renderiza bajo demanda).
  */
 export function crearTexturaPagina(alActualizar?: () => void): THREE.CanvasTexture {
@@ -25,9 +27,9 @@ export function crearTexturaPagina(alActualizar?: () => void): THREE.CanvasTextu
   textura.colorSpace = THREE.SRGBColorSpace;
   textura.anisotropy = 4;
 
-  let nucleo: HTMLImageElement | null = null;
+  let mascota: HTMLImageElement | null = null;
   const redibujar = () => {
-    dibujar(ctx, nucleo);
+    dibujar(ctx, mascota);
     textura.needsUpdate = true;
     alActualizar?.();
   };
@@ -35,16 +37,14 @@ export function crearTexturaPagina(alActualizar?: () => void): THREE.CanvasTextu
 
   const fuentes = document.fonts
     ? Promise.all(
-        ['700 60px Sora', '600 20px Sora', '400 20px Inter', '500 20px Inter'].map((f) =>
-          document.fonts.load(f),
-        ),
+        ['700 60px Inter', '500 20px Inter', '400 20px Inter'].map((f) => document.fonts.load(f)),
       ).catch(() => undefined)
     : Promise.resolve();
   const imagen = new Promise<void>((resolver) => {
     const img = new Image();
     img.decoding = 'async';
     img.onload = () => {
-      nucleo = img;
+      mascota = img;
       resolver();
     };
     img.onerror = () => resolver();
@@ -56,132 +56,154 @@ export function crearTexturaPagina(alActualizar?: () => void): THREE.CanvasTextu
   return textura;
 }
 
-function dibujar(ctx: CanvasRenderingContext2D, nucleo: HTMLImageElement | null) {
-  const T = marca.fuenteTitulos;
-  const B = marca.fuenteTexto;
+function dibujar(ctx: CanvasRenderingContext2D, mascota: HTMLImageElement | null) {
+  const F = marca.fuenteApple;
   ctx.clearRect(0, 0, ANCHO, ALTO);
   ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
 
   // Página clara
   ctx.fillStyle = marca.fondoPagina;
   ctx.fillRect(0, 0, ANCHO, ALTO);
 
-  // ---------- Navbar
-  const altoNav = 86;
-  const margen = 9; // borde claro alrededor de la tarjeta (fino: en pantalla brilla)
-  // Logo: "CHC" oscuro + "STUDIO" con el degradado
-  ctx.font = `700 30px ${T}`;
-  ctx.fillStyle = marca.textoOscuro;
-  ctx.fillText('CHC', 44, altoNav / 2 + 4);
-  const anchoChc = ctx.measureText('CHC ').width;
-  textoDegradado(ctx, 'STUDIO', 44 + anchoChc, altoNav / 2 + 4);
-
-  // Pestaña oscura con esquinas invertidas
-  const tabAncho = 560;
-  const tabX = (ANCHO - tabAncho) / 2;
-  const radio = 22;
+  // ---------- Tarjeta oscura del hero (detrás del navbar, que flota encima)
+  const tarjeta = { x: 16, y: 86, w: ANCHO - 32, h: ALTO };
   ctx.fillStyle = marca.fondoOscuro;
-  rectRedondeado(ctx, tabX, 10, tabAncho, altoNav, [radio, radio, 0, 0]);
+  rectRedondeado(ctx, tarjeta.x, tarjeta.y, tarjeta.w, tarjeta.h, [36, 36, 0, 0]);
   ctx.fill();
-  esquinaInvertida(ctx, tabX, altoNav + 10, radio, 'izquierda');
-  esquinaInvertida(ctx, tabX + tabAncho, altoNav + 10, radio, 'derecha');
+  ctx.save();
+  ctx.clip();
 
-  ctx.font = `600 19px ${T}`;
-  const anchos = enlacesNav.map((e) => ctx.measureText(e.etiqueta).width);
-  const hueco = (tabAncho - 80 - anchos.reduce((a, b) => a + b, 0)) / (enlacesNav.length - 1);
-  let x = tabX + 40;
-  enlacesNav.forEach((e, i) => {
-    ctx.fillStyle = i === 0 ? marca.texto : 'rgba(255, 255, 255, 0.72)';
-    ctx.fillText(e.etiqueta, x, altoNav / 2 + 12);
-    if (i === 0) {
-      ctx.fillStyle = degradado(ctx, x, x + anchos[i]);
-      rectRedondeado(ctx, x + anchos[i] / 2 - 11, altoNav - 6, 22, 4, [2, 2, 2, 2]);
-      ctx.fill();
+  // Estrellas tenues (semilla fija: siempre las mismas)
+  let semilla = 7;
+  const azar = () => ((semilla = (semilla * 16807) % 2147483647) - 1) / 2147483646;
+  for (let i = 0; i < 70; i++) {
+    ctx.fillStyle = `rgba(30, 200, 216, ${0.12 + azar() * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(tarjeta.x + azar() * tarjeta.w, tarjeta.y + azar() * 640, 0.8 + azar() * 1.4, 0, 7);
+    ctx.fill();
+  }
+
+  // Piso en perspectiva bajo la mascota
+  const fuga = { x: ANCHO / 2, y: 470 };
+  ctx.strokeStyle = 'rgba(30, 200, 216, 0.13)';
+  ctx.lineWidth = 1.2;
+  for (let i = -12; i <= 12; i++) {
+    ctx.beginPath();
+    ctx.moveTo(fuga.x + i * 14, 590);
+    ctx.lineTo(fuga.x + i * 150, ALTO);
+    ctx.stroke();
+  }
+  for (let y = 600, paso = 10; y < ALTO; y += paso, paso *= 1.35) {
+    ctx.beginPath();
+    ctx.moveTo(tarjeta.x, y);
+    ctx.lineTo(tarjeta.x + tarjeta.w, y);
+    ctx.stroke();
+  }
+  // Brillo aqua bajo la mascota
+  const brillo = ctx.createRadialGradient(ANCHO / 2, 630, 0, ANCHO / 2, 630, 260);
+  brillo.addColorStop(0, 'rgba(46, 230, 192, 0.32)');
+  brillo.addColorStop(1, 'rgba(46, 230, 192, 0)');
+  ctx.fillStyle = brillo;
+  ctx.fillRect(tarjeta.x, 400, tarjeta.w, 400);
+
+  // Antetítulo, titular (centrado, 2 líneas) y subtítulo
+  ctx.textAlign = 'center';
+  ctx.font = `500 22px ${F}`;
+  textoDegradadoCentrado(ctx, hero.antetitulo, ANCHO / 2, 153);
+  ctx.font = `700 60px ${F}`;
+  ctx.letterSpacing = '-2px';
+  let ty = 207;
+  hero.titular.forEach((partes) => {
+    const linea = partes.map((p) => p.texto).join('');
+    if (partes.some((p) => p.destacado)) {
+      textoDegradadoCentrado(ctx, linea, ANCHO / 2, ty);
+    } else {
+      ctx.fillStyle = marca.texto;
+      ctx.fillText(linea, ANCHO / 2, ty);
     }
+    ty += 63;
+  });
+  ctx.letterSpacing = '0px';
+  ctx.font = `400 19px ${F}`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  lineas(ctx, hero.subtitulo, 520).forEach((linea, i) =>
+    ctx.fillText(linea, ANCHO / 2, 336 + i * 27),
+  );
+
+  // Mascota (póster del render 3D)
+  if (mascota) {
+    const lado = 300;
+    ctx.drawImage(mascota, ANCHO / 2 - lado / 2 - 25, 395, lado, lado);
+  }
+
+  // Botones bajo la mascota: píldora con degradado + enlace al estudio 3D
+  ctx.textAlign = 'left';
+  const anchoBoton = anchoPildora(ctx, hero.boton.etiqueta, 17, 54);
+  const enlace = `${hero.prueba.enlace.etiqueta}  ›`;
+  ctx.font = `500 18px ${F}`;
+  const anchoEnlace = ctx.measureText(enlace).width;
+  const inicio = (ANCHO - anchoBoton - 28 - anchoEnlace) / 2;
+  pildora(ctx, inicio, 703, anchoBoton, 54, hero.boton.etiqueta, 17);
+  ctx.font = `500 18px ${F}`;
+  ctx.fillStyle = marca.cian;
+  ctx.fillText(enlace, inicio + anchoBoton + 28, 731);
+  ctx.restore();
+
+  // ---------- Navbar: cápsula de vidrio claro flotando arriba
+  const nav = { x: 80, y: 14, w: ANCHO - 160, h: 56 };
+  ctx.save();
+  ctx.shadowColor = 'rgba(18, 22, 31, 0.12)';
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 6;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+  rectRedondeado(ctx, nav.x, nav.y, nav.w, nav.h, [28, 28, 28, 28]);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(18, 22, 31, 0.06)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  const centroNav = nav.y + nav.h / 2;
+  // Logo: "CHC" oscuro + "STUDIO" con el degradado
+  ctx.font = `700 25px ${F}`;
+  ctx.fillStyle = marca.textoOscuro;
+  ctx.fillText('CHC', nav.x + 22, centroNav + 1);
+  const anchoChc = ctx.measureText('CHC ').width;
+  textoDegradado(ctx, 'STUDIO', nav.x + 22 + anchoChc, centroNav + 1);
+  const finLogo = nav.x + 22 + anchoChc + ctx.measureText('STUDIO').width;
+
+  // Chip "Intro" con la laptop
+  ctx.font = `500 14px ${F}`;
+  const anchoChip = 40 + ctx.measureText(volverIntro.etiqueta).width + 14;
+  const chipX = finLogo + 12;
+  ctx.fillStyle = 'rgba(18, 22, 31, 0.08)';
+  rectRedondeado(ctx, chipX, centroNav - 17, anchoChip, 34, [17, 17, 17, 17]);
+  ctx.fill();
+  ctx.strokeStyle = marca.textoOscuro;
+  ctx.lineWidth = 1.4;
+  ctx.strokeRect(chipX + 14, centroNav - 6, 12, 8);
+  ctx.beginPath();
+  ctx.moveTo(chipX + 11, centroNav + 5);
+  ctx.lineTo(chipX + 29, centroNav + 5);
+  ctx.stroke();
+  ctx.fillStyle = marca.textoOscuro;
+  ctx.fillText(volverIntro.etiqueta, chipX + 34, centroNav + 1);
+
+  // Enlaces centrados
+  ctx.font = `400 15px ${F}`;
+  const anchos = enlacesNav.map((e) => ctx.measureText(e.etiqueta).width);
+  const hueco = 42;
+  let x = ANCHO / 2 - (anchos.reduce((a, b) => a + b, 0) + hueco * (anchos.length - 1)) / 2;
+  enlacesNav.forEach((e, i) => {
+    ctx.fillStyle = 'rgba(18, 22, 31, 0.72)';
+    ctx.fillText(e.etiqueta, x, centroNav + 1);
     x += anchos[i] + hueco;
   });
 
   // Botón "Hablemos"
-  const anchoCta = anchoPildora(ctx, ctaNav.etiqueta, 18, 46);
-  pildora(ctx, ANCHO - 44 - anchoCta, altoNav / 2 - 22 + 4, anchoCta, 46, ctaNav.etiqueta, 18);
-
-  // ---------- Tarjeta del hero
-  const tarjeta = {
-    x: margen,
-    y: altoNav + 10,
-    w: ANCHO - margen * 2,
-    h: ALTO - altoNav - 10 - margen,
-  };
-  ctx.fillStyle = marca.fondoOscuro;
-  rectRedondeado(ctx, tarjeta.x, tarjeta.y, tarjeta.w, tarjeta.h, [28, 28, 28, 28]);
-  ctx.fill();
-
-  ctx.save();
-  ctx.clip();
-
-  // Halo y anillos a la derecha
-  const cx = tarjeta.x + tarjeta.w * 0.73;
-  const cy = tarjeta.y + tarjeta.h * 0.55;
-  const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, 300);
-  halo.addColorStop(0, 'rgba(61, 235, 138, 0.28)');
-  halo.addColorStop(0.45, 'rgba(30, 200, 216, 0.14)');
-  halo.addColorStop(1, 'rgba(30, 200, 216, 0)');
-  ctx.fillStyle = halo;
-  ctx.fillRect(tarjeta.x, tarjeta.y, tarjeta.w, tarjeta.h);
-  ctx.strokeStyle = marca.bordeCristal;
-  ctx.lineWidth = 1.5;
-  for (const r of [290, 222, 160]) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  if (nucleo) {
-    const lado = 480;
-    ctx.drawImage(nucleo, cx - lado / 2, cy - lado / 2, lado, lado);
-  }
-
-  // Titular (3 líneas, partes destacadas con el degradado)
-  const tx = tarjeta.x + 64;
-  let ty = tarjeta.y + 150;
-  ctx.font = `700 70px ${T}`;
-  hero.titular.forEach((partes) => {
-    let px = tx;
-    partes.forEach((parte) => {
-      if (parte.destacado) {
-        textoDegradado(ctx, parte.texto, px, ty);
-      } else {
-        ctx.fillStyle = marca.texto;
-        ctx.fillText(parte.texto, px, ty);
-      }
-      px += ctx.measureText(parte.texto).width;
-    });
-    ty += 76;
-  });
-
-  // Subtítulo (2 líneas)
-  ctx.font = `400 21px ${B}`;
-  ctx.fillStyle = marca.textoTenue;
-  lineas(ctx, hero.subtitulo, 430).forEach((linea, i) => ctx.fillText(linea, tx, ty + 14 + i * 32));
-
-  // Botón principal
-  pildora(
-    ctx,
-    tx,
-    ty + 96,
-    anchoPildora(ctx, hero.boton.etiqueta, 20, 58),
-    58,
-    hero.boton.etiqueta,
-    20,
-  );
-
-  // Prueba social
-  ctx.fillStyle = marca.bordeCristal;
-  ctx.fillRect(tx, ty + 192, 430, 1.5);
-  ctx.font = `400 17px ${B}`;
-  ctx.fillStyle = marca.textoTenue;
-  ctx.fillText(hero.prueba.texto, tx, ty + 226);
-
-  ctx.restore();
+  const anchoCta = anchoPildora(ctx, ctaNav.etiqueta, 15, 38);
+  pildora(ctx, nav.x + nav.w - 10 - anchoCta, centroNav - 19, anchoCta, 38, ctaNav.etiqueta, 15);
 }
 
 /* ------------------------------------------------------------------ Ayudas */
@@ -195,6 +217,18 @@ function degradado(ctx: CanvasRenderingContext2D, x0: number, x1: number) {
 
 function textoDegradado(ctx: CanvasRenderingContext2D, texto: string, x: number, y: number) {
   ctx.fillStyle = degradado(ctx, x, x + ctx.measureText(texto).width);
+  ctx.fillText(texto, x, y);
+}
+
+/** Texto con el degradado de marca, centrado en x (textAlign = center). */
+function textoDegradadoCentrado(
+  ctx: CanvasRenderingContext2D,
+  texto: string,
+  x: number,
+  y: number,
+) {
+  const ancho = ctx.measureText(texto).width;
+  ctx.fillStyle = degradado(ctx, x - ancho / 2, x + ancho / 2);
   ctx.fillText(texto, x, y);
 }
 
@@ -230,14 +264,14 @@ function pildora(
   ctx.lineTo(fx + a, fy);
   ctx.lineTo(fx + a * 0.25, fy + a * 0.7);
   ctx.stroke();
-  ctx.font = `500 ${tamano}px ${marca.fuenteTexto}`;
+  ctx.font = `500 ${tamano}px ${marca.fuenteApple}`;
   ctx.fillStyle = marca.textoSobreAcento;
   ctx.fillText(texto, x + h * 0.45, y + h / 2 + 1);
 }
 
 /** Ancho de la píldora: texto + margen izquierdo + círculo de la flecha. */
 function anchoPildora(ctx: CanvasRenderingContext2D, texto: string, tamano: number, alto: number) {
-  ctx.font = `500 ${tamano}px ${marca.fuenteTexto}`;
+  ctx.font = `500 ${tamano}px ${marca.fuenteApple}`;
   return Math.ceil(alto * 0.45 + ctx.measureText(texto).width + 14 + alto);
 }
 
@@ -255,31 +289,6 @@ function lineas(ctx: CanvasRenderingContext2D, texto: string, ancho: number): st
   }
   if (actual) resultado.push(actual);
   return resultado;
-}
-
-/** Esquina invertida al pie de la pestaña: cuadrado oscuro menos un cuarto de círculo. */
-function esquinaInvertida(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  base: number,
-  r: number,
-  lado: 'izquierda' | 'derecha',
-) {
-  ctx.fillStyle = marca.fondoOscuro;
-  ctx.beginPath();
-  if (lado === 'izquierda') {
-    ctx.moveTo(x, base - r);
-    ctx.lineTo(x, base);
-    ctx.lineTo(x - r, base);
-    ctx.arc(x - r, base - r, r, Math.PI / 2, 0, true);
-  } else {
-    ctx.moveTo(x, base - r);
-    ctx.lineTo(x, base);
-    ctx.lineTo(x + r, base);
-    ctx.arc(x + r, base - r, r, Math.PI / 2, Math.PI, false);
-  }
-  ctx.closePath();
-  ctx.fill();
 }
 
 function rectRedondeado(

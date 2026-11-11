@@ -39,7 +39,12 @@ export function useEstadoNav(navRef: RefObject<HTMLElement>) {
     actualizar();
     window.addEventListener('scroll', programar, { passive: true });
     window.addEventListener('resize', programar);
+    // Al montar, la intro aún no ocupa su espacio: si la página cambia de
+    // alto (entra la intro, cargan imágenes) se recalcula sin esperar al scroll
+    const observador = new ResizeObserver(programar);
+    observador.observe(document.body);
     return () => {
+      observador.disconnect();
       cancelAnimationFrame(pendiente);
       window.removeEventListener('scroll', programar);
       window.removeEventListener('resize', programar);

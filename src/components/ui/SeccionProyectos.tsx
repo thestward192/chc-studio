@@ -33,6 +33,8 @@ const nombreServicio = (p: Proyecto) =>
 export function SeccionProyectos() {
   const seccionRef = useRef<HTMLElement>(null);
   const pistaRef = useRef<HTMLUListElement>(null);
+  const recorridoRef = useRef<HTMLDivElement>(null);
+  const fijoRef = useRef<HTMLDivElement>(null);
   const hojaRef = useRef<HTMLDialogElement>(null);
   const [actual, setActual] = useState(0);
   const [bordes, setBordes] = useState({ inicio: true, fin: false });
@@ -92,15 +94,73 @@ export function SeccionProyectos() {
     };
   }, []);
 
+  // Scroll vertical → horizontal: mientras el bloque fijo está pegado arriba,
+  // lo que se baja se convierte en desplazamiento de la pista. Al ver la
+  // última tarjeta, el recorrido termina y la página sigue normal. Con
+  // movimiento reducido no se activa (la pista se desliza a mano).
+  useEffect(() => {
+    const seccion = seccionRef.current;
+    const recorrido = recorridoRef.current;
+    const fijo = fijoRef.current;
+    const pista = pistaRef.current;
+    if (!seccion || !recorrido || !fijo || !pista) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let maximo = 0;
+    let pendiente = 0;
+    const mover = () => {
+      pendiente = 0;
+      if (maximo <= 0) return;
+      const topeFijo = parseFloat(getComputedStyle(fijo).top) || 0;
+      const avance = topeFijo - recorrido.getBoundingClientRect().top;
+      pista.scrollLeft = Math.min(Math.max(avance, 0), maximo);
+    };
+    const medir = () => {
+      seccion.dataset.fijado = '';
+      maximo = pista.scrollWidth - pista.clientWidth;
+      recorrido.style.height = maximo > 0 ? `${fijo.offsetHeight + maximo}px` : '';
+      mover();
+    };
+    const programar = () => {
+      if (!pendiente) pendiente = requestAnimationFrame(mover);
+    };
+
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(pista);
+    window.addEventListener('scroll', programar, { passive: true });
+    return () => {
+      cancelAnimationFrame(pendiente);
+      observador.disconnect();
+      window.removeEventListener('scroll', programar);
+      delete seccion.dataset.fijado;
+      recorrido.style.height = '';
+    };
+  }, []);
+
   const irA = (i: number) => {
     const pista = pistaRef.current;
     const tarjeta = pista?.children[i] as HTMLElement | undefined;
     if (!pista || !tarjeta) return;
     const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    pista.scrollTo({
-      left: tarjeta.offsetLeft - parseFloat(getComputedStyle(pista).paddingLeft),
-      behavior: reducido ? 'auto' : 'smooth',
-    });
+    const destino = tarjeta.offsetLeft - parseFloat(getComputedStyle(pista).paddingLeft);
+    const recorrido = recorridoRef.current;
+    const fijo = fijoRef.current;
+    if (seccionRef.current?.dataset.fijado !== undefined && recorrido && fijo) {
+      // Con el carrusel fijado, se llega a la tarjeta bajando la página
+      const maximo = pista.scrollWidth - pista.clientWidth;
+      const topeFijo = parseFloat(getComputedStyle(fijo).top) || 0;
+      window.scrollTo({
+        top:
+          window.scrollY +
+          recorrido.getBoundingClientRect().top -
+          topeFijo +
+          Math.min(Math.max(destino, 0), maximo),
+        behavior: reducido ? 'auto' : 'smooth',
+      });
+      return;
+    }
+    pista.scrollTo({ left: destino, behavior: reducido ? 'auto' : 'smooth' });
   };
 
   const abrir = (p: Proyecto) => {
@@ -129,45 +189,51 @@ export function SeccionProyectos() {
         </a>
       </header>
 
-      <ul ref={pistaRef} className={estilos.pista} aria-label="Proyectos">
-        {proyectos.map((p, i) => (
-          <TarjetaProyecto key={p.id} proyecto={p} orden={i} onAbrir={() => abrir(p)} />
-        ))}
-      </ul>
+      {/* Recorrido: tan alto como el carrusel más lo que falta por deslizar;
+          el bloque fijo se queda quieto y el scroll mueve las tarjetas */}
+      <div ref={recorridoRef} className={estilos.recorrido}>
+        <div ref={fijoRef} className={estilos.fijo}>
+          <ul ref={pistaRef} className={estilos.pista} aria-label="Proyectos">
+            {proyectos.map((p, i) => (
+              <TarjetaProyecto key={p.id} proyecto={p} orden={i} onAbrir={() => abrir(p)} />
+            ))}
+          </ul>
 
-      <div className={estilos.controles}>
-        <div className={estilos.puntos} role="tablist" aria-label="Elegir proyecto">
-          {proyectos.map((p, i) => (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={i === actual}
-              aria-label={p.titulo}
-              className={estilos.punto}
-              onClick={() => irA(i)}
-            />
-          ))}
-        </div>
-        <div className={estilos.flechas}>
-          <button
-            type="button"
-            className={estilos.flecha}
-            aria-label="Proyecto anterior"
-            disabled={bordes.inicio}
-            onClick={() => irA(Math.max(actual - 1, 0))}
-          >
-            <CaretLeft size={18} weight="bold" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className={estilos.flecha}
-            aria-label="Proyecto siguiente"
-            disabled={bordes.fin}
-            onClick={() => irA(Math.min(actual + 1, proyectos.length - 1))}
-          >
-            <CaretRight size={18} weight="bold" aria-hidden="true" />
-          </button>
+          <div className={estilos.controles}>
+            <div className={estilos.puntos} role="tablist" aria-label="Elegir proyecto">
+              {proyectos.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === actual}
+                  aria-label={p.titulo}
+                  className={estilos.punto}
+                  onClick={() => irA(i)}
+                />
+              ))}
+            </div>
+            <div className={estilos.flechas}>
+              <button
+                type="button"
+                className={estilos.flecha}
+                aria-label="Proyecto anterior"
+                disabled={bordes.inicio}
+                onClick={() => irA(Math.max(actual - 1, 0))}
+              >
+                <CaretLeft size={18} weight="bold" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={estilos.flecha}
+                aria-label="Proyecto siguiente"
+                disabled={bordes.fin}
+                onClick={() => irA(Math.min(actual + 1, proyectos.length - 1))}
+              >
+                <CaretRight size={18} weight="bold" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -337,6 +403,9 @@ function Detalle({ proyecto: p }: { proyecto: Proyecto }) {
   );
 }
 
+/** Más de 4 ya no se leen bien en la hoja. */
+const MAX_CARACTERISTICAS = 4;
+
 /** Lista de características (versión oscura del panel o clara del texto). */
 function Caracteristicas({ proyecto: p, claras }: { proyecto: Proyecto; claras?: boolean }) {
   if (!p.caracteristicas?.length) return null;
@@ -344,7 +413,7 @@ function Caracteristicas({ proyecto: p, claras }: { proyecto: Proyecto; claras?:
     <div className={claras ? estilos.caracteristicasMovil : estilos.bloqueCaracteristicas}>
       <h4 className={estilos.detalleSubtitulo}>Características</h4>
       <ul className={estilos.caracteristicas}>
-        {p.caracteristicas.map((c) => (
+        {p.caracteristicas.slice(0, MAX_CARACTERISTICAS).map((c) => (
           <li key={c}>
             <CheckCircle size={18} weight="fill" aria-hidden="true" />
             {c}

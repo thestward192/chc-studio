@@ -1247,6 +1247,17 @@
     animation: medalla 6s var(--easing-ui) infinite;
   }
 
+  /* Con mouse, cada tarjeta se anima solo mientras está debajo: al salir
+     vuelve a su estado quieto y al entrar la animación empieza de cero.
+     En pantallas táctiles (sin hover) siguen en bucle como siempre. */
+  @media (hover: hover) {
+    .tarjeta:not(:hover) *,
+    .tarjeta:not(:hover) *::before,
+    .tarjeta:not(:hover) *::after {
+      animation: none !important;
+    }
+  }
+
   /* Fuera de pantalla no se anima nada */
   .seccion:not([data-en-pantalla]) *,
   .seccion:not([data-en-pantalla]) *::before,

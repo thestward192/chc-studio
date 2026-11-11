@@ -15,7 +15,7 @@ export interface Proyecto {
   tipo?: string;
   /** Qué hicimos en el proyecto (p. ej. "Desarrollo web"). */
   rol?: string;
-  /** Puntos clave que se listan en la hoja de detalle. */
+  /** Puntos clave de la hoja de detalle (se muestran como mucho 4). */
   caracteristicas?: string[];
   /**
    * Capturas del sitio para la laptop de Inicio (la primera es la portada;
@@ -85,12 +85,10 @@ export const proyectos: Proyecto[] = [
     descripcion:
       'Creamos el sitio oficial de MTB El Valle del Nacaome, una rodada recreativa comunitaria en Barra Honda, Guanacaste. Reúne todo lo que un participante necesita antes del evento: la cuenta regresiva, la ruta con su mapa y perfil, el reglamento y las actividades del fin de semana. Además, permite inscribir grupos completos en línea adjuntando el comprobante de pago y, después, consultar el estado de la inscripción con el folio y la cédula, sin crear una cuenta.',
     caracteristicas: [
-      'Cuenta regresiva al día del evento e información general',
-      'Mapa y perfil de la ruta, reglamento y preguntas frecuentes',
-      'Inscripción en línea de varias personas con comprobante de pago adjunto',
+      'Cuenta regresiva, mapa y perfil de la ruta, reglamento y preguntas frecuentes',
+      'Inscripción en línea de varias personas con comprobante de pago',
       'Consulta del estado de la inscripción por folio y cédula',
-      'Galería de fotos y sección de actividades del fin de semana',
-      'Transiciones fluidas entre páginas',
+      'Galería, actividades del fin de semana y transiciones fluidas entre páginas',
     ],
     tecnologias: ['Astro', 'TypeScript'],
     galeria: [
@@ -136,12 +134,10 @@ export const proyectos: Proyecto[] = [
     descripcion:
       'Desarrollamos en Shopify la tienda de Bubble Beads, una marca de joyería artesanal con cuentas, accesorios para el cabello y Bubble Boxes curadas. Organizamos el catálogo en colecciones temáticas, sumamos una sección para diseñar pulseras a medida, kits de regalo en tres niveles de precio y un espacio para sus ventas en vivo por TikTok e Instagram. La tienda vende a toda Europa y muestra los precios en varias monedas.',
     caracteristicas: [
-      'Colecciones temáticas y navegación por categorías (pulseras, collares, cabello, uñas press-on)',
-      'Sección para diseñar tu propia pulsera',
-      'Bubble Boxes: kits de regalo de €50, €100 y €150',
-      'Sección de ventas en vivo con horario semanal',
-      'Testimonios de clientes y sección de comunidad',
-      'Múltiples monedas y envíos a toda Europa',
+      'Colecciones por categoría: pulseras, collares, cabello y uñas press-on',
+      'Diseña tu propia pulsera y Bubble Boxes de €50, €100 y €150',
+      'Ventas en vivo con horario semanal, testimonios y comunidad',
+      'Varias monedas y envíos a toda Europa',
     ],
     tecnologias: ['Shopify'],
     galeria: ['/proyectos/bubble-beads/inicio.jpg', '/proyectos/bubble-beads/catalogo.jpg'],

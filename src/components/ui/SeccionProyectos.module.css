@@ -107,6 +107,18 @@
   display: none;
 }
 
+/* Carrusel fijado: el bloque se queda bajo el navbar mientras el scroll de
+   la página mueve la pista (desde JS); sin imán ni deslizamiento a mano */
+.seccion[data-fijado] .fijo {
+  position: sticky;
+  top: calc(0.6rem + 56px);
+}
+
+.seccion[data-fijado] .pista {
+  overflow-x: hidden;
+  scroll-snap-type: none;
+}
+
 /* ---------- Tarjeta */
 .tarjeta {
   --texto: var(--text-dark);
@@ -124,6 +136,7 @@
     0 1px 2px color-mix(in srgb, var(--text-dark) 5%, transparent),
     0 18px 40px -26px color-mix(in srgb, var(--text-dark) 35%, transparent);
   scroll-snap-align: start;
+  container-type: size;
   transition: transform 0.45s var(--easing-ui);
 }
 
@@ -243,7 +256,9 @@
   left: 50%;
   bottom: 4rem; /* debajo queda el "+" */
   z-index: 0;
-  width: 88%;
+  /* Lo que permita el ancho, pero sin subir hasta el texto en tarjetas
+     bajas (la laptop mide ~0,7 de alto por cada 1 de ancho) */
+  width: min(88cqw, (100cqh - 17rem) / 0.7);
   transform: translateX(-50%);
   transition: transform 0.6s var(--easing-ui);
 }
@@ -1373,7 +1388,8 @@
   }
 
   .tarjeta {
-    height: 640px;
+    /* Cabe entera con el navbar y los controles, aun en pantallas bajas */
+    height: min(640px, calc(100svh - 230px));
   }
 
   .tarjetaInterior {

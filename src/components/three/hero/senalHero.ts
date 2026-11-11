@@ -21,6 +21,16 @@ export interface ExtensionLienzo {
   abajo: number;
 }
 
+/** Animaciones que se le pueden pedir a la mascota desde el menú del hero. */
+export type Truco = 'enojarse' | 'correr' | 'chocar' | 'bailar' | 'dormir' | 'voltereta';
+
+/** Dónde se ve la mascota en pantalla (px de la ventana): centro y radio. */
+export interface PosicionPantalla {
+  x: number;
+  y: number;
+  r: number;
+}
+
 export const senalHero = {
   /** true mientras "Empecemos tu proyecto" está señalado o enfocado. */
   crecer: false,
@@ -30,4 +40,22 @@ export const senalHero = {
    * Hero.tsx con el scroll.
    */
   mascotaEnHero: true,
+
+  // ---- Juego con la mascota del hero (solo la escena del hero escribe/lee)
+  /** La escena la escribe en cada fotograma; null si no hay escena 3D activa. */
+  pantalla: null as PosicionPantalla | null,
+  /** Su sitio en reposo (sin flotar ni pasear): ancla quieta para el menú. */
+  casa: null as PosicionPantalla | null,
+  /** true si se le puede pedir un truco: está en el hero, quieta en su sitio. */
+  disponible: false,
+  /** La UI pide un truco; la escena lo toma (y lo vuelve a poner en null). */
+  pedido: null as Truco | null,
+  /** true mientras la escena hace un truco (el menú no se puede abrir). */
+  ocupada: false,
+  /** El truco en curso (la UI pone a la mascota delante del texto mientras dura). */
+  trucoActual: null as Truco | null,
+  /** Menú abierto: la mascota vuelve a casa y mira a quien la llamó. */
+  menuAbierto: false,
+  /** Sube en 1 en cada golpe contra la pantalla (la UI pinta el vidrio roto). */
+  golpes: 0,
 };

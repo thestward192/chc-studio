@@ -5,7 +5,9 @@ import { marca, mascota } from '../../../theme/theme';
 import { estimarCalidadInicial } from '../../../utils/rendimiento';
 import { heroConfig, type Expresion } from './hero.config';
 import { crearGeometriaCuerpo, crearGeometriaVisor } from './geometriaMascota';
-import { senalHero, type ExtensionLienzo, type ViajeMascota } from './senalHero';
+import { senalHero, type ExtensionLienzo, type Truco, type ViajeMascota } from './senalHero';
+import { CARAS, pesoTruco, trucos, type Cara, type PoseTruco } from './trucosMascota';
+import { crearTexturasEfectos } from './efectosMascota';
 import {
   cuerpoFragment,
   cuerpoVertex,
@@ -43,9 +45,13 @@ const SIN_EXTENSION: ExtensionLienzo = { arriba: 0, abajo: 0 };
 
 type Calidad = 'alto' | 'medio';
 
-const EXPRESIONES: Expresion[] = ['neutro', 'alegre', 'curioso'];
-
 type Fase = 'casa' | 'vuelo';
+
+/** Sprites disponibles para los efectos de los trucos (Zzz, estrellas, notas…). */
+const MAX_EFECTOS = 6;
+
+const vecTemporal = new THREE.Vector3();
+const vecDerecha = new THREE.Vector3();
 
 /**
  * Mascota CHC: escena 3D del hero de Inicio. Canvas transparente que ocupa
@@ -123,7 +129,7 @@ function Mascota({
     tiempo: 0,
     crecer: 0,
     fotogramas: 0,
-    pesos: [1, 0, 0],
+    pesos: CARAS.map((_, i): number => (i === 0 ? 1 : 0)),
     paso: 0,
     finPaso: c.rutina[0].duracion,
     proximoParpadeo: 1.8,
@@ -151,6 +157,17 @@ function Mascota({
     aterrizaje: -1,
     /** Distancia cámara-mascota (para compensar la perspectiva del viaje). */
     distancia: 8.6,
+    // Trucos del menú del hero: el que está en curso (cancelado: instante en
+    // que se interrumpió, -1 si no), si está en su casa del hero y quieta
+    truco: null as {
+      nombre: Truco;
+      inicio: number;
+      dir: number;
+      cancelado: number;
+      golpeado: boolean;
+    } | null,
+    enCasaHero: false,
+    xPrevia: 0,
   });
 
   const flex = useMemo(() => ({ value: new THREE.Vector2() }), []);
@@ -175,6 +192,7 @@ function Mascota({
           uBlanco: { value: new THREE.Color(mascota.blanco) },
           uLuz: { value: new THREE.Vector3(...c.luz) },
           uBrillo: { value: 0 },
+          uRojo: { value: 0 },
           ...niebla,
         },
       }),
@@ -194,6 +212,8 @@ function Mascota({
           uBrilloOjo: { value: new THREE.Color(mascota.brilloOjo) },
           uLuz: { value: new THREE.Vector3(...c.luz) },
           uExpresion: { value: new THREE.Vector3(1, 0, 0) },
+          uExpresion2: { value: new THREE.Vector4(0, 0, 0, 0) },
+          uGiroOjos: { value: 0 },
           uParpadeo: { value: 1 },
           uMirada: { value: new THREE.Vector2() },
           uOjos: { value: new THREE.Vector3(c.ojos.separacion, c.ojos.largo, c.ojos.radio) },
@@ -290,6 +310,22 @@ function Mascota({
     };
   }, [calidad, c.cuerpo.detalle, c.visor.detalle, c.sala.particulas]);
 
+  // Efectos de los trucos: un grupo de sprites que sigue el paseo de la
+  // mascota (no su giro: las Z suben rectas aunque ella esté ladeada)
+  const efectos = useMemo(() => {
+    const texturas = crearTexturasEfectos();
+    const grupoEfectos = new THREE.Group();
+    const sprites = Array.from({ length: MAX_EFECTOS }, () => {
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: texturas.z, transparent: true, depthWrite: false }),
+      );
+      sprite.visible = false;
+      grupoEfectos.add(sprite);
+      return sprite;
+    });
+    return { texturas, grupo: grupoEfectos, sprites };
+  }, []);
+
   // Liberar GPU al desmontar
   useEffect(
     () => () => {
@@ -300,10 +336,33 @@ function Mascota({
         materialSuelo,
         materialDestellos,
         ...Object.values(materialesSala),
+        ...efectos.sprites.map((s) => s.material),
       ].forEach((m) => m.dispose());
+      Object.values(efectos.texturas).forEach((t) => t.dispose());
     },
-    [geometrias, materialCuerpo, materialVisor, materialSuelo, materialDestellos, materialesSala],
+    [
+      geometrias,
+      materialCuerpo,
+      materialVisor,
+      materialSuelo,
+      materialDestellos,
+      materialesSala,
+      efectos,
+    ],
   );
+
+  // Solo la escena del hero juega: al desmontarse, el menú deja de ofrecerse
+  const esDelHero = !tranquila && (!viaje || viaje.lugar === 'hero');
+  useEffect(() => {
+    if (!esDelHero) return;
+    return () => {
+      senalHero.pantalla = null;
+      senalHero.casa = null;
+      senalHero.disponible = false;
+      senalHero.ocupada = false;
+      senalHero.trucoActual = null;
+    };
+  }, [esDelHero]);
 
   // Seguir al puntero por toda la tarjeta del hero (no solo sobre el canvas)
   useEffect(() => {
@@ -393,11 +452,13 @@ function Mascota({
   const giroForzado = useRef<number | null>(null);
 
   /** Cara que toca ahora según la rutina, el botón del hero o el modo depuración. */
-  function caraActual(): Expresion {
+  function caraActual(): Cara {
     const s = estado.current;
     if (caraForzada.current) return caraForzada.current;
     if (tranquila) return 'neutro';
     if (senalHero.crecer) return 'alegre';
+    // Con el menú abierto mira con curiosidad a quien la llamó
+    if (esDelHero && senalHero.menuAbierto) return 'curioso';
     if (s.tiempo >= s.finPaso) {
       s.paso = (s.paso + 1) % c.rutina.length;
       s.finPaso = s.tiempo + c.rutina[s.paso].duracion;
@@ -414,17 +475,85 @@ function Mascota({
     const t = s.tiempo;
     const k = (v: number) => (fijo ? 1 : 1 - Math.exp(-v * delta)); // suavizado exponencial
 
+    // --- Trucos del menú del hero: la pose del truco se mezcla con el
+    // movimiento normal (pesoPose: 0 al empezar y al acabar, 1 en medio)
+    let pose: PoseTruco | null = null;
+    let pesoPose = 0;
+    if (!fijo && esDelHero) {
+      if (senalHero.pedido) {
+        if (!s.truco && s.enCasaHero) {
+          s.truco = {
+            nombre: senalHero.pedido,
+            inicio: t,
+            dir: Math.random() < 0.5 ? -1 : 1,
+            cancelado: -1,
+            golpeado: false,
+          };
+          s.fase = 'casa';
+          s.ruta = null;
+          senalHero.ocupada = true;
+          senalHero.trucoActual = s.truco.nombre;
+        }
+        senalHero.pedido = null;
+      }
+      const tr = s.truco;
+      if (tr) {
+        const def = trucos[tr.nombre];
+        // Si deja el hero a mitad (scroll), se interrumpe con un fundido corto
+        if (tr.cancelado < 0 && !s.enCasaHero) tr.cancelado = t;
+        const local = (tr.cancelado >= 0 ? tr.cancelado : t) - tr.inicio;
+        pose = def.pose(Math.min(local, def.duracion), { dir: tr.dir });
+        pesoPose =
+          pesoTruco(local, def.duracion) *
+          (tr.cancelado >= 0 ? 1 - THREE.MathUtils.clamp((t - tr.cancelado) / 0.35, 0, 1) : 1);
+        if (def.golpe !== undefined && !tr.golpeado && tr.cancelado < 0 && local >= def.golpe) {
+          tr.golpeado = true;
+          senalHero.golpes += 1;
+        }
+        // Mientras dura el truco no sale a volar
+        s.finFase = Math.max(s.finFase, t + 3);
+        if (local >= def.duracion || (tr.cancelado >= 0 && t - tr.cancelado > 0.35)) {
+          s.truco = null;
+          senalHero.ocupada = false;
+          senalHero.trucoActual = null;
+          pose = null;
+          pesoPose = 0;
+          s.finFase = t + azarEntre(c.vuelo.enCasa) * 0.7;
+          // Las volteretas y giros suman vueltas completas: de vuelta a -π..π
+          const gr = grupo.current;
+          if (gr)
+            gr.rotation.set(angulo(gr.rotation.x), angulo(gr.rotation.y), angulo(gr.rotation.z));
+          s.rumboSuave = angulo(s.rumboSuave);
+        }
+      }
+      // Menú abierto: deja de volar, vuelve a casa y espera
+      if (senalHero.menuAbierto && !s.truco) {
+        if (s.fase === 'vuelo') {
+          s.fase = 'casa';
+          s.ruta = null;
+        }
+        s.finFase = Math.max(s.finFase, t + 2.5);
+      }
+    }
+    const enTruco = pose !== null && pesoPose > 0.3;
+
     // --- Expresión: pesos que se acercan con suavidad a la cara objetivo
-    const objetivo = fijo ? 'neutro' : caraActual();
-    s.pesos = s.pesos.map(
-      (p, i) => p + ((EXPRESIONES[i] === objetivo ? 1 : 0) - p) * k(c.transicion),
-    );
+    const objetivo = fijo ? 'neutro' : enTruco && pose ? pose.cara : caraActual();
+    const rapidezCara = enTruco && pose ? pose.rapidezCara : c.transicion;
+    s.pesos = s.pesos.map((p, i) => p + ((CARAS[i] === objetivo ? 1 : 0) - p) * k(rapidezCara));
     const [, alegre, curioso] = s.pesos;
-    materialVisor.uniforms.uExpresion.value.fromArray(s.pesos);
+    const pesos = s.pesos;
+    materialVisor.uniforms.uExpresion.value.set(pesos[0], pesos[1], pesos[2]);
+    materialVisor.uniforms.uExpresion2.value.set(pesos[3], pesos[4], pesos[5], pesos[6]);
+    if (pose) materialVisor.uniforms.uGiroOjos.value = pose.giroOjos;
+    materialCuerpo.uniforms.uRojo.value = (pose?.rojo ?? 0) * pesoPose;
 
     // --- Parpadeo (a veces doble); casi no se nota con los ojos en arco
     let abierto = 1;
-    if (!fijo) {
+    // Mareada, dormida o sorprendida no parpadea (la espiral o el arco se
+    // aplastarían en una raya)
+    const sinParpadeo = pesos[4] + pesos[5] + pesos[6] > 0.2;
+    if (!fijo && !sinParpadeo) {
       if (s.parpadeo < 0 && t >= s.proximoParpadeo) s.parpadeo = 0;
       if (s.parpadeo >= 0) {
         s.parpadeo += delta;
@@ -455,6 +584,7 @@ function Mascota({
       s.proximaMirada = t + 1.4 + Math.random() * 2.2;
     }
     if (fijo) s.objetivoMirada.set(0, 0);
+    if (enTruco && pose) s.objetivoMirada.set(...pose.mirada);
     s.mirada.lerp(s.objetivoMirada, k(9));
     const miradaCurioso = new THREE.Vector2(0.5, 0.6).multiplyScalar(curioso);
     materialVisor.uniforms.uMirada.value.set(
@@ -484,6 +614,13 @@ function Mascota({
       const visible =
         !viaje || (viaje.lugar === 'hero' ? senalHero.mascotaEnHero : !senalHero.mascotaEnHero);
       if (paseo.current) paseo.current.visible = visible;
+      // Puede hacer trucos solo si es la del hero, está a la vista y quieta en su sitio
+      s.enCasaHero =
+        esDelHero &&
+        visible &&
+        senalHero.mascotaEnHero &&
+        Math.abs(s.viajeY) < 0.05 &&
+        Math.abs(objetivoViaje) < 0.03;
       if (!visible) {
         s.viajeY = objetivoViaje;
         s.viajeV = 0;
@@ -541,6 +678,9 @@ function Mascota({
         ruta.getPoint(u, pa.position);
         ruta.getTangent(THREE.MathUtils.clamp(u, 0.01, 0.99), s.tangente);
         s.rumbo = Math.atan2(s.tangente.x, s.tangente.z);
+      } else if (!pose) {
+        // En casa (o llamada por el menú a mitad de un vuelo): vuelve a su sitio
+        pa.position.multiplyScalar(1 - k(2.5));
       }
       materialesSala.suelo.uniforms.uFoco.value.copy(pa.position);
       // El brillo se queda en el suelo aunque la mascota suba
@@ -634,16 +774,51 @@ function Mascota({
       }
       if (fijo) g.rotation.set(poseX, poseY, Math.sin(t * 0.9) * 0.035);
 
-      // Muelle de la punta: reacciona al giro y a la subida/bajada
+      // Truco: la pose manda sobre el movimiento normal según su peso
+      if (pose && pesoPose > 0 && pa) {
+        const w = pesoPose;
+        const mezcla = THREE.MathUtils.lerp;
+        pa.position.set(
+          mezcla(pa.position.x, pose.pos[0], w),
+          mezcla(pa.position.y, pose.pos[1], w),
+          mezcla(pa.position.z, pose.pos[2], w),
+        );
+        cu.position.y = mezcla(cu.position.y, 0, w);
+        cu.scale.set(
+          mezcla(cu.scale.x, pose.escala[0] * escala, w),
+          mezcla(cu.scale.y, pose.escala[1] * escala, w),
+          mezcla(cu.scale.z, pose.escala[2] * escala, w),
+        );
+        // Por el camino corto: las vueltas completas (voltereta, giro del baile) siguen
+        g.rotation.x += angulo(pose.rot[0] - g.rotation.x) * w;
+        g.rotation.y += angulo(pose.rot[1] - g.rotation.y) * w;
+        g.rotation.z += angulo(pose.rot[2] - g.rotation.z) * w;
+        s.rumboSuave = g.rotation.y;
+        s.inclinacion = angulo(g.rotation.x);
+        // El brillo del suelo se queda en el suelo y sigue a la mascota
+        if (charco.current) charco.current.position.y = -1.02 - pa.position.y;
+        materialesSala.suelo.uniforms.uFoco.value.copy(pa.position);
+        materialSuelo.uniforms.uAltura.value = Math.max(cu.position.y + pa.position.y, 0) * 0.9;
+      }
+
+      // Muelle de la punta: reacciona al giro, a la subida/bajada y (en los
+      // trucos) a la carrera de lado
       const mu = s.muelle;
+      const alturaTotal = cu.position.y + (pa?.position.y ?? 0);
       const velGiro = fijo || delta === 0 ? 0 : (g.rotation.y - s.giroPrevio) / delta;
-      const velAltura = fijo || delta === 0 ? 0 : (cu.position.y - s.alturaPrevia) / delta;
+      const velAltura = fijo || delta === 0 ? 0 : (alturaTotal - s.alturaPrevia) / delta;
+      const velLado = fijo || delta === 0 || !pa ? 0 : (pa.position.x - s.xPrevia) / delta;
       s.giroPrevio = g.rotation.y;
-      s.alturaPrevia = cu.position.y;
+      s.alturaPrevia = alturaTotal;
+      s.xPrevia = pa?.position.x ?? 0;
       if (!fijo) {
         // Limitado: en los giros del vuelo la punta no debe doblarse de más
         const fx =
-          THREE.MathUtils.clamp(-velGiro * m.muelle.fuerza, -0.18, 0.18) +
+          THREE.MathUtils.clamp(
+            -velGiro * m.muelle.fuerza - velLado * 0.03 * pesoPose,
+            -0.22,
+            0.22,
+          ) +
           Math.sin(t * 1.3) * 0.025;
         const fz =
           THREE.MathUtils.clamp(-velAltura * m.muelle.fuerza * 0.5, -0.15, 0.15) +
@@ -653,12 +828,62 @@ function Mascota({
         mu.vz += ((fz - mu.z) * m.muelle.rigidez - mu.vz * m.muelle.amortiguacion) * delta;
         mu.z += mu.vz * delta;
       }
-      flex.value.set(fijo ? 0 : mu.x, fijo ? 0 : mu.z);
+      const [flexX, flexZ] = pose ? pose.flex : [0, 0];
+      flex.value.set(fijo ? 0 : mu.x + flexX * pesoPose, fijo ? 0 : mu.z + flexZ * pesoPose);
     }
 
     // --- Destellos de curioso
+    // --- Efectos del truco (Zzz, estrellas, notas, marca de enojo)
+    const lista = pose && pesoPose > 0 ? pose.efectos : [];
+    efectos.sprites.forEach((sprite, i) => {
+      const e = lista[i];
+      sprite.visible = !!e && e.opacidad > 0.01;
+      if (!e) return;
+      const material = sprite.material;
+      const mapa = efectos.texturas[e.tipo];
+      if (material.map !== mapa) material.map = mapa;
+      sprite.position.set(e.x, e.y, e.z);
+      sprite.scale.setScalar(e.escala);
+      material.opacity = e.opacidad * pesoPose;
+      material.rotation = e.giro;
+    });
+
     materialDestellos.uniforms.uAparicion.value = curioso;
     if (destellos.current) destellos.current.visible = curioso > 0.01;
+  }
+
+  /**
+   * Publica dónde se ve la mascota en la ventana (centro y radio en px) y si
+   * acepta trucos; la UI del hero pone ahí la zona para tocarla y el menú.
+   */
+  function publicarPosicion() {
+    const s = estado.current;
+    senalHero.disponible = s.enCasaHero && !s.truco;
+    const cu = cuerpo.current;
+    if (!cu) return;
+    const rect = gl.domElement.getBoundingClientRect();
+    cu.getWorldPosition(vecTemporal);
+    // Un punto en el borde derecho del cuerpo (en el plano de la cámara) da el radio
+    vecDerecha
+      .setFromMatrixColumn(camera.matrixWorld, 0)
+      .multiplyScalar(0.92 * cu.scale.x)
+      .add(vecTemporal);
+    vecTemporal.project(camera);
+    vecDerecha.project(camera);
+    const aPx = (v: THREE.Vector3) => [
+      rect.left + ((v.x + 1) / 2) * rect.width,
+      rect.top + ((1 - v.y) / 2) * rect.height,
+    ];
+    const [x, y] = aPx(vecTemporal);
+    const [xr, yr] = aPx(vecDerecha);
+    const r = Math.hypot(xr - x, yr - y);
+    senalHero.pantalla = { x, y, r };
+    // Casa: el origen del paseo, sin flotación ni trucos (no tiembla)
+    const padre = paseo.current?.parent;
+    if (padre) {
+      const [cx, cy] = aPx(padre.localToWorld(vecTemporal.set(0, 0, 0)).project(camera));
+      senalHero.casa = { x: cx, y: cy, r };
+    }
   }
 
   // Canvas más alto que su zona: ventana desplazada de la cámara para que la
@@ -694,6 +919,7 @@ function Mascota({
     if (estado.current.fijo) return;
     ajustarCamara();
     aplicarFotograma(Math.min(delta, 1 / 20));
+    if (esDelHero) publicarPosicion();
     // Avisar tras dos fotogramas (shaders ya compilados y pintados)
     if (estado.current.fotogramas < 3 && ++estado.current.fotogramas === 2) onListo();
   });
@@ -719,6 +945,7 @@ function Mascota({
         <points geometry={geometrias.polvo} material={materialesSala.polvo} />
       </group>
       <group ref={paseo}>
+        <primitive object={efectos.grupo} />
         <mesh
           ref={charco}
           geometry={geometrias.plano}

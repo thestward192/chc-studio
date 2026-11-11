@@ -6,6 +6,7 @@ import { senalHero, type ViajeMascota } from '../three/hero/senalHero';
 import { limitar, useVariableScroll } from '../../hooks/useVariableScroll';
 import { BotonPill } from './BotonPill';
 import { HeroVisual } from './HeroVisual';
+import { JuegoMascota } from './JuegoMascota';
 import estilos from './Hero.module.css';
 
 /** Retraso escalonado de la animación de entrada (índice → variable CSS). */
@@ -20,6 +21,7 @@ const orden = (i: number) => ({ '--i': i }) as CSSProperties;
  */
 export function Hero() {
   const visualRef = useRef<HTMLDivElement>(null);
+  const seccionRef = useRef<HTMLElement>(null);
   let linea = 0;
 
   // Viaje de la mascota: al bajar, solo ella cae (la sala se queda) un poco
@@ -53,7 +55,7 @@ export function Hero() {
   };
 
   return (
-    <section className={estilos.tarjeta} aria-labelledby="hero-titular">
+    <section ref={seccionRef} className={estilos.tarjeta} aria-labelledby="hero-titular">
       <div className={estilos.texto}>
         <p className={`${estilos.antetitulo} ${estilos.entrada}`} style={orden(linea++)}>
           {hero.antetitulo}
@@ -101,6 +103,9 @@ export function Hero() {
           <CaretRight size={14} weight="bold" aria-hidden="true" />
         </a>
       </div>
+
+      {/* Tocar a la mascota abre su menú de trucos (solo con la escena 3D) */}
+      <JuegoMascota seccionRef={seccionRef} />
 
       {/* Prueba social sin cifras: la propia web es la muestra */}
       <p className={`${estilos.prueba} ${estilos.entrada}`} style={orden(linea++)}>

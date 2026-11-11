@@ -211,20 +211,38 @@
 
 /*
  * Sala 3D: el canvas ocupa todo el ancho de la tarjeta, sube por detrás del
- * subtítulo y se difumina hacia arriba y hacia los lados.
+ * subtítulo y se difumina hacia arriba y hacia los lados. Durante un truco
+ * (data-truco en la tarjeta) pasa delante del texto y el fundido de arriba se
+ * acorta, así la voltereta o el golpe contra la pantalla no se esconden.
  */
+@property --fundido {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 24%;
+}
+
+.tarjeta[data-truco] .visual {
+  z-index: 3;
+}
+
+.tarjeta[data-truco] .lienzo {
+  --fundido: 6%;
+}
+
 .lienzo {
   position: absolute !important;
   inset: 0;
   width: auto !important;
   height: auto !important;
   opacity: 0;
-  transition: opacity 0.8s var(--easing-ui);
+  transition:
+    opacity 0.8s var(--easing-ui),
+    --fundido 0.6s var(--easing-ui);
   -webkit-mask-image:
-    linear-gradient(to bottom, transparent, #000 24%),
+    linear-gradient(to bottom, transparent, #000 var(--fundido)),
     linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
   mask-image:
-    linear-gradient(to bottom, transparent, #000 24%),
+    linear-gradient(to bottom, transparent, #000 var(--fundido)),
     linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
@@ -237,6 +255,31 @@
 /* Señalar "Empecemos tu proyecto": la mascota crece (el 3D lo hace en la escena) */
 .visual[data-crecer] .poster {
   transform: scale(1.06);
+}
+
+/* La mascota se estampó contra la pantalla: la tarjeta tiembla */
+.tarjeta[data-golpe] {
+  animation: temblor 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes temblor {
+  10%,
+  90% {
+    translate: -1px 1px;
+  }
+  20%,
+  80% {
+    translate: 3px -2px;
+  }
+  30%,
+  50%,
+  70% {
+    translate: -6px 3px;
+  }
+  40%,
+  60% {
+    translate: 6px -3px;
+  }
 }
 
 /* ---------- Entrada escalonada al cargar */

@@ -47,6 +47,7 @@ uniform vec3 uMenta;
 uniform vec3 uBlanco;
 uniform vec3 uLuz;
 uniform float uBrillo; // 0..1 extra al crecer
+uniform float uRojo;   // 0..1 rabia (truco "ponerse bravo")
 uniform vec3 uNiebla;      // color de la tarjeta: lo lejano se funde con ella
 uniform vec2 uNieblaRango; // distancia donde empieza y donde acaba
 
@@ -85,6 +86,10 @@ void main() {
   float fresnel = pow(1.0 - nv, 2.4);
   vec3 borde = mix(mix(uCian, uAqua, 0.35) * 1.1, uAqua * 1.3, abajo);
   color = mix(color, borde, fresnel * (0.5 + 0.2 * uBrillo));
+
+  // Rabia: se tiñe de rojo, más en el contorno y abajo (brilla por dentro)
+  vec3 rabia = vec3(1.0, 0.3, 0.3);
+  color = mix(color, color * rabia * 1.2 + rabia * (0.1 + 0.25 * abajo + 0.3 * fresnel), uRojo * 0.8);
 
   // Brillo satinado ancho (no plástico)
   vec3 mitad = normalize(l + v);
@@ -127,6 +132,8 @@ uniform vec3 uOjo;
 uniform vec3 uBrilloOjo;
 uniform vec3 uLuz;
 uniform vec3 uExpresion;   // pesos: neutro, alegre, curioso
+uniform vec4 uExpresion2;  // pesos: enojado, mareado, dormido, sorpresa
+uniform float uGiroOjos;   // giro de las espirales (mareado)
 uniform float uParpadeo;   // 1 abierto, 0 cerrado
 uniform vec2 uMirada;
 uniform vec3 uOjos;        // separación, medio largo, radio
@@ -155,7 +162,7 @@ vec2 rotar(vec2 p, float a) {
   return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
 }
 
-// Un ojo: lado = -1 (izquierda de la imagen) o 1. Mezcla las tres caras.
+// Un ojo: lado = -1 (izquierda de la imagen) o 1. Mezcla las siete caras.
 float ojo(vec2 p, float lado) {
   float sep = uOjos.x, largo = uOjos.y, radio = uOjos.z;
   vec2 q = p - vec2(lado * sep, 0.0) - uMirada;
@@ -175,7 +182,29 @@ float ojo(vec2 p, float lado) {
     ? sdCapsula(rotar(qc - vec2(0.0, 0.03), 0.16), largo * 0.55, radio * 0.95)
     : sdCapsula(qc, largo * 1.08, radio * 1.02);
 
-  float d = dNeutro * uExpresion.x + dAlegre * uExpresion.y + dCurioso * uExpresion.z;
+  // Enojado: más corto y cortado en diagonal (el lado de dentro más bajo: ceño)
+  vec2 qe = q - vec2(0.0, -0.012);
+  float dEnojado = max(
+    sdCapsula(qe, largo * 0.72, radio * 1.08),
+    dot(qe - vec2(0.0, 0.028), normalize(vec2(-0.62 * lado, 1.0)))
+  );
+
+  // Mareado: espiral que gira (en sentidos opuestos en cada ojo)
+  float rr = length(q);
+  float angulo = atan(q.y, q.x) + uGiroOjos * lado;
+  float pasoEspiral = 0.042;
+  float vuelta = rr / pasoEspiral - angulo / 6.2831853;
+  float dMareado = max(abs(fract(vuelta) - 0.5) * pasoEspiral - 0.0085, rr - 0.118);
+
+  // Dormido: ojo cerrado en arco hacia abajo ("u")
+  float dDormido = sdArco(vec2(q.x, 0.07 - q.y), 1.05, 0.1, 0.02);
+
+  // Sorpresa: ojos redondos y grandes
+  float dSorpresa = length(q * vec2(1.0, 0.86)) - radio * 1.55;
+
+  float d = dNeutro * uExpresion.x + dAlegre * uExpresion.y + dCurioso * uExpresion.z
+    + dEnojado * uExpresion2.x + dMareado * uExpresion2.y + dDormido * uExpresion2.z
+    + dSorpresa * uExpresion2.w;
   return d * mix(1.0, b, 0.6);
 }
 
@@ -200,9 +229,12 @@ void main() {
   float aa = fwidth(d) * 0.9;
   float nucleo = 1.0 - smoothstep(-aa, aa, d);
   float halo = exp(-max(d, 0.0) * 20.0) * 0.38 + exp(-max(d, 0.0) * 70.0) * 0.5;
-  color += uBrilloOjo * halo * (1.0 - nucleo);
+  // Enojado: los ojos se ponen rojos (centro rosado, borde rojo)
+  vec3 brilloOjo = mix(uBrilloOjo, vec3(1.0, 0.55, 0.55), uExpresion2.x);
+  vec3 tonoOjo = mix(uOjo, vec3(1.0, 0.18, 0.24), uExpresion2.x);
+  color += brilloOjo * halo * (1.0 - nucleo);
   // Centro más blanco, borde cian
-  vec3 colorOjo = mix(uBrilloOjo, uOjo, smoothstep(0.0, -0.022, d));
+  vec3 colorOjo = mix(brilloOjo, tonoOjo, smoothstep(0.0, -0.022, d));
   color = mix(color, colorOjo * 1.15, nucleo);
 
   // Los ojos atraviesan algo más la niebla que el cuerpo

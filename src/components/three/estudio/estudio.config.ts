@@ -16,6 +16,12 @@ export interface Colocacion {
   rotY: number;
 }
 
+/** Punto del suelo por donde pasea la mascota (x, z) y qué mira al pararse ahí. */
+export interface PuntoMascota {
+  pos: [number, number];
+  mirar?: V3;
+}
+
 export const estudioConfig = {
   sala: {
     ancho: 12,
@@ -64,6 +70,49 @@ export const estudioConfig = {
     alfombra: { pos: [0, 0.005, 0.9], rotY: 0 } as Colocacion,
     alfombraTam: [5.2, 3.0] as [number, number],
     neon: { pos: [0, 2.6, -3.96], rotY: 0 } as Colocacion,
+  },
+
+  /**
+   * La mascota CHC paseando por la sala: camina de punto en punto (solo por
+   * las conexiones, que no cruzan muebles), se para a mirar algo y vuelve a
+   * salir. Alto en metros, velocidad en m/s; `inicio`: punto donde aparece.
+   */
+  mascota: {
+    alto: 0.52,
+    velocidad: 0.62,
+    inicio: 2,
+    puntos: [
+      { pos: [-4.3, -2.4], mirar: [-5.78, 1.3, -3.3] }, // 0 estantería
+      { pos: [-2.0, -2.6], mirar: [-2, 1.65, -3.95] }, // 1 cuadro 2
+      { pos: [0, -2.4], mirar: [0, 2.5, -3.96] }, // 2 letrero de neón
+      { pos: [2.0, -2.6], mirar: [2, 1.65, -3.95] }, // 3 cuadro 4
+      { pos: [4.3, -2.3], mirar: [5.55, 1.0, -3.45] }, // 4 servidores
+      { pos: [-4.0, 1.0], mirar: [-6, 1.6, 2.5] }, // 5 ventana
+      { pos: [0, 0.9] }, // 6 entre los escritorios, de cara a quien mira
+      { pos: [4.0, 1.0], mirar: [5.97, 1.55, 2.0] }, // 7 pizarra
+      { pos: [4.6, 2.6], mirar: [5.62, 0.9, 3.4] }, // 8 cafetera
+      { pos: [-3.6, -0.6], mirar: [-5.98, 1.1, -0.8] }, // 9 puertas de la izquierda
+      { pos: [3.6, -0.6], mirar: [5.98, 1.1, -0.8] }, // 10 puertas de la derecha
+      { pos: [0, -0.7] }, // 11 detrás de los escritorios
+    ] as PuntoMascota[],
+    // Sin cruzar escritorios ni sillas: del frente solo se llega por el centro
+    conexiones: [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [0, 9],
+      [9, 5],
+      [9, 1],
+      [10, 3],
+      [10, 4],
+      [10, 7],
+      [7, 8],
+      [2, 11],
+      [11, 6],
+      [11, 9],
+      [11, 10],
+    ] as [number, number][],
   },
 
   camara: {

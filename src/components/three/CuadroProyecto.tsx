@@ -2,13 +2,25 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Proyecto } from '../../content/proyectos';
-import { sala, ui } from '../../theme/theme';
+import { marca, sala, ui } from '../../theme/theme';
 import { crearUniformsCuadro, fragmentCuadro, vertexCuadro } from './shaders/cuadro';
 import { estudioConfig as cfg, focoFrontal, type Colocacion } from './estudio/estudio.config';
-import { DECORATIVA, sinRaycast, useInteractivo, seleccionar, vecinoDe } from './estudio/useInteractivo';
+import {
+  DECORATIVA,
+  sinRaycast,
+  useInteractivo,
+  seleccionar,
+  vecinoDe,
+} from './estudio/useInteractivo';
 import { useEstudio } from './estudio/estadoEstudio';
 import { ambiente } from './estudio/ambiente';
-import { lienzoProyecto, texturaHalo, texturaProyecto } from './estudio/texturas';
+import {
+  aTextura,
+  lienzoCaptura,
+  lienzoProyecto,
+  texturaHalo,
+  texturaProyecto,
+} from './estudio/texturas';
 import { liberar, rastrear } from './estudio/recursos';
 import { obtenerMateriales } from './estudio/materiales';
 import { navegacion } from './estudio/navegacion';
@@ -40,7 +52,11 @@ export function CuadroProyecto({ proyecto, indice, colocacion }: Props) {
     uniforms.uAspecto.value = ancho / alto;
     uniforms.uMapa.value = cargarTextura(proyecto, indice, 'baja');
     const material = rastrear(
-      new THREE.ShaderMaterial({ uniforms, vertexShader: vertexCuadro, fragmentShader: fragmentCuadro }),
+      new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: vertexCuadro,
+        fragmentShader: fragmentCuadro,
+      }),
     );
     // Marco propio (no compartido) para iluminarlo al hover
     const marco = rastrear(obtenerMateriales().marco.clone());
@@ -56,16 +72,27 @@ export function CuadroProyecto({ proyecto, indice, colocacion }: Props) {
         depthWrite: false,
       }),
     );
-    return { uniforms, material, marco, halo, alta: false, hoverAnterior: false, inicioDestello: -10 };
+    return {
+      uniforms,
+      material,
+      marco,
+      halo,
+      alta: false,
+      hoverAnterior: false,
+      inicioDestello: -10,
+    };
   }, [proyecto, indice, ancho, alto]);
 
   useEffect(
-    () => () => liberar(recursos.material, recursos.marco, recursos.halo, recursos.uniforms.uMapa.value),
+    () => () =>
+      liberar(recursos.material, recursos.marco, recursos.halo, recursos.uniforms.uMapa.value),
     [recursos],
   );
 
   // Lienzo de la vista previa del panel (se crea al abrirlo por primera vez)
   const lienzoPreview = useRef<HTMLCanvasElement | null>(null);
+  // Captura real para la vista previa (la primera de la galería), si existe
+  const imagenPreview = useRef<HTMLImageElement | null>(null);
 
   useInteractivo(raiz, {
     id,
@@ -76,29 +103,71 @@ export function CuadroProyecto({ proyecto, indice, colocacion }: Props) {
     ancho: true,
     foco: focoFrontal(colocacion, cfg.cuadro.distanciaFoco),
     info: () =>
-      `${proyecto.cliente} · ${proyecto.anio}\n\n${proyecto.descripcion}\n\nTecnologías: ${proyecto.tecnologias.join(', ')}`,
+      [
+        [proyecto.cliente, proyecto.anio, proyecto.estado].filter(Boolean).join(' · '),
+        proyecto.rol && `Nuestro rol: ${proyecto.rol}`,
+        proyecto.descripcion,
+        proyecto.caracteristicas?.map((c) => `• ${c}`).join('\n'),
+        `Tecnologías: ${proyecto.tecnologias.join(', ')}`,
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
     preview: (ctx, t, w, h) => {
+      const captura = proyecto.galeria?.[0];
+      if (captura && !imagenPreview.current) {
+        imagenPreview.current = new Image();
+        imagenPreview.current.src = captura;
+      }
       lienzoPreview.current ??= lienzoProyecto(proyecto, indice, 640);
-      // "En vivo": acercamiento lento tipo Ken Burns
+      const img = imagenPreview.current;
+      const real = !!img?.complete && img.naturalWidth > 0;
+      const fuente = real ? img : lienzoPreview.current;
+      // "En vivo": acercamiento lento tipo Ken Burns. La captura real se ve
+      // entera (como object-fit: contain) sobre el fondo de marca; el
+      // marcador cubre el lienzo
       const zoom = 1.06 + Math.sin(t * 0.4) * 0.04;
       const dx = Math.sin(t * 0.23) * 12;
-      ctx.drawImage(lienzoPreview.current, (w - w * zoom) / 2 + dx, (h - h * zoom) / 2, w * zoom, h * zoom);
+      const fw = real ? img.naturalWidth : fuente.width;
+      const fh = real ? img.naturalHeight : fuente.height;
+      const escala = real
+        ? Math.min(w / fw, h / fh) * (zoom - 0.07)
+        : Math.max(w / fw, h / fh) * zoom;
+      if (real) {
+        ctx.fillStyle = marca.fondoOscuro;
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.drawImage(
+        fuente,
+        (w - fw * escala) / 2 + dx,
+        (h - fh * escala) / 2,
+        fw * escala,
+        fh * escala,
+      );
     },
+    // Los enlaces solo aparecen si el proyecto los tiene
     acciones: [
-      {
-        label: () => 'Ver proyecto ↗',
-        run: () => {
-          audio.clic();
-          if (proyecto.urlProyecto) window.open(proyecto.urlProyecto, '_blank', 'noopener');
-        },
-      },
-      {
-        label: () => 'Ver caso completo',
-        run: () => {
-          audio.clic();
-          if (proyecto.urlCaso) navegacion.ir(proyecto.urlCaso);
-        },
-      },
+      ...(proyecto.urlProyecto
+        ? [
+            {
+              label: () => 'Ver proyecto ↗',
+              run: () => {
+                audio.clic();
+                window.open(proyecto.urlProyecto, '_blank', 'noopener');
+              },
+            },
+          ]
+        : []),
+      ...(proyecto.urlCaso
+        ? [
+            {
+              label: () => 'Ver caso completo',
+              run: () => {
+                audio.clic();
+                if (proyecto.urlCaso) navegacion.ir(proyecto.urlCaso);
+              },
+            },
+          ]
+        : []),
       { label: () => '← Anterior', run: () => irAVecino(id, -1) },
       { label: () => 'Siguiente →', run: () => irAVecino(id, 1) },
     ],
@@ -132,7 +201,12 @@ export function CuadroProyecto({ proyecto, indice, colocacion }: Props) {
   return (
     <group ref={raiz} position={colocacion.pos} rotation-y={colocacion.rotY}>
       {/* Halo de galería sobre la pared */}
-      <mesh position={[0, 0.25, 0.002]} material={recursos.halo} userData={DECORATIVA} raycast={sinRaycast}>
+      <mesh
+        position={[0, 0.25, 0.002]}
+        material={recursos.halo}
+        userData={DECORATIVA}
+        raycast={sinRaycast}
+      >
         <planeGeometry args={[ancho + 1.1, alto + 1.2]} />
       </mesh>
       {/* Marco */}
@@ -153,11 +227,29 @@ function irAVecino(id: string, paso: 1 | -1) {
   if (vecino) seleccionar(vecino);
 }
 
-/** Imagen real si existe en proyectos.ts; si no, el marcador en canvas. */
+/**
+ * Textura del cuadro. Prioridad: imagen propia del cuadro (imagenBaja /
+ * imagenAlta); si no, la primera captura de la galería, entera dentro de una
+ * ventana de navegador (lienzoCaptura); si no, el marcador en canvas.
+ */
 function cargarTextura(proyecto: Proyecto, indice: number, calidad: 'baja' | 'alta') {
+  const ancho = calidad === 'baja' ? 256 : 1280;
   const url = calidad === 'baja' ? proyecto.imagenBaja : proyecto.imagenAlta;
-  if (!url) return texturaProyecto(proyecto, indice, calidad === 'baja' ? 256 : 1024);
-  const textura = rastrear(new THREE.TextureLoader().load(url));
-  textura.colorSpace = THREE.SRGBColorSpace;
+  if (url) {
+    const textura = rastrear(new THREE.TextureLoader().load(url));
+    textura.colorSpace = THREE.SRGBColorSpace;
+    return textura;
+  }
+  const captura = proyecto.galeria?.[0];
+  if (!captura) return texturaProyecto(proyecto, indice, ancho);
+  // Mientras llega la captura se ve el marcador; luego se redibuja encima
+  const c = lienzoProyecto(proyecto, indice, ancho);
+  const textura = aTextura(c);
+  const img = new Image();
+  img.onload = () => {
+    lienzoCaptura(proyecto, img, ancho, c);
+    textura.needsUpdate = true;
+  };
+  img.src = captura;
   return textura;
 }

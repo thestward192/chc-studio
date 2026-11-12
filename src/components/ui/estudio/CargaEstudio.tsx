@@ -1,17 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
-import { animate, stagger } from 'animejs';
-import { GearSix } from '@phosphor-icons/react/dist/csr/GearSix';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { animate } from 'animejs';
+import type { Icon } from '@phosphor-icons/react';
 import { ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { HandGrabbing } from '@phosphor-icons/react/dist/csr/HandGrabbing';
+import { MouseScroll } from '@phosphor-icons/react/dist/csr/MouseScroll';
+import { HandTap } from '@phosphor-icons/react/dist/csr/HandTap';
+import { hero } from '../../../content/cabecera';
 import { useEstudio } from '../../three/estudio/estadoEstudio';
 import { entrarAlEstudio } from './acciones';
 import { LogoEstudio } from './LogoEstudio';
 import { textosSala } from './textosSala';
 
+const ICONOS_CONSEJOS: Icon[] = [HandGrabbing, MouseScroll, HandTap];
+
 /**
- * Pantalla de carga temática: una terminal y unas llaves { } que se
- * dibujan con stroke-dashoffset, engranajes girando, mensajes que cambian
- * cada 0,9 s, barra de progreso real (ver PreparacionCarga) y botón
- * "Entrar". Al entrar se funde y la cámara vuela a la vista general.
+ * Pantalla de carga del taller y de las oficinas, con el lenguaje de iOS:
+ * la mascota camina hacia la sala sobre un suelo que avanza (como una
+ * cinta), con el título de la sala, un mensaje que cambia, la barra de
+ * progreso real (ver PreparacionCarga) y consejos para moverse. Todo se
+ * tiñe con la luz de la sala (`textosSala.colorCarga`). Cuando la escena
+ * está lista, la mascota se para, salta contenta y aparece "Entrar"; al
+ * entrar se funde mientras la mascota salta hacia la sala.
  */
 export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boolean }) {
   const fase = useEstudio((s) => s.fase);
@@ -20,53 +29,31 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
   const [mensaje, setMensaje] = useState(0);
   const [visible, setVisible] = useState(true);
   const raiz = useRef<HTMLDivElement>(null);
-  const svg = useRef<SVGSVGElement>(null);
-  const engranajes = useRef<HTMLDivElement>(null);
   const boton = useRef<HTMLButtonElement>(null);
 
-  // Mensajes rotando
+  // Mensajes rotando (cada uno entra con un fundido)
   useEffect(() => {
     if (fase !== 'cargando') return;
     const id = window.setInterval(
       () => setMensaje((m) => (m + 1) % textosSala.mensajesCarga.length),
-      900,
+      1400,
     );
     return () => window.clearInterval(id);
   }, [fase]);
 
-  // Trazos que se dibujan y engranajes que giran (Anime.js)
-  useEffect(() => {
-    if (movimientoReducido || !svg.current || !engranajes.current) return;
-    const trazos = svg.current.querySelectorAll('path, rect, polyline');
-    const dibujo = animate(trazos, {
-      strokeDashoffset: [1, 0],
-      duration: 1400,
-      delay: stagger(160),
-      ease: 'inOutSine',
-      loop: true,
-      alternate: true,
-    });
-    const [grande, chico] = Array.from(engranajes.current.children);
-    const giro = animate(grande, { rotate: 360, duration: 3200, ease: 'linear', loop: true });
-    const giroInverso = animate(chico, {
-      rotate: -360,
-      duration: 2100,
-      ease: 'linear',
-      loop: true,
-    });
-    return () => {
-      dibujo.pause();
-      giro.pause();
-      giroInverso.pause();
-    };
-  }, [movimientoReducido]);
-
   // El botón aparece cuando la escena está lista
   useEffect(() => {
     if (fase !== 'listo' || !boton.current) return;
-    boton.current.focus();
-    animate(boton.current, { opacity: [0, 1], scale: [0.92, 1], duration: 500, ease: 'outBack' });
-  }, [fase]);
+    boton.current.focus({ preventScroll: true });
+    if (movimientoReducido) return;
+    animate(boton.current, {
+      opacity: [0, 1],
+      translateY: [12, 0],
+      scale: [0.94, 1],
+      duration: 600,
+      ease: 'outBack',
+    });
+  }, [fase, movimientoReducido]);
 
   // Al entrar: fundido y desmontaje
   useEffect(() => {
@@ -74,7 +61,8 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
     if (!raiz.current) return;
     const anim = animate(raiz.current, {
       opacity: [1, 0],
-      duration: movimientoReducido ? 150 : 700,
+      duration: movimientoReducido ? 150 : 800,
+      delay: movimientoReducido ? 0 : 150,
       ease: 'outQuad',
       onComplete: () => setVisible(false),
     });
@@ -85,93 +73,72 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
 
   if (!visible) return null;
   const listo = fase !== 'cargando';
+  const entrando = fase === 'entrando' || fase === 'explorando';
   const porcentaje = Math.round(progreso * 100);
 
   return (
     <div
       ref={raiz}
       className="eui eui-carga"
+      data-fase={listo ? (entrando ? 'entrando' : 'listo') : 'cargando'}
       role="dialog"
       aria-modal="true"
       aria-label={textosSala.etiquetaCarga}
+      style={{ '--carga-color': textosSala.colorCarga } as CSSProperties}
     >
-      <svg className="eui-carga__anillos" viewBox="0 0 400 400" aria-hidden="true">
-        {[190, 150, 112, 78].map((r) => (
-          <circle key={r} cx="200" cy="200" r={r} />
-        ))}
-      </svg>
-      <div className="eui-carga__caja eui-cristal">
-        <div className="eui-carga__ilustracion" aria-hidden="true">
-          <svg ref={svg} className="eui-carga__svg" viewBox="0 0 220 150">
-            {/* Terminal */}
-            <rect
-              className="eui-carga__trazo"
-              x="8"
-              y="10"
-              width="170"
-              height="115"
-              rx="12"
-              pathLength={1}
-              strokeDasharray="1"
+      <span className="eui-carga__suelo" aria-hidden="true" />
+
+      <div className="eui-carga__logo">
+        <LogoEstudio sub={textosSala.subCarga} />
+      </div>
+
+      <div className="eui-carga__centro">
+        {/* La mascota caminando hacia la sala */}
+        <div className="eui-carga__escena" aria-hidden="true">
+          <span className="eui-carga__halo" />
+          <span className="eui-carga__sombra" />
+          <span className="eui-carga__cuerpo">
+            <img
+              className="eui-carga__mascota"
+              src={hero.poster}
+              alt=""
+              width={1306}
+              height={1306}
+              decoding="async"
             />
-            <path className="eui-carga__trazo" d="M8 34 H178" pathLength={1} strokeDasharray="1" />
-            <polyline
-              className="eui-carga__trazo eui-carga__trazo--destacado"
-              points="30,60 48,74 30,88"
-              pathLength={1}
-              strokeDasharray="1"
-            />
-            <path className="eui-carga__trazo" d="M58 90 H96" pathLength={1} strokeDasharray="1" />
-            {/* Llaves { } */}
-            <path
-              className="eui-carga__trazo"
-              d="M126 52 q-10 0 -10 10 v6 q0 6 -7 6 q7 0 7 6 v6 q0 10 10 10"
-              pathLength={1}
-              strokeDasharray="1"
-            />
-            <path
-              className="eui-carga__trazo"
-              d="M146 52 q10 0 10 10 v6 q0 6 7 6 q-7 0 -7 6 v6 q0 10 -10 10"
-              pathLength={1}
-              strokeDasharray="1"
-            />
-          </svg>
-          <div ref={engranajes}>
-            <span className="eui-carga__engranaje eui-carga__engranaje--a">
-              <GearSix size={34} weight="regular" />
-            </span>
-            <span className="eui-carga__engranaje eui-carga__engranaje--b">
-              <GearSix size={22} weight="regular" />
-            </span>
-          </div>
+          </span>
         </div>
 
-        <div className="eui-carga__titulo">
-          <LogoEstudio tamano="grande" sub={textosSala.subCarga} comoTitulo />
-        </div>
-        <p className="eui-carga__mensaje eui-mono" aria-live="polite">
-          {listo ? textosSala.listo : textosSala.mensajesCarga[mensaje]}
+        <h1 className="eui-carga__titulo">{textosSala.tituloCarga}</h1>
+        <p className="eui-carga__mensaje" aria-live="polite">
+          <span key={listo ? 'listo' : mensaje}>
+            {listo ? textosSala.listo : textosSala.mensajesCarga[mensaje]}
+          </span>
         </p>
-        <div
-          className="eui-carga__barra"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={porcentaje}
-          aria-valuetext={paso}
-        >
-          <div className="eui-carga__relleno" style={{ width: `${porcentaje}%` }} />
+
+        <div className="eui-carga__progreso">
+          <div
+            className="eui-carga__barra"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={porcentaje}
+            aria-valuetext={paso}
+          >
+            <div className="eui-carga__relleno" style={{ transform: `scaleX(${progreso})` }} />
+          </div>
+          <p className="eui-carga__porcentaje">
+            <span>{paso}</span>
+            <span>{porcentaje}%</span>
+          </p>
         </div>
-        <p className="eui-carga__porcentaje eui-mono">
-          {porcentaje}% · {paso}
-        </p>
+
         <button
           ref={boton}
           type="button"
-          className="eui-boton eui-boton--primario"
+          className="eui-boton eui-boton--primario eui-carga__entrar"
           disabled={fase !== 'listo'}
           onClick={entrarAlEstudio}
-          style={{ opacity: listo ? 1 : 0.45 }}
         >
           {textosSala.entrar}
           <span className="eui-boton__flecha" aria-hidden="true">
@@ -179,6 +146,18 @@ export function CargaEstudio({ movimientoReducido }: { movimientoReducido: boole
           </span>
         </button>
       </div>
+
+      <ul className="eui-carga__consejos" aria-label="Cómo moverse">
+        {textosSala.consejos.map((consejo, i) => {
+          const Icono = ICONOS_CONSEJOS[i % ICONOS_CONSEJOS.length];
+          return (
+            <li key={consejo} style={{ '--i': i } as CSSProperties}>
+              <Icono size={16} weight="bold" aria-hidden="true" />
+              {consejo}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

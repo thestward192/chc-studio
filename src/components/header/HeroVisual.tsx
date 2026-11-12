@@ -1,23 +1,57 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { hero } from '../../content/cabecera';
-import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-import estilos from './Hero.module.css';
+import { useMascota3D } from '../../hooks/useMascota3D';
+import { LimiteError } from '../three/LimiteError';
+import type { ExtensionLienzo, ViajeMascota } from '../three/hero/senalHero';
+import estilosHero from './Hero.module.css';
 
 const EscenaHeroMascota = lazy(() => import('../three/hero/EscenaHeroMascota'));
 
-/** Escritorio con mouse: único caso en el que se carga la escena 3D. */
-const CONSULTA_3D = '(min-width: 1024px) and (pointer: fine)';
+/** Clases del póster y del canvas; cada lugar donde aparece la mascota pone las suyas. */
+export interface ClasesMascota {
+  escena: string;
+  poster: string;
+  oculto: string;
+  lienzo: string;
+  lienzoListo: string;
+}
+
+const clasesHero: ClasesMascota = {
+  escena: estilosHero.escena,
+  poster: estilosHero.poster,
+  oculto: estilosHero.oculto,
+  lienzo: estilosHero.lienzo,
+  lienzoListo: estilosHero.lienzoListo,
+};
 
 /**
- * Parte visual del hero: la mascota CHC. Siempre se pinta primero el
- * póster (render estático del mismo personaje). En escritorio con mouse, sin
- * movimiento reducido y con WebGL, cuando el hero está en pantalla y el
- * navegador queda libre, se carga la escena 3D y se funde sobre el póster.
+ * La mascota CHC (en el hero y en la tarjeta de Páginas web). Siempre se
+ * pinta primero el póster (render estático del mismo personaje). En
+ * escritorio con mouse, sin movimiento reducido y con WebGL, cuando está en
+ * pantalla y el navegador queda libre, se carga la escena 3D y se funde
+ * sobre el póster.
+ *
+ * `viaje`: desplazamiento que pide el scroll (la escena mueve solo a la
+ * mascota). `medirExtension`: cuánto agrandar el canvas desde su zona (el
+ * padre de la caja del póster) para que la mascota pueda salir o entrar por
+ * el borde de la tarjeta; la cámara conserva el encuadre de la zona.
  */
-export function HeroVisual() {
+export function HeroVisual({
+  clases = clasesHero,
+  viaje,
+  medirExtension,
+  tranquila = false,
+}: {
+  clases?: ClasesMascota;
+  viaje?: ViajeMascota;
+  medirExtension?: (zona: HTMLElement) => ExtensionLienzo;
+  /** Sin vuelos ni saltos: solo sigue al mouse (ver EscenaHeroMascota). */
+  tranquila?: boolean;
+}) {
+  const estilos = clases;
+  const [extension, setExtension] = useState<ExtensionLienzo>({ arriba: 0, abajo: 0 });
   const cajaRef = useRef<HTMLDivElement>(null);
-  const reducido = usePrefersReducedMotion();
-  const escritorio = useCoincideMedia(CONSULTA_3D);
+  const mascota3D = useMascota3D();
   const [enPantalla, setEnPantalla] = useState(false);
   const [pestanaVisible, setPestanaVisible] = useState(
     () => document.visibilityState === 'visible',
@@ -27,13 +61,14 @@ export function HeroVisual() {
   const [fallo, setFallo] = useState(false);
   const [sinPoster, setSinPoster] = useState(false);
 
-  const puede3D = escritorio && !reducido && !fallo && soportaWebGL();
+  const puede3D = mascota3D && !fallo;
 
   useEffect(() => {
     const caja = cajaRef.current;
     if (!caja) return;
+    // Margen amplio: la escena ya está lista cuando la mascota llega viajando
     const observador = new IntersectionObserver(([e]) => setEnPantalla(e.isIntersecting), {
-      rootMargin: '120px 0px',
+      rootMargin: '500px 0px',
     });
     observador.observe(caja);
     const alCambiarPestana = () => setPestanaVisible(document.visibilityState === 'visible');
@@ -54,6 +89,35 @@ export function HeroVisual() {
   }, [puede3D, enPantalla, cargar]);
 
   const con3D = puede3D && cargar;
+
+  // Medir la extensión del canvas (cambia con el tamaño de la zona y de la tarjeta)
+  const medirRef = useRef(medirExtension);
+  medirRef.current = medirExtension;
+  useEffect(() => {
+    const zona = cajaRef.current?.parentElement;
+    if (!con3D || !zona || !medirRef.current) return;
+    const medir = () => {
+      const nueva = medirRef.current?.(zona);
+      if (!nueva) return;
+      const redondeada = {
+        arriba: Math.round(nueva.arriba),
+        abajo: Math.round(nueva.abajo),
+        izquierda: Math.round(nueva.izquierda ?? 0),
+      };
+      setExtension((previa) =>
+        previa.arriba === redondeada.arriba &&
+        previa.abajo === redondeada.abajo &&
+        previa.izquierda === redondeada.izquierda
+          ? previa
+          : redondeada,
+      );
+    };
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(zona);
+    if (zona.parentElement) observador.observe(zona.parentElement);
+    return () => observador.disconnect();
+  }, [con3D]);
 
   // El póster va en una caja cuadrada; el canvas 3D ocupa toda la zona oscura
   return (
@@ -78,53 +142,22 @@ export function HeroVisual() {
               className={`${estilos.lienzo} ${listo ? estilos.lienzoListo : ''}`}
               activo={enPantalla && pestanaVisible}
               onListo={() => setListo(true)}
+              viaje={viaje}
+              extension={extension}
+              tranquila={tranquila}
+              style={
+                {
+                  marginTop: -extension.arriba,
+                  marginBottom: -extension.abajo,
+                  marginLeft: -(extension.izquierda ?? 0),
+                  // Para la máscara del canvas (dónde empieza la zona)
+                  '--extension-izq': `${extension.izquierda ?? 0}px`,
+                } as CSSProperties
+              }
             />
           </Suspense>
         </LimiteError>
       )}
     </>
   );
-}
-
-function useCoincideMedia(consulta: string): boolean {
-  const [coincide, setCoincide] = useState(() => window.matchMedia(consulta).matches);
-  useEffect(() => {
-    const media = window.matchMedia(consulta);
-    const alCambiar = () => setCoincide(media.matches);
-    media.addEventListener('change', alCambiar);
-    return () => media.removeEventListener('change', alCambiar);
-  }, [consulta]);
-  return coincide;
-}
-
-let webglCache: boolean | undefined;
-function soportaWebGL(): boolean {
-  if (webglCache === undefined) {
-    try {
-      const lienzo = document.createElement('canvas');
-      const gl = lienzo.getContext('webgl2') ?? lienzo.getContext('webgl');
-      webglCache = !!gl;
-      (gl as WebGLRenderingContext | null)?.getExtension('WEBGL_lose_context')?.loseContext();
-    } catch {
-      webglCache = false;
-    }
-  }
-  return webglCache;
-}
-
-/** Si la escena falla (contexto WebGL perdido, shader), se queda el póster. */
-class LimiteError extends Component<
-  { children: ReactNode; onError: () => void },
-  { error: boolean }
-> {
-  state = { error: false };
-  static getDerivedStateFromError() {
-    return { error: true };
-  }
-  componentDidCatch() {
-    this.props.onError();
-  }
-  render() {
-    return this.state.error ? null : this.props.children;
-  }
 }

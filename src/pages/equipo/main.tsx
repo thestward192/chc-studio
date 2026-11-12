@@ -11,6 +11,8 @@ import '@fontsource/sora/latin-600.css';
 import '@fontsource/sora/latin-700.css';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
+import '@fontsource/inter/latin-600.css';
+import '@fontsource/inter/latin-700.css';
 import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-600.css';
 import '@fontsource/caveat/latin-500.css';
@@ -34,6 +36,8 @@ if (!integrante) {
 prepararOficina();
 Object.assign(textosSala, {
   subCarga: `Oficina de ${integrante.nombreCorto}`,
+  tituloCarga: `La oficina de ${integrante.nombreCorto}`,
+  colorCarga: integrante.colorLuz,
   subHud: () => `Oficina de ${integrante.nombre}`,
   etiquetaCarga: `Cargando la oficina de ${integrante.nombre}`,
   mensajesCarga: mensajesCargaOficina[integrante.slug] ?? textosSala.mensajesCarga,

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { sala, ui, marca } from '../../../theme/theme';
-import type { Proyecto } from '../../../content/proyectos';
+import { dominioProyecto, type Proyecto } from '../../../content/proyectos';
 import type { PasoProceso } from '../../../content/proceso';
 import { rastrear } from './recursos';
 
@@ -287,7 +287,11 @@ export function lienzoProyecto(proyecto: Proyecto, indice: number, ancho: number
   palabras.forEach((p, i) => ctx.fillText(p, 70 * k, (400 + i * 70) * k));
   ctx.font = `500 ${Math.round(26 * k)}px ${ui.fuenteUi}`;
   ctx.fillStyle = marca.textoTenue;
-  ctx.fillText(`${proyecto.cliente} · ${proyecto.anio}`, 70 * k, (alto / k - 64) * k);
+  ctx.fillText(
+    [proyecto.cliente, proyecto.anio].filter(Boolean).join(' · '),
+    70 * k,
+    (alto / k - 64) * k,
+  );
   // Rayita con el degradado de marca sobre el cliente
   const raya = ctx.createLinearGradient(70 * k, 0, 110 * k, 0);
   raya.addColorStop(0, marca.verde);
@@ -301,6 +305,112 @@ export function lienzoProyecto(proyecto: Proyecto, indice: number, ancho: number
 
 export function texturaProyecto(proyecto: Proyecto, indice: number, ancho: number) {
   return aTextura(lienzoProyecto(proyecto, indice, ancho));
+}
+
+/**
+ * Cuadro con la captura real: la imagen entera (sin recortar los lados)
+ * dentro de una ventana de navegador sobre el fondo de marca, y debajo el
+ * cliente y el tipo. Dibuja sobre `c` si se pasa (para reutilizar el lienzo
+ * del marcador una vez cargada la imagen).
+ */
+export function lienzoCaptura(
+  proyecto: Proyecto,
+  captura: HTMLImageElement,
+  ancho: number,
+  c = lienzo(ancho, Math.round(ancho / 1.47)).c,
+) {
+  const ctx = c.getContext('2d')!;
+  const alto = c.height;
+  const k = ancho / 1024;
+
+  // Fondo azul noche con un halo del color del proyecto detrás de la ventana
+  ctx.fillStyle = marca.fondoOscuro;
+  ctx.fillRect(0, 0, ancho, alto);
+  const halo = ctx.createRadialGradient(ancho / 2, alto * 0.42, 0, ancho / 2, alto * 0.42, 620 * k);
+  halo.addColorStop(0, mezclar(proyecto.colorMarcador, marca.fondoOscuro, 0.55));
+  halo.addColorStop(0.6, mezclar(marca.cian, marca.fondoOscuro, 0.85));
+  halo.addColorStop(1, marca.fondoOscuro);
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, ancho, alto);
+
+  // Ventana: barra con el semáforo de macOS y la dirección, y la captura
+  // a todo el ancho (si es muy alta, se corta abajo, nunca a los lados)
+  const vx = 58 * k;
+  const vw = ancho - vx * 2;
+  const barra = 40 * k;
+  const ih = Math.min(vw / (captura.naturalWidth / captura.naturalHeight), 460 * k);
+  const vy = 54 * k + (460 * k - ih) / 2;
+  const radio = 16 * k;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+  ctx.shadowBlur = 50 * k;
+  ctx.shadowOffsetY = 18 * k;
+  ctx.fillStyle = '#1c2230';
+  ctx.beginPath();
+  ctx.roundRect(vx, vy, vw, barra + ih, radio);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(vx, vy, vw, barra + ih, radio);
+  ctx.clip();
+  ctx.fillStyle = '#e9ecf1';
+  ctx.fillRect(vx, vy, vw, barra);
+  ['#ff5f57', '#febc2e', '#28c840'].forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(vx + (24 + i * 20) * k, vy + barra / 2, 6 * k, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  const pw = 360 * k;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.roundRect(vx + (vw - pw) / 2, vy + 9 * k, pw, barra - 18 * k, 8 * k);
+  ctx.fill();
+  ctx.fillStyle = '#5b6372';
+  ctx.font = `500 ${Math.round(14 * k)}px ${ui.fuenteUi}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(dominioProyecto(proyecto) ?? 'Acceso privado', vx + vw / 2, vy + barra / 2 + k);
+  const recorte = (ih / vw) * captura.naturalWidth;
+  ctx.drawImage(
+    captura,
+    0,
+    0,
+    captura.naturalWidth,
+    Math.min(recorte, captura.naturalHeight),
+    vx,
+    vy + barra,
+    vw,
+    ih,
+  );
+  ctx.restore();
+
+  // Pie: cliente a la izquierda; tipo y año a la derecha
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = marca.texto;
+  ctx.font = `700 ${Math.round(38 * k)}px ${ui.fuenteUi}`;
+  ctx.fillText(proyecto.cliente, vx, alto - 52 * k);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = marca.textoTenue;
+  ctx.font = `500 ${Math.round(22 * k)}px ${ui.fuenteUi}`;
+  ctx.fillText(
+    [proyecto.tipo, proyecto.anio].filter(Boolean).join(' · '),
+    ancho - vx,
+    alto - 56 * k,
+  );
+  // Rayita con el degradado de marca sobre el cliente
+  const raya = ctx.createLinearGradient(vx, 0, vx + 40 * k, 0);
+  raya.addColorStop(0, marca.verde);
+  raya.addColorStop(1, marca.cian);
+  ctx.fillStyle = raya;
+  ctx.beginPath();
+  ctx.roundRect(vx, alto - 112 * k, 40 * k, 6 * k, 3 * k);
+  ctx.fill();
+  ctx.textAlign = 'left';
+  return c;
 }
 
 /** Placa con el nombre (sobre las puertas). */

@@ -17,6 +17,7 @@ import { OficinaCreativa } from './oficina/OficinaCreativa';
 import { OficinaFutbol } from './oficina/OficinaFutbol';
 import { OficinaGamer } from './oficina/OficinaGamer';
 import { OficinaBelleza } from './oficina/OficinaBelleza';
+import { MascotaSala } from './estudio/MascotaSala';
 
 interface Props {
   integrante: Integrante;
@@ -75,6 +76,9 @@ export default function EscenaOficina({ integrante, movimientoReducido }: Props)
           {diseno === 'futbol' && <OficinaFutbol integrante={integrante} />}
           {diseno === 'gamer' && <OficinaGamer integrante={integrante} />}
           {diseno === 'belleza' && <OficinaBelleza integrante={integrante} />}
+          <MascotaSala
+            info={`Vino de visita a la oficina de ${integrante.nombreCorto} y se pasea mirando sus cosas. Pídele algo.`}
+          />
         </>
       )}
     </LienzoSala>

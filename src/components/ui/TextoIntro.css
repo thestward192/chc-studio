@@ -1,5 +1,5 @@
-/* Textos sobre la intro 3D, con la tipografía y el degradado de marca del
-   header (Sora para títulos, Inter para texto). Los colores de texto siguen
+/* Textos sobre la intro 3D con el estilo de iPhone de Inicio: letra del
+   sistema (SF Pro, o Inter), titulares apretados y el degradado de marca. Los colores de texto siguen
    al modo claro/oscuro del estudio (--estudio-texto*). */
 
 .texto-intro__titulo {
@@ -13,11 +13,12 @@
 
 .texto-intro__marca {
   margin: 0;
-  font-family: var(--font-heading);
-  font-size: clamp(2.4rem, 5.6vw, 4.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.035em;
+  -webkit-font-smoothing: antialiased;
 }
 
 .texto-intro__degradado {
@@ -28,11 +29,13 @@
 }
 
 .texto-intro__eslogan {
-  max-width: 34rem;
+  max-width: 40rem;
+  text-wrap: balance;
   margin: 0.85rem auto 0;
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 1.6vw, 1.2rem);
-  line-height: 1.5;
+  font-family: var(--font-text);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
   color: var(--estudio-texto-tenue);
 }
 
@@ -46,9 +49,10 @@
   align-items: center;
   gap: 0.6rem;
   margin: 0;
-  font-family: var(--font-body);
+  font-family: var(--font-text);
   font-weight: 500;
   font-size: 0.85rem;
+  letter-spacing: -0.005em;
   color: var(--estudio-texto-tenue);
 }
 
@@ -93,41 +97,37 @@
   translate: 0 -50%; /* el transform inline es la animación de entrada */
   pointer-events: none;
   z-index: 2;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Antetítulo con el degradado, como los de las secciones de Inicio */
 .texto-intro__etiqueta {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0 0 0.9rem;
-  font-family: var(--font-heading);
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--estudio-texto-tenue);
-}
-
-.texto-intro__etiqueta::before {
-  content: '';
-  width: 22px;
-  height: 3px;
-  border-radius: 3px;
+  font-size: 1.05rem;
+  letter-spacing: -0.015em;
   background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .texto-intro__info-titulo {
   margin: 0 0 0.9rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.5rem, 2.3vw, 2rem);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
 }
 
 .texto-intro__descripcion {
   margin: 0 0 1.4rem;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-family: var(--font-text);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
   color: var(--estudio-texto-tenue);
 }
 
@@ -138,9 +138,10 @@
   padding: 1.2rem 0 0;
   list-style: none;
   border-top: 1px solid color-mix(in srgb, var(--estudio-texto-tenue) 30%, transparent);
-  font-family: var(--font-body);
+  font-family: var(--font-text);
   font-weight: 500;
   font-size: 0.95rem;
+  letter-spacing: -0.01em;
 }
 
 .texto-intro__lista li {

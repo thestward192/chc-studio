@@ -17,6 +17,11 @@ body {
   line-height: var(--interlineado-base);
 }
 
+/* El navbar es fijo: los saltos a #secciones dejan su alto libre arriba */
+html {
+  scroll-padding-top: 5.5rem;
+}
+
 #app {
   min-height: 100vh;
 }

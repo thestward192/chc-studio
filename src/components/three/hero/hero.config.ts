@@ -120,6 +120,29 @@ export const heroConfig = {
   transicion: 7,
   parpadeo: { duracion: 0.17, intervalo: [2.2, 5.2] as const, doble: 0.25 },
 
+  /**
+   * Viaje por la página (scroll): la mascota sale del hero cayendo y llega a
+   * la tarjeta de Páginas web. Muelle que sigue al desplazamiento pedido,
+   * inclinación por velocidad y aplaste al aterrizar.
+   */
+  viaje: {
+    muelle: { rigidez: 130, amortiguacion: 21 },
+    /** Inclinación (rad) por unidad/s de velocidad vertical, y su límite. */
+    inclinacion: 0.05,
+    inclinacionMax: 0.35,
+    /** Estiramiento por velocidad (cae alargada) y su límite. */
+    estiramiento: 0.035,
+    estiramientoMax: 0.28,
+    /** Aplaste al aterrizar: fuerza, duración (s) y frecuencia del rebote. */
+    aterrizaje: { fuerza: 0.24, duracion: 0.9, frecuencia: 19 },
+    /**
+     * Salida por la izquierda de la tarjeta de Páginas web (rumbo a
+     * Proyectos): duración (s), tramo inicial en que se agacha, pasito atrás
+     * antes de despegar y cuánto sube mientras se aleja (unidades).
+     */
+    salida: { duracion: 1.25, agache: 0.2, retroceso: 0.18, subida: 0.12 },
+  },
+
   movimiento: {
     /** Flotación: periodo (s) y amplitud. */
     flotacion: { periodo: 3.4, amplitud: 0.06 },

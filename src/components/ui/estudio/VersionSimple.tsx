@@ -56,7 +56,8 @@ export function VersionSimple({ comoPagina = false, onNavegar }: Props) {
       <ul>
         {proyectos.map((proyecto) => (
           <li key={proyecto.id}>
-            <strong>{limpiar(proyecto.titulo)}</strong>: {proyecto.cliente}, {proyecto.anio}
+            <strong>{limpiar(proyecto.titulo)}</strong>:{' '}
+            {[proyecto.cliente, proyecto.anio].filter(Boolean).join(', ')}
             <p>{proyecto.descripcion}</p>
             <p>Tecnologías: {proyecto.tecnologias.join(', ')}</p>
             {proyecto.urlProyecto && (

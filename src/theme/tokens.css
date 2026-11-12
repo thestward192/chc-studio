@@ -127,6 +127,12 @@
   /* Tipografía de marca (Google Fonts, cargadas en index.html) */
   --font-heading: 'Sora', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Tipografía estilo Apple del header de Inicio: SF Pro en dispositivos
+     Apple; en el resto, Inter (empaquetada), que es su pariente más cercano. */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui,
+    sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
 }
 
 /* ------------------------------------------------------------------

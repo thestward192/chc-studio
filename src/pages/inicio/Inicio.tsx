@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Header } from '../../components/header/Header';
 import { SeccionServicios } from '../../components/ui/SeccionServicios';
 import { SeccionProyectos } from '../../components/ui/SeccionProyectos';
-import { SeccionEquipo } from '../../components/ui/SeccionEquipo';
+import { SeccionNosotros } from '../../components/ui/SeccionNosotros';
 import { SeccionContacto } from '../../components/ui/SeccionContacto';
 import { Footer } from '../../components/ui/Footer';
 import { SaltarIntro } from '../../components/ui/SaltarIntro';
@@ -162,7 +162,7 @@ export function Inicio() {
         <main>
           <SeccionServicios />
           <SeccionProyectos />
-          <SeccionEquipo />
+          <SeccionNosotros />
           <SeccionContacto />
         </main>
         <Footer />

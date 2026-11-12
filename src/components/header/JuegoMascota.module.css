@@ -1,0 +1,255 @@
+/*
+ * Juego con la mascota del hero: zona para tocarla (sigue a la mascota con
+ * --x, --y, --r en px de la ventana), pista "¡Tócame!", menú de trucos a
+ * sus dos lados y el vidrio rajado. Fijo a la ventana porque la escena
+ * publica la posición en coordenadas de pantalla.
+ */
+.juego {
+  --x: -999px;
+  --y: -999px;
+  --r: 0px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  width: 0;
+  height: 0;
+  font-family: var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Zona para tocarla: un círculo invisible sobre el cuerpo */
+.toque {
+  position: fixed;
+  left: calc(var(--x) - var(--r) * 0.88);
+  top: calc(var(--y) - var(--r) * 0.92);
+  width: calc(var(--r) * 1.76);
+  height: calc(var(--r) * 1.84);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.juego[data-lista] .toque,
+.juego[data-abierto] .toque {
+  visibility: visible;
+}
+
+.toque:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 6px;
+}
+
+/* ---------- Pista sobre la cabeza */
+.pista {
+  position: fixed;
+  left: var(--x);
+  top: calc(var(--y) - var(--r) * 1.12);
+  padding: 0.45rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: -0.01em;
+  color: #fff;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  border: 0.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.6);
+  translate: -50% -100%;
+  opacity: 0;
+  scale: 0.85;
+  pointer-events: none;
+  transition:
+    opacity 0.35s var(--easing-ui),
+    scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Piquito apuntando a la mascota */
+.pista::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-right: 0.5px solid rgba(255, 255, 255, 0.22);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.22);
+  translate: -50% 0;
+  rotate: 45deg;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.juego[data-lista]:not([data-abierto]) .pista[data-visible],
+.juego[data-lista]:not([data-abierto]) .toque:hover + .pista {
+  opacity: 1;
+  scale: 1;
+}
+
+/* ---------- Menú: tres opciones a cada lado, en arco */
+.menu {
+  --r: var(--cr);
+  position: fixed;
+  left: var(--cx);
+  top: var(--cy);
+  width: 0;
+  height: 0;
+}
+
+.opcion {
+  position: absolute;
+  /* Lado y fila: a la distancia del cuerpo, la del medio un poco más afuera */
+  left: calc(var(--lado) * (var(--r) * 1.02 + 1.1rem + var(--empuje) * 1.4rem));
+  top: calc(var(--fila) * 3.6rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.32rem 1rem 0.32rem 0.32rem;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: -0.012em;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.22),
+    0 14px 30px -16px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  translate: 0 -50%;
+  transition:
+    background-color 0.2s var(--easing-ui),
+    scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: brotar 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation-delay: calc(var(--orden) * 45ms);
+}
+
+/* Las de la izquierda crecen hacia la izquierda (ícono pegado a la mascota) */
+.opcion[data-lado='izquierda'] {
+  flex-direction: row-reverse;
+  padding: 0.32rem 0.32rem 0.32rem 1rem;
+  translate: -100% -50%;
+}
+
+.opcion:hover {
+  background: rgba(255, 255, 255, 0.18);
+  scale: 1.04;
+}
+
+.opcion:active {
+  scale: 0.96;
+}
+
+.opcion:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+/* Salen desde la mascota hacia su sitio */
+@keyframes brotar {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--lado) * (var(--r) * -0.9 - 1rem)))
+      translateY(calc(var(--fila) * -2.2rem)) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Ícono de app (squircle) con el color de cada truco */
+.icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.4);
+}
+
+[data-truco='enojarse'] .icono {
+  background: linear-gradient(160deg, #ff6a6a, #e5304a);
+}
+
+[data-truco='correr'] .icono {
+  background: linear-gradient(160deg, #ffb340, #ff7a1f);
+}
+
+[data-truco='chocar'] .icono {
+  background: linear-gradient(160deg, #a78bff, #6d4ce6);
+}
+
+[data-truco='bailar'] .icono {
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+}
+
+[data-truco='voltereta'] .icono {
+  background: linear-gradient(160deg, #5fd4ff, #1e8fd8);
+}
+
+[data-truco='dormir'] .icono {
+  background: linear-gradient(160deg, #6e7bff, #3d3fb8);
+}
+
+/* ---------- Vidrio rajado: aparece de golpe y se desvanece */
+.grieta {
+  position: fixed;
+  z-index: 6;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(235, 248, 255, 0.85);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(120, 220, 255, 0.7));
+  animation: rajarse 2.4s var(--easing-ui) both;
+}
+
+.destello {
+  fill: rgba(255, 255, 255, 0.5);
+  stroke: none;
+  filter: blur(18px);
+  animation: destellar 0.45s ease-out both;
+}
+
+@keyframes rajarse {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  4% {
+    opacity: 1;
+    transform: none;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes destellar {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

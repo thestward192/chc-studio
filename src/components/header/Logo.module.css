@@ -19,8 +19,10 @@
   line-height: 1;
 }
 
+/* --logo-tinta lo cambia el navbar cuando pasa sobre fondo oscuro */
 .chc {
-  color: var(--text-dark);
+  color: var(--logo-tinta, var(--text-dark));
+  transition: color 0.3s var(--easing-ui);
 }
 
 .studio {

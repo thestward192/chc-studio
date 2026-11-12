@@ -1,17 +1,39 @@
+/* "Saltar intro": cápsula de vidrio oscuro, como los botones del estudio */
 .saltar-intro {
   position: fixed;
   right: var(--espacio-md);
   bottom: var(--espacio-md);
   z-index: 30;
-  padding: var(--espacio-xs) var(--espacio-md);
-  background: var(--color-superficie);
-  color: var(--color-texto);
-  border: var(--ancho-borde) solid var(--color-borde);
-  border-radius: var(--radio-completo);
-  font-size: var(--tamano-texto-sm);
-  transition: background var(--duracion-ui) var(--easing-ui);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.6rem;
+  padding: 0 1.15rem;
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: rgba(18, 22, 31, 0.72);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px -12px rgba(18, 22, 31, 0.5);
+  cursor: pointer;
+  transition:
+    background-color var(--duracion-ui) var(--easing-ui),
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1);
 }
 
 .saltar-intro:hover {
-  background: var(--color-superficie-alta);
+  background: rgba(18, 22, 31, 0.86);
+}
+
+.saltar-intro:active {
+  transform: scale(0.96);
+}
+
+.saltar-intro:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
 }

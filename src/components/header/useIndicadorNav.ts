@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 
 /**
- * Coloca la barra indicadora bajo el enlace `id` de la lista (data-id).
+ * Coloca el indicador bajo el enlace `id` de la lista (data-id), con su ancho.
  * Solo escribe variables CSS en el nodo (sin re-render de React); la
  * transición la hace CSS con transform. Con id null la barra se oculta
  * en su sitio.
@@ -28,6 +28,7 @@ export function useIndicadorNav(id: string | null) {
     const primeraVez = !barra.dataset.colocada;
     if (primeraVez) barra.style.transition = 'none'; // la primera vez aparece en su sitio, sin viajar
     barra.style.setProperty('--x', `${caja.left - base.left + caja.width / 2}px`);
+    barra.style.setProperty('--ancho-indicador', `${caja.width}px`);
     barra.style.opacity = '1';
     barra.dataset.colocada = '1';
     if (primeraVez) {

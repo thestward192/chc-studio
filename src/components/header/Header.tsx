@@ -12,8 +12,9 @@ interface Props {
 }
 
 /**
- * Cabecera de Inicio: navbar (con la pestaña que sube desde la tarjeta en
- * escritorio), hero en la tarjeta oscura y, debajo, la fila de servicios.
+ * Cabecera de Inicio: navbar de vidrio estilo iOS (fijo mientras se recorre
+ * la cabecera), hero en la tarjeta oscura y el Dock de servicios montado
+ * sobre su borde inferior.
  */
 export function Header({ onVolverIntro }: Props) {
   const filaRef = useRef<HTMLUListElement>(null);
@@ -49,9 +50,9 @@ export function Header({ onVolverIntro }: Props) {
             <li key={servicio.texto} className={estilos.item} style={{ '--i': i } as CSSProperties}>
               <a href="#servicios" className={estilos.servicio} onClick={alPulsar}>
                 <span className={estilos.baldosa} aria-hidden="true">
-                  <Icono size={22} weight="regular" />
+                  <Icono size={26} weight="regular" />
                 </span>
-                {servicio.texto}
+                <span className={estilos.etiqueta}>{servicio.texto}</span>
               </a>
             </li>
           );

@@ -19,6 +19,7 @@ import { Cafetera } from './estudio/Cafetera';
 import { Planta } from './estudio/Planta';
 import { LetreroNeon } from './estudio/LetreroNeon';
 import { Particulas } from './estudio/Particulas';
+import { MascotaSala } from './estudio/MascotaSala';
 
 interface Props {
   movimientoReducido: boolean;
@@ -84,6 +85,7 @@ export default function EscenaSalaProyectos({ movimientoReducido }: Props) {
               />
             ))}
             <LetreroNeon />
+            <MascotaSala info="Vive en el taller: se pasea entre los escritorios, mira los proyectos y saluda a quien entra. Pídele algo." />
             <Particulas
               modo="polvo"
               cantidad={particulas.polvo}

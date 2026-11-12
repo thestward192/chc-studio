@@ -41,6 +41,9 @@ export const marca = {
   bordeCristal: 'rgba(255, 255, 255, 0.1)',
   fuenteTitulos: "'Sora', system-ui, sans-serif",
   fuenteTexto: "'Inter', system-ui, sans-serif",
+  /** Letra del sistema de Apple (SF Pro) con Inter de respaldo, como --font-display. */
+  fuenteApple:
+    "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif",
 } as const;
 
 /** Mascota del hero de Inicio (espejo de los `--mascota-*` de tokens.css). */

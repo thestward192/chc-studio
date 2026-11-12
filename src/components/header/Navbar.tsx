@@ -6,6 +6,7 @@ import { Logo } from './Logo';
 import { irASeccion } from './desplazamiento';
 import { useSeccionActiva } from './useSeccionActiva';
 import { useIndicadorNav } from './useIndicadorNav';
+import { useEstadoNav } from './useEstadoNav';
 import estilos from './Navbar.module.css';
 
 interface Props {
@@ -14,11 +15,13 @@ interface Props {
 }
 
 /**
- * Navbar. En escritorio, los enlaces van en una "pestaña" oscura que sube
- * desde la tarjeta del hero (con esquinas invertidas a los lados); el logo y
- * el botón quedan en las zonas claras recortadas. Una sola barra con el
- * degradado se desliza hasta el enlace activo (o el que está bajo el mouse).
- * En tablet y móvil: logo + botón de menú que abre un panel a todo el ancho.
+ * Navbar estilo iOS: cápsula de vidrio esmerilado fija arriba en toda la
+ * página; se compacta al bajar y pasa a vidrio oscuro sobre zonas oscuras
+ * (useEstadoNav). En escritorio,
+ * logo a la izquierda, enlaces al centro y botón a la derecha; una píldora
+ * clara se desliza hasta el enlace activo (o el que está bajo el mouse), como
+ * un control segmentado. En tablet y móvil: logo + botón de menú que abre una
+ * hoja de vidrio oscuro a todo el ancho.
  */
 export function Navbar({ onVolverIntro }: Props) {
   const [abierto, setAbierto] = useState(false);
@@ -26,6 +29,8 @@ export function Navbar({ onVolverIntro }: Props) {
   const activa = useSeccionActiva(enlacesNav.map((e) => e.id));
   const menuRef = useRef<HTMLDivElement>(null);
   const botonRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  useEstadoNav(navRef);
   const { listaRef, indicadorRef } = useIndicadorNav(sobre ?? activa);
 
   // Con el menú abierto: Esc lo cierra y al pasar a escritorio se cierra solo
@@ -62,7 +67,7 @@ export function Navbar({ onVolverIntro }: Props) {
   };
 
   return (
-    <nav className={estilos.nav} aria-label="Navegación principal">
+    <nav ref={navRef} className={estilos.nav} aria-label="Navegación principal">
       <div className={estilos.zonaLogo}>
         <Logo />
         {onVolverIntro && (
@@ -79,8 +84,8 @@ export function Navbar({ onVolverIntro }: Props) {
         )}
       </div>
 
-      {/* Pestaña oscura (solo escritorio) */}
-      <div className={estilos.pestana}>
+      {/* Enlaces centrales (solo escritorio) */}
+      <div className={estilos.centro}>
         <ul ref={listaRef} className={estilos.enlaces} onPointerLeave={() => setSobre(null)}>
           {enlacesNav.map((enlace) => (
             <li key={enlace.id}>

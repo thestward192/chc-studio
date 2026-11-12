@@ -85,7 +85,7 @@ export function TextoIntro({ progreso, movimientoReducido }: Props) {
               <CheckCircle
                 className="texto-intro__check"
                 size={20}
-                weight="regular"
+                weight="fill"
                 aria-hidden="true"
               />
               {punto}

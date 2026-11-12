@@ -1,20 +1,39 @@
-/* Interfaz del estudio 3D ("taller"). Mismo lenguaje que el header de Inicio:
-   cristal azul noche, degradado verde→turquesa, píldoras, Sora en títulos e
-   Inter en texto. Todo sale de tokens.css. */
+/* Interfaz del estudio 3D ("taller" y oficinas) con el lenguaje de iOS,
+   igual que Inicio: material de vidrio oscuro (desenfoque + saturación),
+   cápsulas, hojas, celdas con íconos de app, interruptores y control
+   segmentado. Letra del sistema (SF Pro) con Inter de respaldo; los
+   colores de marca siguen saliendo de tokens.css. */
 
 .eui {
+  /* Letras de iPhone solo en la interfaz (las texturas 3D usan las suyas) */
+  --fuente-ui: var(--font-text);
+  --fuente-ui-titulos: var(--font-display);
+  /* Material de vidrio oscuro de iOS */
+  --ui-cristal: rgba(24, 28, 38, 0.56);
+  --ui-cristal-denso: rgba(22, 26, 35, 0.82);
+  --ui-linea: rgba(255, 255, 255, 0.12);
+  --ui-relleno: rgba(255, 255, 255, 0.09);
+  --ui-relleno-fuerte: rgba(255, 255, 255, 0.16);
+  --ui-texto-tenue: rgba(235, 240, 245, 0.6);
+  --ui-desenfoque: 28px;
+  --ui-radio: 22px;
+  --ui-radio-grande: 30px;
+  --ui-sombra: 0 20px 50px -12px rgba(4, 6, 10, 0.55);
+
   font-family: var(--fuente-ui);
   color: var(--ui-texto);
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
 }
 
 .eui-cristal {
   background: var(--ui-cristal);
-  backdrop-filter: blur(var(--ui-desenfoque)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--ui-desenfoque)) saturate(140%);
-  border: 1px solid var(--ui-linea);
+  backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  border: 0.5px solid var(--ui-linea);
   border-radius: var(--ui-radio);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.14),
     var(--ui-sombra);
 }
 
@@ -22,58 +41,61 @@
   font-family: var(--fuente-codigo);
 }
 
-/* Etiqueta de sección: rayita con el degradado + texto en Sora (como el header) */
+/* Encabezado de sección, como los de Ajustes: texto pequeño y tenue */
 .eui-etiqueta {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.45rem;
   margin: 0;
-  font: 600 0.8rem/1.2 var(--fuente-ui-titulos);
+  font: 600 0.8rem/1.2 var(--fuente-ui);
+  letter-spacing: -0.005em;
   color: var(--ui-texto-tenue);
 }
 
+/* Punto de marca delante (sustituye la rayita) */
 .eui-etiqueta::before {
   content: '';
   flex-shrink: 0;
-  width: 18px;
-  height: 3px;
-  border-radius: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--accent-gradient);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-green) 70%, transparent);
 }
 
 /* ------------------------------------------------------------ Botones */
 
+/* Botón gris "relleno" de iOS: sin borde, fondo translúcido */
 .eui-boton {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  min-height: 2.6rem;
-  padding: 0.45rem 1rem 0.45rem 0.8rem;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.45rem 1rem 0.45rem 0.85rem;
   font: 500 0.875rem/1 var(--fuente-ui);
+  letter-spacing: -0.01em;
   color: var(--ui-texto);
-  background: var(--ui-cristal);
-  backdrop-filter: blur(var(--ui-desenfoque));
-  -webkit-backdrop-filter: blur(var(--ui-desenfoque));
-  border: 1px solid var(--ui-linea);
+  background: var(--ui-relleno);
+  border: 0;
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background-color var(--duracion-ui) var(--easing-ui),
-    border-color var(--duracion-ui) var(--easing-ui),
     color var(--duracion-ui) var(--easing-ui),
-    transform var(--duracion-ui) var(--easing-ui),
-    box-shadow var(--duracion-ui) var(--easing-ui);
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1),
+    box-shadow var(--duracion-ui) var(--easing-ui),
+    filter var(--duracion-ui) var(--easing-ui);
 }
 
 .eui-boton:hover {
-  border-color: color-mix(in srgb, var(--ui-acento) 60%, transparent);
-  background: color-mix(in srgb, var(--ui-acento-suave) 10%, var(--ui-cristal));
+  background: var(--ui-relleno-fuerte);
 }
 
 .eui-boton:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .eui-boton:focus-visible {
@@ -81,37 +103,30 @@
   outline-offset: 3px;
 }
 
-/* Activo (pausa, sonido, calidad elegida): borde verde y fondo teñido */
+/* Activo (sonido, pausa): cápsula blanca con texto oscuro, como en iOS */
 .eui-boton[aria-pressed='true'] {
-  border-color: color-mix(in srgb, var(--ui-acento-suave) 70%, transparent);
-  background: color-mix(in srgb, var(--ui-acento-suave) 16%, var(--ui-cristal));
+  color: var(--bg-dark);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .eui-boton[aria-pressed='true'] .eui-boton__icono {
-  color: var(--ui-acento-suave);
+  color: var(--bg-dark);
 }
 
-/* Primario: la píldora con el degradado de marca y flecha en un círculo */
+/* Primario: la cápsula con el degradado de marca y flecha en un círculo */
 .eui-boton--primario {
-  padding: 0.35rem 0.35rem 0.35rem 1.15rem;
+  padding: 0.3rem 0.3rem 0.3rem 1.15rem;
   gap: 0.7rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-on-accent);
   background: var(--accent-gradient);
-  border-color: transparent;
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-green) 28%, transparent);
+  box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--accent-cyan) 75%, transparent);
 }
 
 .eui-boton--primario:hover {
   background: var(--accent-gradient);
-  border-color: transparent;
   filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--accent-cyan) 42%, transparent);
-}
-
-.eui-boton--primario:active {
-  transform: scale(0.97);
+  box-shadow: 0 14px 32px -10px color-mix(in srgb, var(--accent-cyan) 90%, transparent);
 }
 
 .eui-boton__flecha {
@@ -132,7 +147,7 @@
 
 /* Sin flecha: el primario queda simétrico */
 .eui-boton--primario:not(:has(.eui-boton__flecha)) {
-  padding: 0.45rem 1.15rem;
+  padding: 0.45rem 1.2rem;
 }
 
 .eui-boton:disabled {
@@ -146,36 +161,35 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  color: var(--ui-texto);
+  color: inherit;
   transition: color var(--duracion-ui) var(--easing-ui);
 }
 
-.eui-boton:hover .eui-boton__icono {
-  color: var(--ui-acento-suave);
-}
-
-/* Botón redondo solo con icono (cerrar) */
+/* Botón redondo solo con ícono (cerrar): círculo gris como en las hojas de iOS */
 .eui-boton-redondo {
   display: grid;
   place-items: center;
-  width: 2.35rem;
-  height: 2.35rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
-  color: var(--ui-texto);
-  background: color-mix(in srgb, var(--ui-texto) 6%, transparent);
-  border: 1px solid var(--ui-linea);
+  color: var(--ui-texto-tenue);
+  background: var(--ui-relleno-fuerte);
+  border: 0;
   border-radius: 50%;
   cursor: pointer;
   transition:
     background-color var(--duracion-ui) var(--easing-ui),
-    border-color var(--duracion-ui) var(--easing-ui),
-    transform var(--duracion-ui) var(--easing-ui);
+    color var(--duracion-ui) var(--easing-ui),
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.5, 1);
 }
 
 .eui-boton-redondo:hover {
-  border-color: color-mix(in srgb, var(--ui-acento) 60%, transparent);
-  background: color-mix(in srgb, var(--ui-acento-suave) 12%, transparent);
-  transform: rotate(90deg);
+  color: var(--ui-texto);
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.eui-boton-redondo:active {
+  transform: scale(0.9);
 }
 
 .eui-boton-redondo:focus-visible {
@@ -188,33 +202,35 @@
 .eui-logo {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.65rem;
 }
 
-/* Marca: la "C" de la laptop, en un cuadro azul noche con borde de cristal */
+/* Marca: la "C" de la laptop en un ícono de app (squircle azul noche) */
 .eui-logo__marca {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--bg-dark);
-  border: 1px solid var(--ui-linea);
-  box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent-cyan) 18%, transparent);
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(160deg, #222a39, var(--bg-dark));
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 16px color-mix(in srgb, var(--accent-cyan) 16%, transparent),
+    0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .eui-logo__texto {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.18rem;
   min-width: 0;
 }
 
 .eui-logo__nombre {
   margin: 0;
-  font: 700 1.02rem/1 var(--fuente-ui-titulos);
-  letter-spacing: 0.02em;
+  font: 700 1rem/1 var(--fuente-ui-titulos);
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
@@ -229,158 +245,422 @@
   margin: 0;
   color: var(--ui-texto-tenue);
   font-size: 0.74rem;
+  letter-spacing: -0.005em;
   white-space: nowrap;
 }
 
 /* ------------------------------------------------------------ Carga */
 
+/*
+ * Pantalla de carga: la mascota camina hacia la sala sobre un suelo que
+ * avanza. --carga-color es la luz de la sala (cian en el taller, el color de
+ * cada integrante en su oficina). data-fase: cargando → listo → entrando.
+ */
 .eui-carga {
+  --carga-color: var(--accent-cyan);
   position: fixed;
   inset: 0;
   z-index: 50;
   display: grid;
-  place-items: center;
-  padding: 1.5rem;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.1rem 1.5rem;
   overflow: hidden;
+  color: #fff;
   background:
     radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--accent-green) 16%, transparent),
-      transparent 38%
+      55% 42% at 50% 40%,
+      color-mix(in srgb, var(--carga-color) 24%, transparent),
+      transparent 70%
     ),
     radial-gradient(
-      circle at 58% 55%,
-      color-mix(in srgb, var(--accent-cyan) 12%, transparent),
-      transparent 45%
+      80% 50% at 50% 115%,
+      color-mix(in srgb, var(--accent-green) 12%, transparent),
+      transparent 70%
     ),
     var(--bg-dark);
 }
 
-/* Anillos concéntricos de fondo, como en el hero */
-.eui-carga__anillos {
+/* Suelo: cuadrícula en perspectiva que se acerca (la mascota avanza) */
+.eui-carga__suelo {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(1100px, 160vmax);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
+  left: -60%;
+  right: -60%;
+  bottom: -8%;
+  height: 170%; /* inclinado queda en el tercio de abajo de la pantalla */
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--carga-color) 38%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--carga-color) 26%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 64px 64px;
+  transform: perspective(900px) rotateX(60deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 20%, transparent 80%);
+  mask-image: linear-gradient(to top, #000 20%, transparent 80%);
   pointer-events: none;
 }
 
-.eui-carga__anillos circle {
-  fill: none;
-  stroke: var(--ui-linea);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.eui-carga__logo {
+  position: relative;
+  justify-self: start;
 }
 
-.eui-carga__caja {
+.eui-carga__centro {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
-  width: min(440px, 100%);
-  padding: 2.1rem 1.9rem 1.9rem;
+  justify-content: center;
+  gap: 0.85rem;
+  width: min(420px, 100%);
   text-align: center;
-  border-radius: var(--ui-radio-grande);
 }
 
-.eui-carga__ilustracion {
+/* La mascota (el póster del hero), su halo y su sombra */
+.eui-carga__escena {
   position: relative;
-  width: 220px;
-  height: 140px;
+  width: 168px;
+  height: 196px;
+  margin-bottom: 0.5rem;
 }
 
-.eui-carga__svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.eui-carga__trazo {
-  fill: none;
-  stroke: var(--accent-cyan);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.eui-carga__trazo--destacado {
-  stroke: var(--accent-green);
-}
-
-.eui-carga__engranaje {
+.eui-carga__halo {
   position: absolute;
-  display: grid;
-  color: var(--accent-cyan);
+  inset: 8% -10% 18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--carga-color) 42%, transparent),
+    transparent 66%
+  );
+  filter: blur(12px);
 }
 
-.eui-carga__engranaje--a {
-  right: -6px;
-  bottom: -6px;
+/* La base del cuerpo queda a ~22% del borde inferior del póster */
+.eui-carga__sombra {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: 104px;
+  height: 18px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
 }
 
-.eui-carga__engranaje--b {
-  right: 26px;
-  bottom: 22px;
-  color: var(--accent-green);
+.eui-carga__cuerpo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: block;
+  transform-origin: 50% 100%;
+}
+
+.eui-carga__mascota {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 26px color-mix(in srgb, var(--carga-color) 45%, transparent));
 }
 
 .eui-carga__titulo {
   margin: 0;
+  font-family: var(--fuente-ui-titulos);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 2.85rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 
 .eui-carga__mensaje {
-  min-height: 1.4em;
-  margin: 0;
-  color: var(--ui-acento-suave);
-  font-size: 0.82rem;
+  min-height: 1.45em;
+  margin: -0.25rem 0 0.35rem;
+  font-size: 0.98rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ui-texto-tenue);
+}
+
+.eui-carga__mensaje span {
+  display: inline-block;
+}
+
+/* Barra de progreso, como la de descarga de iOS, con la luz de la sala */
+.eui-carga__progreso {
+  width: min(320px, 100%);
 }
 
 .eui-carga__barra {
-  width: 100%;
   height: 6px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--ui-texto) 10%, transparent);
+  background: var(--ui-relleno-fuerte);
   border-radius: 999px;
 }
 
 .eui-carga__relleno {
   height: 100%;
-  background: var(--accent-gradient);
+  background: linear-gradient(90deg, var(--accent-green), var(--carga-color));
   border-radius: inherit;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
-  transition: width 0.35s var(--easing-ui);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--carga-color) 70%, transparent);
+  transform-origin: left;
+  transition: transform 0.45s var(--easing-ui);
 }
 
 .eui-carga__porcentaje {
-  margin: -0.45rem 0 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.76rem;
   color: var(--ui-texto-tenue);
-  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.eui-carga__entrar {
+  min-height: 3rem;
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+}
+
+/* El botón espera (sin ocupar la vista) hasta que la sala está lista */
+.eui-carga[data-fase='cargando'] .eui-carga__entrar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Consejos para moverse: cápsulas de vidrio abajo */
+.eui-carga__consejos {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eui-carga__consejos li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(235, 240, 245, 0.82);
+  background: var(--ui-relleno);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+  border: 0.5px solid var(--ui-linea);
+  border-radius: 999px;
+}
+
+.eui-carga__consejos svg {
+  color: var(--carga-color);
+}
+
+@media (min-width: 700px) {
+  .eui-carga {
+    padding: 1.25rem 1.5rem 2rem;
+  }
+
+  .eui-carga__escena {
+    width: 196px;
+    height: 226px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Caminando: dos saltitos por ciclo, balanceándose a cada lado */
+  .eui-carga[data-fase='cargando'] .eui-carga__cuerpo {
+    animation: carga-paso 1.1s linear infinite;
+  }
+
+  .eui-carga[data-fase='cargando'] .eui-carga__sombra {
+    animation: carga-sombra 0.55s ease-in-out infinite alternate;
+  }
+
+  .eui-carga[data-fase='cargando'] .eui-carga__suelo {
+    animation: carga-suelo 1.1s linear infinite;
+  }
+
+  /* Lista: se para, salta contenta y se queda flotando */
+  .eui-carga[data-fase='listo'] .eui-carga__cuerpo {
+    animation:
+      carga-feliz 1.15s cubic-bezier(0.3, 0.7, 0.4, 1) both,
+      carga-flotar 3.2s ease-in-out 1.15s infinite;
+  }
+
+  .eui-carga[data-fase='listo'] .eui-carga__sombra {
+    animation: carga-sombra-feliz 1.15s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  }
+
+  /* Al entrar: salta hacia la sala */
+  .eui-carga[data-fase='entrando'] .eui-carga__cuerpo {
+    animation: carga-entrar 0.7s cubic-bezier(0.5, 0, 0.75, 0) both;
+  }
+
+  .eui-carga__mensaje span {
+    animation: carga-mensaje 0.45s var(--easing-ui) both;
+  }
+
+  .eui-carga__consejos li {
+    animation: carga-mensaje 0.6s var(--easing-ui) both;
+    animation-delay: calc(0.3s + var(--i) * 0.1s);
+  }
+}
+
+@keyframes carga-paso {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.07, 0.9) rotate(-4deg);
+  }
+  12% {
+    transform: translateY(-7px) scale(0.96, 1.06) rotate(-2deg);
+  }
+  25% {
+    transform: translateY(-18px) scale(1, 1.02) rotate(0deg);
+  }
+  38% {
+    transform: translateY(-7px) scale(0.97, 1.04) rotate(2deg);
+  }
+  50% {
+    transform: translateY(0) scale(1.07, 0.9) rotate(4deg);
+  }
+  62% {
+    transform: translateY(-7px) scale(0.96, 1.06) rotate(2deg);
+  }
+  75% {
+    transform: translateY(-18px) scale(1, 1.02) rotate(0deg);
+  }
+  88% {
+    transform: translateY(-7px) scale(0.97, 1.04) rotate(-2deg);
+  }
+}
+
+@keyframes carga-sombra {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.78);
+    opacity: 0.6;
+  }
+}
+
+@keyframes carga-suelo {
+  to {
+    background-position: 0 64px;
+  }
+}
+
+@keyframes carga-feliz {
+  0% {
+    transform: translateY(0) scale(1.06, 0.92);
+  }
+  16% {
+    transform: translateY(0) scale(1.14, 0.84);
+  }
+  40% {
+    transform: translateY(-48px) scale(0.93, 1.1) rotate(-7deg);
+  }
+  56% {
+    transform: translateY(-52px) scale(1, 1) rotate(5deg);
+  }
+  76% {
+    transform: translateY(0) scale(1.12, 0.86) rotate(0deg);
+  }
+  88% {
+    transform: translateY(-7px) scale(0.98, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes carga-sombra-feliz {
+  40%,
+  56% {
+    transform: scale(0.55);
+    opacity: 0.45;
+  }
+}
+
+@keyframes carga-flotar {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes carga-entrar {
+  to {
+    transform: translateY(-40px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes carga-mensaje {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 /* ------------------------------------------------------------ HUD */
 
+/* Logo: cápsula de vidrio arriba a la izquierda */
 .eui-titulo {
   position: fixed;
   top: 1rem;
   left: 1rem;
   z-index: 20;
-  padding: 0.55rem 1.1rem 0.55rem 0.55rem;
-  border-radius: 999px 20px 20px 999px;
+  padding: 0.35rem 1.15rem 0.35rem 0.35rem;
+  border-radius: 999px;
 }
 
+.eui-titulo .eui-logo__marca {
+  border-radius: 50%;
+}
+
+/* Controles: una sola barra de vidrio, como la de herramientas de iOS */
 .eui-botones {
   position: fixed;
   top: 1rem;
   right: 1rem;
   z-index: 20;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  max-width: 60vw;
+  gap: 0.2rem;
+  padding: 0.3rem;
+  background: var(--ui-cristal);
+  backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  border: 0.5px solid var(--ui-linea);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.14),
+    var(--ui-sombra);
+}
+
+.eui-botones .eui-boton {
+  min-height: 2.35rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.75rem;
+  background: transparent;
+}
+
+.eui-botones .eui-boton:hover {
+  background: var(--ui-relleno);
+}
+
+.eui-botones .eui-boton[aria-pressed='true'] {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .eui-secundarios {
@@ -392,6 +672,22 @@
   gap: 0.5rem;
 }
 
+/* Botones sueltos sobre la escena: cápsulas de vidrio */
+.eui-secundarios .eui-boton {
+  min-height: 2.6rem;
+  background: var(--ui-cristal);
+  backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--ui-desenfoque)) saturate(180%);
+  box-shadow:
+    inset 0 0 0 0.5px var(--ui-linea),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.14),
+    var(--ui-sombra);
+}
+
+.eui-secundarios .eui-boton:hover {
+  background: color-mix(in srgb, var(--ui-cristal) 70%, rgba(255, 255, 255, 0.3));
+}
+
 .eui-pista {
   position: fixed;
   left: 50%;
@@ -399,34 +695,36 @@
   z-index: 15;
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.85rem;
   transform: translateX(-50%);
-  padding: 0.5rem 0.6rem 0.5rem 1rem;
+  margin: 0;
+  padding: 0.4rem 0.45rem 0.4rem 1.05rem;
   color: var(--ui-texto-tenue);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   white-space: nowrap;
   border-radius: 999px;
 }
 
 .eui-pista__atajos {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
 
+/* Teclas como las del teclado de Mac: blancas translúcidas con borde inferior */
 .eui-pista kbd {
   display: inline-grid;
   place-items: center;
-  min-width: 1.6rem;
-  height: 1.6rem;
-  padding: 0 0.35rem;
-  border: 1px solid var(--ui-linea);
-  border-radius: 8px;
+  min-width: 1.75rem;
+  height: 1.65rem;
+  padding: 0 0.4rem;
+  border-radius: 7px;
   color: var(--ui-texto);
-  background: color-mix(in srgb, var(--ui-texto) 6%, transparent);
-  font-family: var(--fuente-codigo);
-  font-size: 0.68rem;
+  background: var(--ui-relleno-fuerte);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  font: 600 0.7rem/1 var(--fuente-ui);
 }
 
+/* "Escena en pausa": la isla de estado arriba al centro */
 .eui-pausado {
   position: fixed;
   left: 50%;
@@ -437,10 +735,16 @@
   gap: 0.45rem;
   transform: translateX(-50%);
   margin: 0;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.78rem;
-  color: var(--ui-acento-suave);
+  padding: 0.55rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ui-texto);
+  background: rgba(8, 10, 14, 0.88);
   border-radius: 999px;
+}
+
+.eui-pausado svg {
+  color: var(--ui-acento-suave);
 }
 
 /* ------------------------------------------------------------ Tooltip */
@@ -449,10 +753,10 @@
   position: fixed;
   z-index: 30;
   display: grid;
-  gap: 0.2rem;
+  gap: 0.15rem;
   pointer-events: none;
-  padding: 0.5rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.55rem 0.9rem 0.6rem;
+  border-radius: 16px;
   transform: translate(16px, 16px);
 }
 
@@ -461,21 +765,23 @@
 }
 
 .eui-tooltip__nombre {
-  font: 600 0.9rem/1.2 var(--fuente-ui-titulos);
+  font: 600 0.92rem/1.2 var(--fuente-ui-titulos);
+  letter-spacing: -0.015em;
 }
 
-/* ------------------------------------------------------------ Panel */
+/* ------------------------------------------------------------ Panel (hoja) */
 
 .eui-panel {
   position: fixed;
-  top: 5rem;
+  top: 4.75rem;
   right: 1rem;
   bottom: 1rem;
   z-index: 25;
   display: flex;
   flex-direction: column;
-  width: 390px;
+  width: 400px;
   max-width: calc(100vw - 2rem);
+  background: var(--ui-cristal-denso);
   border-radius: var(--ui-radio-grande);
   overflow: hidden;
 }
@@ -491,19 +797,25 @@
 .eui-panel__cuerpo {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem 1.5rem 1rem;
+  padding: 1.4rem 1.4rem 1rem;
+  scrollbar-width: none;
+}
+
+.eui-panel__cuerpo::-webkit-scrollbar {
+  display: none;
 }
 
 .eui-panel__cerrar {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.1rem;
+  right: 1.1rem;
+  z-index: 1;
 }
 
 .eui-panel__titulo {
-  margin: 0.7rem 2.75rem 1.1rem 0;
-  font: 700 1.45rem/1.15 var(--fuente-ui-titulos);
-  letter-spacing: -0.01em;
+  margin: 0.45rem 2.75rem 1.1rem 0;
+  font: 700 1.65rem/1.1 var(--fuente-ui-titulos);
+  letter-spacing: -0.03em;
 }
 
 .eui-panel__preview {
@@ -511,17 +823,23 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   margin-bottom: 1.1rem;
-  border: 1px solid var(--ui-linea);
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--bg-dark);
+  box-shadow:
+    inset 0 0 0 0.5px var(--ui-linea),
+    0 12px 30px -16px rgba(0, 0, 0, 0.7);
 }
 
+/* Texto en una tarjeta agrupada, como una celda de iOS */
 .eui-panel__info {
   margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
   white-space: pre-line;
-  color: var(--ui-texto-tenue);
+  color: rgba(235, 240, 245, 0.78);
   font-size: 0.93rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  background: var(--ui-relleno);
+  border-radius: 16px;
 }
 
 /* Texto aún sin escribir: líneas de marcador con un brillo que las recorre */
@@ -543,7 +861,7 @@
         transparent
       )
       0 0 / 200% 100% no-repeat,
-    color-mix(in srgb, var(--ui-texto) 9%, transparent);
+    var(--ui-relleno);
   animation: eui-brillo 2.4s var(--easing-ui) infinite;
 }
 
@@ -566,12 +884,26 @@
   }
 }
 
+/* Acciones: la principal a todo el ancho, el resto en cápsulas grises */
 .eui-panel__acciones {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.95rem 1.5rem 1.2rem;
-  border-top: 1px solid var(--ui-linea);
+  padding: 0.85rem 1.4rem 1.3rem;
+  border-top: 0.5px solid var(--ui-linea);
+}
+
+.eui-panel__acciones .eui-boton {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.45rem 1rem;
+}
+
+.eui-panel__acciones .eui-boton--primario {
+  flex-basis: 100%;
+  min-height: 3rem;
+  font-size: 0.95rem;
 }
 
 /* ------------------------------------------------------------ Menú de pausa y versión simple */
@@ -583,18 +915,24 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: color-mix(in srgb, var(--bg-dark) 55%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg-dark) 40%, transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
 .eui-menu {
-  width: min(760px, 100%);
+  width: min(720px, 100%);
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  padding: 1.6rem;
+  padding: 1.5rem;
   background: var(--ui-cristal-denso);
-  border-radius: var(--ui-radio-grande);
+  border-radius: 34px;
+  scrollbar-width: none;
+}
+
+.eui-menu::-webkit-scrollbar {
+  display: none;
 }
 
 .eui-menu__cabecera {
@@ -602,44 +940,56 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.5rem;
-  padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--ui-linea);
+  margin-bottom: 0.25rem;
 }
 
+/* Título grande, como los de las apps de iOS */
 .eui-menu__titulo {
   margin: 0;
-  font: 700 1.4rem/1.15 var(--fuente-ui-titulos);
+  font: 700 2rem/1.1 var(--fuente-ui-titulos);
+  letter-spacing: -0.035em;
 }
 
 .eui-menu__seccion {
-  margin: 1.35rem 0 0.7rem;
+  margin: 1.4rem 0 0.65rem 0.25rem;
 }
 
+/* Accesos directos: baldosas como las del Centro de control */
 .eui-menu__rejilla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 0.5rem;
 }
 
-/* Botones del menú: fila con el icono en una baldosa (como los servicios del header) */
 .eui-menu__rejilla .eui-boton {
   justify-content: flex-start;
-  min-height: 3rem;
-  padding: 0.35rem 0.9rem 0.35rem 0.35rem;
-  border-radius: 14px;
+  gap: 0.7rem;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.5rem;
+  border-radius: 18px;
   text-align: left;
   white-space: normal;
   line-height: 1.25;
 }
 
+/* Ícono de app (squircle) con el color de cada grupo */
 .eui-menu__rejilla .eui-boton__icono {
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 10px;
-  color: var(--ui-acento-suave);
-  background: var(--bg-dark);
-  border: 1px solid var(--ui-linea);
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.35);
+}
+
+.eui-menu__rejilla[data-grupo='puerta'] .eui-boton__icono {
+  color: #fff;
+  background: linear-gradient(160deg, #ffb340, #ff8a1f);
+}
+
+.eui-menu__rejilla[data-grupo='objeto'] .eui-boton__icono {
+  color: #fff;
+  background: linear-gradient(160deg, #6e8bff, #4a63e6);
 }
 
 .eui-menu__fila {
@@ -650,10 +1000,172 @@
 }
 
 .eui-menu__dato {
+  margin: 0.55rem 0 0 0.25rem;
   color: var(--ui-texto-tenue);
   font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Lista agrupada (Ambiente): celdas con ícono, texto e interruptor */
+.eui-grupo {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  background: var(--ui-relleno);
+  border-radius: 18px;
+}
+
+.eui-celda {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.1rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.6rem;
+  font: 500 0.95rem/1.2 var(--fuente-ui);
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: var(--ui-texto);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--duracion-ui) var(--easing-ui);
+}
+
+.eui-celda:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.eui-celda:focus-visible {
+  outline: 2px solid var(--ui-acento);
+  outline-offset: -2px;
+}
+
+/* Separador fino que empieza después del ícono */
+.eui-grupo li + li .eui-celda::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 3.35rem;
+  right: 0;
+  height: 0.5px;
+  background: var(--ui-linea);
+}
+
+.eui-celda__icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(160deg, #6e6bff, #4b47d6);
+}
+
+.eui-celda__icono[data-tono='sonido'] {
+  background: linear-gradient(160deg, #ff5e7a, #e5364f);
+}
+
+.eui-celda__texto {
+  flex: 1;
+}
+
+/* Interruptor de iOS */
+.eui-interruptor {
+  position: relative;
+  flex-shrink: 0;
+  width: 51px;
+  height: 31px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.36);
+  transition: background-color 0.25s var(--easing-ui);
+}
+
+.eui-interruptor::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.15),
+    0 3px 1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.5, 1);
+}
+
+[aria-checked='true'] > .eui-interruptor {
+  background: var(--accent-green);
+}
+
+[aria-checked='true'] > .eui-interruptor::after {
+  transform: translateX(20px);
+}
+
+/* Control segmentado (Calidad gráfica) */
+.eui-segmentado {
+  position: relative;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  padding: 2px;
+  background: rgba(118, 118, 128, 0.24);
+  border-radius: 11px;
+}
+
+.eui-segmentado button {
+  position: relative;
+  min-height: 2.1rem;
+  padding: 0 0.6rem;
+  font: 500 0.85rem/1 var(--fuente-ui);
+  letter-spacing: -0.01em;
+  color: var(--ui-texto);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  transition:
+    background-color 0.25s var(--easing-ui),
+    color 0.25s var(--easing-ui),
+    box-shadow 0.25s var(--easing-ui);
+}
+
+/* Separadores entre segmentos (se esconden junto al elegido) */
+.eui-segmentado button + button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 0.5px;
+  background: var(--ui-linea);
+  transition: opacity 0.2s var(--easing-ui);
+}
+
+.eui-segmentado button[aria-pressed='true']::before,
+.eui-segmentado button[aria-pressed='true'] + button::before {
+  opacity: 0;
+}
+
+.eui-segmentado button[aria-pressed='true'] {
+  font-weight: 600;
+  background: #636366;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.2),
+    0 0.5px 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+.eui-segmentado button:focus-visible {
+  outline: 2px solid var(--ui-acento);
+  outline-offset: 1px;
+}
+
+/* Versión simple: texto de lectura en tarjetas agrupadas */
 .eui-simple a {
   color: var(--ui-acento-suave);
   text-underline-offset: 3px;
@@ -661,12 +1173,18 @@
 
 .eui-simple ul {
   margin: 0;
-  padding-left: 1.1rem;
-  line-height: 1.6;
+  padding: 0.25rem 1rem 0.25rem 2rem;
+  line-height: 1.55;
+  background: var(--ui-relleno);
+  border-radius: 18px;
+}
+
+.eui-simple li {
+  padding: 0.65rem 0;
 }
 
 .eui-simple li + li {
-  margin-top: 0.5rem;
+  border-top: 0.5px solid var(--ui-linea);
 }
 
 .eui-simple li::marker {
@@ -676,13 +1194,17 @@
 .eui-simple p {
   margin: 0.15rem 0 0;
   color: var(--ui-texto-tenue);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
 }
 
 /* Las etiquetas de sección también son <p>: recuperar su margen y tamaño */
 .eui-simple .eui-menu__seccion {
-  margin: 1.6rem 0 0.8rem;
+  margin: 1.5rem 0 0.65rem 0.25rem;
   font-size: 0.8rem;
+}
+
+.eui-simple .eui-menu__titulo {
+  font-size: 1.6rem;
 }
 
 /* ------------------------------------------------------------ Puerta: la luz inunda la pantalla */
@@ -698,12 +1220,15 @@
 @media (prefers-reduced-motion: reduce) {
   .eui-boton,
   .eui-boton-redondo,
-  .eui-boton__flecha {
+  .eui-boton__flecha,
+  .eui-interruptor,
+  .eui-interruptor::after,
+  .eui-segmentado button {
     transition: none;
   }
 
-  .eui-boton-redondo:hover,
-  .eui-boton--primario:hover,
+  .eui-boton:active,
+  .eui-boton-redondo:active,
   .eui-boton--primario:hover .eui-boton__flecha {
     transform: none;
   }
@@ -715,47 +1240,33 @@
   .eui-titulo {
     top: 0.75rem;
     left: 0.75rem;
-    padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+    padding: 0.3rem 0.95rem 0.3rem 0.3rem;
   }
 
   .eui-logo__marca {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
   }
 
   .eui-titulo .eui-logo__sub {
     display: none;
   }
 
+  /* Controles: barra flotante abajo, como la barra de pestañas de iOS */
   .eui-botones {
     top: auto;
     right: 0.75rem;
     left: 0.75rem;
-    bottom: 0.75rem;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
     justify-content: space-between;
-    flex-wrap: nowrap;
-    max-width: none;
-    padding: 0.4rem;
-    border-radius: 999px;
-    background: var(--ui-cristal);
-    backdrop-filter: blur(var(--ui-desenfoque));
-    -webkit-backdrop-filter: blur(var(--ui-desenfoque));
-    border: 1px solid var(--ui-linea);
+    padding: 0.35rem;
   }
 
   .eui-botones .eui-boton {
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 2.9rem;
+    height: 2.9rem;
     padding: 0;
-    border-color: transparent;
-    background: transparent;
-    backdrop-filter: none;
-  }
-
-  .eui-botones .eui-boton[aria-pressed='true'] {
-    background: color-mix(in srgb, var(--ui-acento-suave) 16%, transparent);
   }
 
   .eui-boton__texto {
@@ -770,7 +1281,8 @@
   }
 
   .eui-secundarios .eui-boton {
-    width: 2.6rem;
+    width: 2.65rem;
+    min-height: 2.65rem;
     padding: 0;
     justify-content: center;
   }
@@ -779,44 +1291,76 @@
     display: none;
   }
 
+  .eui-pausado {
+    top: 4.25rem;
+  }
+
   /* Panel como hoja inferior deslizable */
   .eui-panel,
   .eui-panel--ancho {
     top: auto;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
+    right: 0.5rem;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    width: auto;
     max-width: none;
-    max-height: 55vh;
-    border-radius: var(--ui-radio-grande) var(--ui-radio-grande) 0 0;
-    border-bottom: none;
+    max-height: 58vh;
+    border-radius: 32px;
     touch-action: none;
   }
 
   .eui-panel__asa {
     display: block;
-    width: 44px;
+    width: 36px;
     height: 5px;
-    margin: 0.6rem auto 0;
+    margin: 0.5rem auto 0;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--ui-texto) 35%, transparent);
+    background: rgba(255, 255, 255, 0.3);
     cursor: grab;
   }
 
   .eui-panel__cuerpo {
+    padding: 0.9rem 1.2rem 0.75rem;
     touch-action: pan-y;
   }
 
+  .eui-panel__cerrar {
+    top: 1.15rem;
+    right: 1.1rem;
+  }
+
+  .eui-panel__titulo {
+    font-size: 1.45rem;
+  }
+
   .eui-panel__preview {
-    max-height: 22vh;
+    max-height: 20vh;
+  }
+
+  .eui-panel__acciones {
+    padding: 0.75rem 1.2rem 1rem;
+  }
+
+  .eui-velo {
+    align-items: end;
+    padding: 0.5rem;
   }
 
   .eui-menu {
-    padding: 1.1rem;
+    padding: 1.2rem 1rem 1rem;
+    border-radius: 32px;
+  }
+
+  .eui-menu__titulo {
+    font-size: 1.7rem;
   }
 
   .eui-menu__rejilla {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .eui-menu__rejilla .eui-boton {
+    gap: 0.55rem;
+    font-size: 0.82rem;
   }
 }

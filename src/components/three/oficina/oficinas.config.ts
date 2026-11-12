@@ -10,7 +10,7 @@
  * puerta de salida (vuelta al taller) está en la pared izquierda, la
  * ventana en la derecha y el escritorio contra la pared del fondo.
  */
-import { aplicarConfigSala, type Colocacion } from '../estudio/estudio.config';
+import { aplicarConfigSala, type Colocacion, type PuntoMascota } from '../estudio/estudio.config';
 
 type V3 = [number, number, number];
 
@@ -38,6 +38,32 @@ export const salaOficina = {
     alfombra: { pos: [0, 0.005, 0.35], rotY: 0 } as Colocacion,
     alfombraTam: [3.2, 2.1] as [number, number],
     plantas: [{ pos: [2.95, 0, 2.55], rotY: 0.6 }] as Colocacion[],
+  },
+  /** Paseo de la mascota por la oficina (ver estudio.config.ts). */
+  mascota: {
+    alto: 0.42,
+    inicio: 6,
+    puntos: [
+      { pos: [-0.2, -0.3] }, // 0 centro
+      { pos: [2.0, -0.2], mirar: [3.49, 1.5, 1.2] }, // 1 ventana
+      { pos: [1.4, 1.1] }, // 2 delante a la derecha
+      { pos: [-1.2, 1.2], mirar: [-3.48, 1.1, 1.55] }, // 3 puerta al taller
+      { pos: [-1.1, -0.9], mirar: [-2.6, 0.8, -0.8] }, // 4 lo de su gusto (a la izquierda)
+      { pos: [2.0, -1.2], mirar: [3.3, 1.2, -1.55] }, // 5 estantería
+      { pos: [0.35, -0.8], mirar: [0.35, 1.7, -2.97] }, // 6 escritorio y tablero
+    ] as PuntoMascota[],
+    conexiones: [
+      [0, 1],
+      [1, 2],
+      [0, 3],
+      [3, 2],
+      [0, 4],
+      [4, 6],
+      [6, 5],
+      [5, 1],
+      [0, 6],
+      [2, 0],
+    ] as [number, number][],
   },
   camara: {
     fov: 58,

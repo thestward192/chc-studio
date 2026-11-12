@@ -6,20 +6,22 @@ export interface EnlaceNav {
 }
 
 export const enlacesNav: EnlaceNav[] = [
-  { id: 'nosotros', etiqueta: 'Nosotros' },
+  // Mismo orden que las secciones en la página
   { id: 'servicios', etiqueta: 'Servicios' },
   { id: 'proyectos', etiqueta: 'Proyectos' },
+  { id: 'nosotros', etiqueta: 'Nosotros' },
   { id: 'contacto', etiqueta: 'Contacto' },
 ];
 
 export const ctaNav = { etiqueta: 'Hablemos', destino: 'contacto' };
 
 export const hero = {
+  /** Línea corta sobre el titular, como el nombre del producto en Apple. */
+  antetitulo: 'CHC Studio',
   /** Cada elemento es una línea; `destacado` va con el degradado de marca. */
   titular: [
-    [{ texto: 'Tecnología que' }],
-    [{ texto: 'hace ' }, { texto: 'crecer tu', destacado: true }],
-    [{ texto: 'negocio.', destacado: true }],
+    [{ texto: 'Tecnología que hace' }],
+    [{ texto: 'crecer tu negocio.', destacado: true }],
   ] as { texto: string; destacado?: boolean }[][],
   subtitulo:
     'Desarrollamos páginas web, sistemas y automatizaciones para empresas y negocios en Costa Rica.',
